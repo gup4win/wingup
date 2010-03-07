@@ -1,0 +1,15 @@
+<?xml version=\"1.0\"?>
+<GUP>
+	<!-- Mandatory. 
+	This parameter tell GUP if the program (on the client side) is need to be updated (regarding to its provided current version).
+	-->
+	<NeedToBeUpdated>yes</NeedToBeUpdated>
+	<!-- Mandatory if NeedToBeUpdated value is yes.
+	This parameter indicates the update package's version.
+	-->
+	<Version>4.7</Version>
+	<!-- Mandatory if NeedToBeUpdated value is yes.
+	This parameter provides the download location of update package.
+	-->
+	<Location>http://sourceforge.net/project/download/npp.4.7.Installer.exe</Location>
+</GUP>

@@ -1,0 +1,3 @@
+GUPv1.8 new feature (from v1.7)
+
+1. Add the third button for updater message box. Add an action to send the message if the third button is enable. The 3rd button (action) is used to implement "do not bother me anymore" feature on the caller of updater.
