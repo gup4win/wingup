@@ -240,6 +240,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\src\gup.exe.manifest"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

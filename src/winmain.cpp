@@ -511,7 +511,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 		// execute the installer
 		HINSTANCE result = ::ShellExecuteA(NULL, "open", dlDest.c_str(), "", ".", SW_SHOW);
         
-        if ((unsigned long)result <= 32) // There's a problem (Don't ask me why, ask Microsoft)
+        if (result <= (HINSTANCE)32) // There's a problem (Don't ask me why, ask Microsoft)
         {
             return -1;
         }   

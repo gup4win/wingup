@@ -50,9 +50,9 @@ TiXmlString::TiXmlString (const char* instring)
     newstring = new char [newlen];
     memcpy (newstring, instring, newlen);
     // strcpy (newstring, instring);
-    allocated = newlen;
+    allocated = (unsigned int)newlen;
     cstring = newstring;
-    current_length = newlen - 1;
+    current_length = (unsigned int)(newlen - 1);
 }
 
 // TiXmlString copy constructor
@@ -92,7 +92,7 @@ void TiXmlString ::operator = (const char * content)
         empty_it ();
         return;
     }
-    newlen = strlen (content) + 1;
+    newlen = (unsigned int)(strlen(content) + 1);
     newstring = new char [newlen];
     // strcpy (newstring, content);
     memcpy (newstring, content, newlen);
@@ -140,7 +140,7 @@ void TiXmlString::append( const char* str, int len )
     char * new_string;
     unsigned new_alloc, new_size, size_suffix;
 
-    size_suffix = strlen (str);
+    size_suffix = (unsigned int)(strlen (str));
     if (len < (int) size_suffix)
         size_suffix = len;
     if (! size_suffix)
@@ -259,7 +259,7 @@ unsigned TiXmlString::find (char tofind, unsigned offset) const
         return (unsigned) notfound;
     for (lookup = cstring + offset; * lookup; lookup++)
         if (* lookup == tofind)
-            return lookup - cstring;
+            return (unsigned)(lookup - cstring);
     return (unsigned) notfound;
 }
 
