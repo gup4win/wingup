@@ -1,0 +1,36 @@
+<!--
+    Copyright 2007 Don HO <don.h@free.fr>
+	
+    This file is part of GUP.
+
+    GUP is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    GUP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with GUP.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<!-- This file is optional.
+Use this file to set your proxy settings if need.
+-->
+<?xml version="1.0" encoding="Windows-1251"?>
+<GUP_NativeLangue name = "Русский">
+	<PopupMessages>
+		<!-- <MSGID_NOUPDATE>No update is available.</MSGID_NOUPDATE> -->
+		<MSGID_NOUPDATE>Нет доступных обновлений.</MSGID_NOUPDATE>
+		<!-- <MSGID_UPDATEAVAILABLE>An update package is available, do you want to download it?</MSGID_UPDATEAVAILABLE> -->
+		<MSGID_UPDATEAVAILABLE>Доступно обновление. Хотите загрузить его?</MSGID_UPDATEAVAILABLE>
+		<!-- <MSGID_DOWNLOADSTOPPED>Download is stopped by user. Update is aborded.</MSGID_DOWNLOADSTOPPED> -->
+		<MSGID_DOWNLOADSTOPPED>Загрузка остановлена пользователем. Обновление отменено.</MSGID_DOWNLOADSTOPPED>
+		<!-- <MSGID_CLOSEAPP> is opened.\rUpdater will close it in order to process the installation.\rContinue?</MSGID_CLOSEAPP> -->
+		<MSGID_CLOSEAPP> запущен.\rПрограмма обновления закроет его, чтобы установить обновление.\rХотите продолжить?</MSGID_CLOSEAPP>
+		<!-- <MSGID_ABORTORNOT>Do you want to abort update download?</MSGID_ABORTORNOT> -->
+		<MSGID_ABORTORNOT>Отменить загрузку обновления?</MSGID_ABORTORNOT>
+	</PopupMessages>
+</GUP_NativeLangue>

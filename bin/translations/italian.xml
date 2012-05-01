@@ -20,7 +20,7 @@
 Use this file to set your proxy settings if need.
 -->
 <?xml version="1.0" encoding="Windows-1252"?>
-<GUP_NativeLangue name = "English">
+<GUP_NativeLangue name = "Italiano">
 	<PopupMessages>
 		<MSGID_NOUPDATE>Nessun aggiornamento disponibile.</MSGID_NOUPDATE>
 		<MSGID_UPDATEAVAILABLE>E' disponibile un aggiornamento, si desidera scaricarlo?</MSGID_UPDATEAVAILABLE>
