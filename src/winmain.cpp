@@ -38,12 +38,26 @@ static long proxyPort  = 0;
 const char FLAG_OPTIONS[] = "-options";
 const char FLAG_VERSION[] = "-v";
 const char FLAG_VERBOSE[] = "-verbose";
+const char FLAG_HELP[] = "--help";
 
 const char MSGID_NOUPDATE[] = "No update is available.";
 const char MSGID_UPDATEAVAILABLE[] = "An update package is available, do you want to download it?";
 const char MSGID_DOWNLOADSTOPPED[] = "Download is stopped by user. Update is aborded.";
 const char MSGID_CLOSEAPP[] = " is opened.\rUpdater will close it in order to process the installation.\rContinue?";
 const char MSGID_ABORTORNOT[] = "Do you want to abort update download?";
+const char MSGID_HELP[] = "Usage :\r\
+\r\
+gup --help\r\
+gup -options\r\
+gup [-verbose] [-vVERSION_VALUE]\r\
+\r\
+    --help : Show this help message (and quit program).\r\
+    -options : Show the proxy configuration dialog (and quit program).\r\
+    -v : Launch GUP with VERSION_VALUE.\r\
+         VERSION_VALUE is the current version number of program to update.\r\
+         If you pass the version number as the argument,\r\
+         then the version set in the gup.xml will be overrided.\r\
+    -verbose : Show error/warning message if any.";
 
 static bool isInList(const char *token2Find, char *list2Clean) {
 	char word[1024];
@@ -300,14 +314,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 
 	bool launchSettingsDlg = false;
 	bool isVerbose = false;
+	bool isHelp = false;
 	string version = "";
 
 	if (lpszCmdLine && lpszCmdLine[0])
 	{
 		launchSettingsDlg = isInList(FLAG_OPTIONS, lpszCmdLine);
 		isVerbose = isInList(FLAG_VERBOSE, lpszCmdLine);
+		isHelp = isInList(FLAG_HELP, lpszCmdLine);
 		version = getParamVal('v', lpszCmdLine);
 	}
+
+	if (isHelp)
+	{
+		::MessageBoxA(NULL, MSGID_HELP, "GUP Command Argument Help", MB_OK);
+		return 0;
+	}
+
 	hInst = hInstance;
 	try {
 		GupParameters gupParams("gup.xml");

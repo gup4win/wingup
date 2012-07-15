@@ -10,7 +10,7 @@
 		<mssv2:security>
 			<mssv2:requestedPrivileges>
 				<mssv2:requestedExecutionLevel
-				  level="requireAdministrator"
+				  level="asInvoker"
 				  uiAccess="false"/>
 			</mssv2:requestedPrivileges>
 		</mssv2:security>
