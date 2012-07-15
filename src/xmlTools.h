@@ -20,7 +20,6 @@
 #include "tinyxml.h"
 #include <string>
 
-using namespace std;
 
 class XMLTool {
 
@@ -30,13 +29,14 @@ protected:
 
 class GupParameters : public XMLTool {
 public:
-	GupParameters() : _currentVersion(""), _className2Close(""), _isSilentMode(true) {};
+	GupParameters() : _currentVersion(""), _className2Close(""), _isSilentMode(true), _userAgent("") {};
 	GupParameters(const char * xmlFileName);
 	
-	const string & getCurrentVersion() const { return _currentVersion;};
-	const string & getInfoLocation() const {return _infoUrl;};
-	const string & getClassName() const {return _className2Close;};
-	const string & getMessageBoxTitle() const {return _messageBoxTitle;};
+	const std::string & getCurrentVersion() const { return _currentVersion;};
+	const std::string & getInfoLocation() const {return _infoUrl;};
+	const std::string & getClassName() const {return _className2Close;};
+	const std::string & getMessageBoxTitle() const {return _messageBoxTitle;};
+	const std::string & getUserAgent() const {return _userAgent;};
 	int get3rdButtonCmd() const {return _3rdButton_wm_cmd;};
 	int get3rdButtonWparam() const {return _3rdButton_wParam;};
 	int get3rdButtonLparam() const {return _3rdButton_lParam;};
@@ -50,10 +50,11 @@ public:
 	bool isSilentMode() const {return _isSilentMode;};
 
 private:
-	string _currentVersion;
-	string _infoUrl;
-	string _className2Close;
-	string _messageBoxTitle;
+	std::string _currentVersion;
+	std::string _infoUrl;
+	std::string _className2Close;
+	std::string _messageBoxTitle;
+	std::string _userAgent;
 	int _3rdButton_wm_cmd;
 	int _3rdButton_wParam;
 	int _3rdButton_lParam;
@@ -63,13 +64,13 @@ private:
 class GupExtraOptions : public XMLTool {
 public:
 	GupExtraOptions(const char * xmlFileName);
-	const string & getProxyServer() const { return _proxyServer;};
+	const std::string & getProxyServer() const { return _proxyServer;};
 	long getPort() const { return _port;};
 	bool hasProxySettings(){return ((_proxyServer != "") && (_port != -1));};
 	void writeProxyInfo(const char *fn, const char *proxySrv, long port);
 
 private:
-	string _proxyServer;
+	std::string _proxyServer;
 	long _port;
 	//bool _hasProxySettings;
 };
@@ -79,14 +80,14 @@ public:
 	GupDownloadInfo() : _updateVersion(""), _updateLocation("") {};
 	GupDownloadInfo(const char * xmlString);
 	
-	const string & getVersion() const { return _updateVersion;};
-	const string & getDownloadLocation() const {return _updateLocation;};
+	const std::string & getVersion() const { return _updateVersion;};
+	const std::string & getDownloadLocation() const {return _updateLocation;};
 	bool doesNeed2BeUpdated() const {return _need2BeUpdated;};
 
 private:
 	bool _need2BeUpdated;
-	string _updateVersion;
-	string _updateLocation;
+	std::string _updateVersion;
+	std::string _updateLocation;
 };
 
 class GupNativeLang : public XMLTool {
@@ -95,7 +96,7 @@ public:
 		_xmlDoc.LoadFile(xmlFileName);
 		_nativeLangRoot = _xmlDoc.FirstChild("GUP_NativeLangue");
 	};
-	string getMessageString(string msgID);
+	std::string getMessageString(std::string msgID);
 
 protected:
 	TiXmlNode *_nativeLangRoot;

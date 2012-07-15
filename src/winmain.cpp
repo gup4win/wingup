@@ -25,6 +25,8 @@
 #include <shlwapi.h>
 #include "xmlTools.h"
 
+using namespace std;
+
 HINSTANCE hInst;
 static HWND hProgressDlg;
 static HWND hProgressBar;
@@ -34,16 +36,32 @@ static string msgBoxTitle = "";
 static string abortOrNot = "";
 static string proxySrv = "0.0.0.0";
 static long proxyPort  = 0;
+static string userAgent = "GUP Win32: Generic Updater for Win32";
+static string dlFileName = "";
 
 const char FLAG_OPTIONS[] = "-options";
 const char FLAG_VERSION[] = "-v";
 const char FLAG_VERBOSE[] = "-verbose";
+const char FLAG_HELP[] = "--help";
 
 const char MSGID_NOUPDATE[] = "No update is available.";
 const char MSGID_UPDATEAVAILABLE[] = "An update package is available, do you want to download it?";
 const char MSGID_DOWNLOADSTOPPED[] = "Download is stopped by user. Update is aborded.";
 const char MSGID_CLOSEAPP[] = " is opened.\rUpdater will close it in order to process the installation.\rContinue?";
 const char MSGID_ABORTORNOT[] = "Do you want to abort update download?";
+const char MSGID_HELP[] = "Usage :\r\
+\r\
+gup --help\r\
+gup -options\r\
+gup [-verbose] [-vVERSION_VALUE]\r\
+\r\
+    --help : Show this help message (and quit program).\r\
+    -options : Show the proxy configuration dialog (and quit program).\r\
+    -v : Launch GUP with VERSION_VALUE.\r\
+         VERSION_VALUE is the current version number of program to update.\r\
+         If you pass the version number as the argument,\r\
+         then the version set in the gup.xml will be overrided.\r\
+    -verbose : Show error/warning message if any.";
 
 static bool isInList(const char *token2Find, char *list2Clean) {
 	char word[1024];
@@ -203,8 +221,8 @@ static size_t setProgress(HWND hProgress,	double t, /* dltotal */
 	SendMessage(hProgressBar, PBM_SETSTEP, (WPARAM)step, 0);
 	SendMessage(hProgressBar, PBM_STEPIT, 0, 0);
 
-	char percentage[8];
-	sprintf(percentage, "%d %%", ratio);
+	char percentage[128];
+	sprintf(percentage, "Downloading %s: %d %%", dlFileName.c_str(), ratio);
 	::SetWindowTextA(hProgressDlg, percentage);
 	return 0;
 };
@@ -222,7 +240,7 @@ LRESULT CALLBACK progressBarDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARA
 		case WM_INITDIALOG:
 			hProgressDlg = hWndDlg;
 			hProgressBar = CreateWindowEx(0, PROGRESS_CLASS, NULL, WS_CHILD | WS_VISIBLE,
-										  20, 20, 260, 17,
+										  20, 20, 280, 17,
 										  hWndDlg, NULL, hInst, NULL);
 			SendMessage(hProgressBar, PBM_SETRANGE, 0, MAKELPARAM(0, 100)); 
 			SendMessage(hProgressBar, PBM_SETSTEP, 1, 0);
@@ -300,14 +318,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 
 	bool launchSettingsDlg = false;
 	bool isVerbose = false;
+	bool isHelp = false;
 	string version = "";
 
 	if (lpszCmdLine && lpszCmdLine[0])
 	{
 		launchSettingsDlg = isInList(FLAG_OPTIONS, lpszCmdLine);
 		isVerbose = isInList(FLAG_VERBOSE, lpszCmdLine);
+		isHelp = isInList(FLAG_HELP, lpszCmdLine);
 		version = getParamVal('v', lpszCmdLine);
 	}
+
+	if (isHelp)
+	{
+		::MessageBoxA(NULL, MSGID_HELP, "GUP Command Argument Help", MB_OK);
+		return 0;
+	}
+
 	hInst = hInstance;
 	try {
 		GupParameters gupParams("gup.xml");
@@ -364,6 +391,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, getUpdateInfo);
 			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &updateInfo);
+
+			string ua = gupParams.getUserAgent();
+			if (ua != "")
+				userAgent = ua;
+			curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent);
 			curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 
 			if (extraOptions.hasProxySettings())
@@ -435,6 +467,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
         if (strcmp(ext, ".exe") != 0)
             dlDest += ".exe";
 
+		dlFileName = ::PathFindFileNameA(gupDlInfo.getDownloadLocation().c_str());
+
 		pFile = fopen(dlDest.c_str(), "wb");
 
 		//  Download the install package from indicated location
@@ -451,6 +485,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 			curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, setProgress);
 			curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, hProgressBar);
 			
+			curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent);
+
 			curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 			
 			if (extraOptions.hasProxySettings())

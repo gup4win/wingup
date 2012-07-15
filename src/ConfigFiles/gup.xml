@@ -29,7 +29,14 @@
 	The tag "Version" value will be the parameter that your web application can use $_GET["version"] to get the current version of the program to be updated.
 	With the current version value, your web application should return a set of information in xml form to tell GUP update version and the location of update package to download.
 	-->
-	<InfoUrl>http://notepad-plus.sourceforge.net/commun/update/getDownLoadUrl.php</InfoUrl>
+	<!--InfoUrl>http://notepad-plus.sourceforge.net/commun/update/getDownLoadUrl.php</InfoUrl-->
+	<InfoUrl>http://notepad-plus-plus.org/update/getDownloadUrl.php</InfoUrl>
+
+	<!-- optional. 
+	The User-Agent you want to use to download your binary.
+	If this node is absent or empty, then "Generic Updater for Win32" will be used by default.
+	-->
+	<User-agent>Notepad++ Generic Updater</User-agent>
 
 	<!-- optional. 
 	The window class name of program that you want to update.

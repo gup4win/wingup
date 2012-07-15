@@ -19,6 +19,8 @@
 
 #include "xmlTools.h"
 
+using namespace std;
+
 GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _className2Close(""), _messageBoxTitle(""),\
                                                          _3rdButton_wm_cmd(0), _3rdButton_wParam(0), _3rdButton_lParam(0), _isSilentMode(true)
 {
@@ -123,6 +125,22 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 			}
 		}
 	}
+
+	
+	//
+	// Get optional parameters
+	//
+	TiXmlNode *userAgentNode = root->FirstChildElement("User-agent");
+	if (userAgentNode)
+	{
+		TiXmlNode *un = userAgentNode->FirstChild();
+		if (un)
+		{
+			const char *uaVal = un->Value();
+			if (uaVal)
+				_userAgent = uaVal;
+		}
+	}
 }
 
 GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _updateLocation("")
@@ -154,6 +172,9 @@ GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _
 
 	if (_need2BeUpdated)
 	{
+		//
+		// Get mandatory parameters
+		//
 		TiXmlNode *versionNode = root->FirstChildElement("Version");
 		if (versionNode)
 		{
@@ -236,7 +257,7 @@ void GupExtraOptions::writeProxyInfo(const char *fn, const char *proxySrv, long 
 	newProxySettings.SaveFile();
 }
 
-string GupNativeLang::getMessageString(string msgID)
+std::string GupNativeLang::getMessageString(std::string msgID)
 {
 	if (!_nativeLangRoot)
 		return "";
