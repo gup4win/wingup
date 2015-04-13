@@ -36,7 +36,7 @@ static string msgBoxTitle = "";
 static string abortOrNot = "";
 static string proxySrv = "0.0.0.0";
 static long proxyPort  = 0;
-static string userAgent = "GUP Win32: Generic Updater for Win32";
+static string userAgent = "WinGup/2.x (Generic Updater for Windows)";
 static string dlFileName = "";
 
 const char FLAG_OPTIONS[] = "-options";
