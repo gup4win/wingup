@@ -1,10 +1,10 @@
-What is GUP?
+What is WinGup?
 ------------
 
 WinGup is a Generic Updater running under Windows environment.
-The aim of GUP is to provide a ready to use and configurable updater
+The aim of WinGup is to provide a ready to use and configurable updater
 which downloads a update package then installs it. By using cURL library
-and TinyXml module, GUP is capable to deal with http protocol and process XML data.
+and TinyXml module, WinGup is capable to deal with http protocol and process XML data.
 
 
 Why WinGup?
