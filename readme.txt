@@ -38,7 +38,7 @@ regular intervals, then you may need WinGup to notice your users the new update.
 What do you need to use it?
 ---------------------------
 
-A url to provide the update information to your GUP and an another url location
+A url to provide the update information to your WinGup and an another url location
 to store your update package, that's it!
 
 
