@@ -18,7 +18,7 @@
 */
 
 #include <windows.h>
-#include <curl/curl.h>
+#include "../curl/include/curl/curl.h"
 #include <string>
 #include <commctrl.h>
 #include "resource.h"

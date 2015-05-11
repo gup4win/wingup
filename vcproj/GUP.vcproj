@@ -64,7 +64,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="libcurl.lib comctl32.lib shlwapi.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\src\libcurl"
+				AdditionalLibraryDirectories="..\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -105,6 +105,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -141,7 +142,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="libcurl.lib comctl32.lib shlwapi.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\src\libcurl"
+				AdditionalLibraryDirectories="..\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -171,7 +172,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\src\ConfigFiles\gup.xml ..\bin\gup.xml&#x0D;&#x0A;copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin\getDownLoadUrl.php&#x0D;&#x0A;copy ..\License.txt ..\bin\License.txt&#x0D;&#x0A;copy ..\gpl.txt ..\bin\gpl.txt&#x0D;&#x0A;copy ..\readme.txt ..\bin\readme.txt&#x0D;&#x0A;copy ..\src\libcurl\libcurl.dll ..\bin\libcurl.dll&#x0D;&#x0A;"
+				CommandLine="copy ..\src\ConfigFiles\gup.xml ..\bin\gup.xml&#x0D;&#x0A;copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin\getDownLoadUrl.php&#x0D;&#x0A;copy ..\License.txt ..\bin\License.txt&#x0D;&#x0A;copy ..\gpl.txt ..\bin\gpl.txt&#x0D;&#x0A;copy ..\readme.txt ..\bin\readme.txt&#x0D;&#x0A;copy ..\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin\libcurl.dll&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

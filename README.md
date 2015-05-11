@@ -1,5 +1,5 @@
 What is WinGup?
-------------
+---------------
 
 WinGup is a Generic Updater running under Windows environment.
 The aim of WinGup is to provide a ready to use and configurable updater
@@ -8,7 +8,7 @@ and TinyXml module, WinGup is capable to deal with http protocol and process XML
 
 
 Why WinGup?
---------
+-----------
 
 Originally WinGup was made for the need of Notepad++ (a generic source code editor under MS Windows).
 During its conception, the idea came up in my mind: if it can fit Notepad++, it can fit for any Windows program.
@@ -17,7 +17,7 @@ So here it is, with LGPL license to have no (almost not) restriction for integra
 
 
 How does it work?
-------------------
+-----------------
 
 WinGup can be launched by your program or manually. It reads from a xml configuration file
 for getting the current version of your program and url where WinGup gets update information,
@@ -44,11 +44,22 @@ to store your update package, that's it!
 
 
 How is WinGup easy to use?
------------------------
+--------------------------
 
 All you have to do is point WinGup to your url update page (by modifying gup.xml), 
 then work on your pointed url update page (see getDownLoadUrl.php comes with the release)
 to make sure it responds to your WinGup with the correct xml data.
+
+
+
+How to build it?
+----------------
+
+Before building WinGup, you have to build curl lib.
+Launch your Visual Studio Command Prompt then go to wingup\curl\winbuild, then launch the makefile:
+  cd wingup\curl\winbuild
+  nmake /f Makefile.vc mode=dll
+Once curl lib is generated, you can use VS2005 to build your WinGup.
 
 
 
