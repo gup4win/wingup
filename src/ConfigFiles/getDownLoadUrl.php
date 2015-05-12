@@ -15,25 +15,13 @@
     along with GUP.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<?php
-$lastestVersion = 4.5;
-$lastestVersionStr = "4.5";
-$DLURL = "http://sourceforge.net/project/downloading.php?group_id=95717&filename=npp.4.5.Installer.exe";
-$curentVersion = $_GET["version"];
 
-function curlhttp($url) 
-{ // Permet d'envoyer une requète http et de recevoir le résultat avec CURL
-	if (!$ch=curl_init($url)) 
-	{
-		return FALSE;
-	}
-	curl_setopt($ch, CURLOPT_HEADER, 0);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // Permet de renvoyer le résultat dans une variable
-	curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Time out après 10 secondes
-	$result=curl_exec($ch);
-	curl_close($ch);
-	return $result;
-}
+<?php
+// X.YZ
+$lastestVersion = 1.23;
+$lastestVersionStr = "1.2.3";
+$DLURL = "http://download.my-software.com/my-software/1.2.3/mySoftware.1.2.3.Installer.exe";
+$curentVersion = $_GET["version"];
 
 if ($curentVersion >= $lastestVersion)
 {
@@ -46,20 +34,13 @@ if ($curentVersion >= $lastestVersion)
 }
 else
 {
-	$result = curlhttp($DLURL);
-	preg_match('/http:\/\/.+\/.+.exe/', $result, $strippedResult);
-	
 	echo 
 "<?xml version=\"1.0\"?>
 <GUP>
 	<NeedToBeUpdated>yes</NeedToBeUpdated>
 	<Version>$lastestVersionStr</Version>
-	<Location>$strippedResult[0]</Location>
+	<Location>$DLURL</Location>
 </GUP>"
 ;
 }
-
-
-
 ?>
-
