@@ -395,7 +395,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 			string ua = gupParams.getUserAgent();
 			if (ua != "")
 				userAgent = ua;
-			curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent);
+			curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
 			curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 
 			if (extraOptions.hasProxySettings())
@@ -485,8 +485,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 			curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, setProgress);
 			curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, hProgressBar);
 			
-			curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent);
-
+			curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
 			curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 			
 			if (extraOptions.hasProxySettings())
