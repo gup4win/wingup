@@ -1,4 +1,4 @@
-GUP v2.0 new feature and bug fix:
+GUP v3.0 new feature and bug fix:
 
-1. Add --help parameter.
-2. fix manifest file for UAC.
+1. Add SSL support
+2. Add and improve User-Agent.

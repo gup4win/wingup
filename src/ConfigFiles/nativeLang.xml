@@ -1,3 +1,4 @@
+<?xml version="1.0" ?>
 <!--
     Copyright 2007 Don HO <don.h@free.fr>
 	
@@ -16,10 +17,9 @@
     You should have received a copy of the GNU Lesser General Public License
     along with GUP.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<!-- This file is optional.
-Use this file to set your proxy settings if need.
--->
-<?xml version="1.0" ?>
+
+<!-- This file is optional.-->
+
 <GUP_NativeLangue name = "English">
 	<PopupMessages>
 		<MSGID_NOUPDATE>No update is available.</MSGID_NOUPDATE>

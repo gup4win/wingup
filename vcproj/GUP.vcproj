@@ -172,7 +172,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\src\ConfigFiles\gup.xml ..\bin\gup.xml&#x0D;&#x0A;copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin\getDownLoadUrl.php&#x0D;&#x0A;copy ..\License.txt ..\bin\License.txt&#x0D;&#x0A;copy ..\gpl.txt ..\bin\gpl.txt&#x0D;&#x0A;copy ..\readme.txt ..\bin\readme.txt&#x0D;&#x0A;copy ..\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin\libcurl.dll&#x0D;&#x0A;"
+				CommandLine="copy ..\src\ConfigFiles\gup.xml ..\bin\gup.xml&#x0D;&#x0A;copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin\getDownLoadUrl.php&#x0D;&#x0A;copy ..\LICENSE ..\bin\LICENSE&#x0D;&#x0A;copy ..\gpl.txt ..\bin\gpl.txt&#x0D;&#x0A;copy ..\README.md ..\bin\README.md&#x0D;&#x0A;copy ..\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin\libcurl.dll&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
