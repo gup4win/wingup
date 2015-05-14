@@ -29,14 +29,14 @@ protected:
 
 class GupParameters : public XMLTool {
 public:
-	GupParameters() : _currentVersion(""), _className2Close(""), _isSilentMode(true), _userAgent("") {};
+	GupParameters() : _currentVersion(""), _className2Close(""), _isSilentMode(true), _softwareName("") {};
 	GupParameters(const char * xmlFileName);
 	
 	const std::string & getCurrentVersion() const { return _currentVersion;};
 	const std::string & getInfoLocation() const {return _infoUrl;};
 	const std::string & getClassName() const {return _className2Close;};
 	const std::string & getMessageBoxTitle() const {return _messageBoxTitle;};
-	const std::string & getUserAgent() const {return _userAgent;};
+	const std::string & getSoftwareName() const {return _softwareName;};
 	int get3rdButtonCmd() const {return _3rdButton_wm_cmd;};
 	int get3rdButtonWparam() const {return _3rdButton_wParam;};
 	int get3rdButtonLparam() const {return _3rdButton_lParam;};
@@ -54,7 +54,7 @@ private:
 	std::string _infoUrl;
 	std::string _className2Close;
 	std::string _messageBoxTitle;
-	std::string _userAgent;
+	std::string _softwareName;
 	int _3rdButton_wm_cmd;
 	int _3rdButton_wParam;
 	int _3rdButton_lParam;

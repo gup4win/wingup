@@ -130,7 +130,7 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 	//
 	// Get optional parameters
 	//
-	TiXmlNode *userAgentNode = root->FirstChildElement("User-agent");
+	TiXmlNode *userAgentNode = root->FirstChildElement("SoftwareName");
 	if (userAgentNode)
 	{
 		TiXmlNode *un = userAgentNode->FirstChild();
@@ -138,7 +138,7 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 		{
 			const char *uaVal = un->Value();
 			if (uaVal)
-				_userAgent = uaVal;
+				_softwareName = uaVal;
 		}
 	}
 }

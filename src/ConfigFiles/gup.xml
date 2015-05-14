@@ -33,10 +33,10 @@
 	<InfoUrl>http://notepad-plus-plus.org/update/getDownloadUrl.php</InfoUrl>
 
 	<!-- optional. 
-	The User-Agent you want to use to download your binary.
-	If this node is absent or empty, then "Generic Updater for Win32" will be used by default.
+	The SoftwareName (plus its version) will be the User-Agent you want to use to download your binary.
+	If this node is absent or empty, then only "WinGup/WINGUP_VERSION" will be used.
 	-->
-	<User-agent>Notepad++ Generic Updater</User-agent>
+	<SoftwareName>Notepad++</SoftwareName>
 
 	<!-- optional. 
 	The window class name of program that you want to update.

@@ -36,7 +36,7 @@ static string msgBoxTitle = "";
 static string abortOrNot = "";
 static string proxySrv = "0.0.0.0";
 static long proxyPort  = 0;
-static string userAgent = "WinGup/2.x (Generic Updater for Windows)";
+static string winGupUserAgent = "WinGup/";
 static string dlFileName = "";
 
 const char FLAG_OPTIONS[] = "-options";
@@ -392,10 +392,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, getUpdateInfo);
 			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &updateInfo);
 
-			string ua = gupParams.getUserAgent();
+			string ua = gupParams.getSoftwareName();
+
+			winGupUserAgent += VERSION_VALUE;
 			if (ua != "")
-				userAgent = ua;
-			curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
+			{
+				ua += "/";
+				ua += version;
+				ua += " (";
+				ua += winGupUserAgent;
+				ua += ")";
+
+				winGupUserAgent = ua;
+			}
+
+			curl_easy_setopt(curl, CURLOPT_USERAGENT, winGupUserAgent.c_str());
 			curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 
 			if (extraOptions.hasProxySettings())
@@ -485,7 +496,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 			curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, setProgress);
 			curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, hProgressBar);
 			
-			curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
+			curl_easy_setopt(curl, CURLOPT_USERAGENT, winGupUserAgent.c_str());
 			curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 			
 			if (extraOptions.hasProxySettings())
