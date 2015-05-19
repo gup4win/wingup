@@ -57,8 +57,11 @@ How to build it?
 
 Before building WinGup, you have to build curl lib.
 Launch your Visual Studio Command Prompt then go to wingup\curl\winbuild, then launch the makefile:
-*cd wingup\curl\winbuild*
-*nmake /f Makefile.vc mode=dll*
+
+ *cd wingup\curl\winbuild*
+ 
+ *nmake /f Makefile.vc mode=dll*
+ 
 Once curl lib is generated, you can use VS2005 to build your WinGup.
 
 
