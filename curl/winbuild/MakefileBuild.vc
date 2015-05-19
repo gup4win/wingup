@@ -241,8 +241,8 @@ MANIFESTTOOL = mt -manifest $(DIRDIST)\$(PROGRAM_NAME).manifest -outputresource:
 RTLIB = /MT
 RTLIB_DEBUG = /MTd
 !ELSE
-RTLIB = /MD
-RTLIB_DEBUG  = /MDd
+RTLIB = /MT
+RTLIB_DEBUG  = /MTd
 !ENDIF
 
 !IF "$(MODE)"=="static"

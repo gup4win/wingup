@@ -1,3 +1,8 @@
+GUP v3.1 bug fix:
+
+1. Remove the dependency of  msvcr120.dll.
+
+
 GUP v3.0 new feature and bug fix:
 
 1. Add SSL support
