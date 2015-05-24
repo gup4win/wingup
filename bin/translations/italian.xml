@@ -24,8 +24,8 @@ Use this file to set your proxy settings if need.
 	<PopupMessages>
 		<MSGID_NOUPDATE>Nessun aggiornamento disponibile.</MSGID_NOUPDATE>
 		<MSGID_UPDATEAVAILABLE>E' disponibile un aggiornamento, si desidera scaricarlo?</MSGID_UPDATEAVAILABLE>
-		<MSGID_DOWNLOADSTOPPED>Download arrestato dall'utente. Aggiornamento abortito.</MSGID_DOWNLOADSTOPPED>
-		<MSGID_CLOSEAPP> Ë aperto.\rL'aggiornamento lo chiuder‡ Per processare l'installazione.\rContinuare?</MSGID_CLOSEAPP>
-		<MSGID_ABORTORNOT>Si vuole abortire il download dell'aggiornamento?</MSGID_ABORTORNOT>
+		<MSGID_DOWNLOADSTOPPED>Download arrestato dall'utente. Aggiornamento annullato.</MSGID_DOWNLOADSTOPPED>
+		<MSGID_CLOSEAPP> √® aperto.\rL'aggiornamento lo chiuder√† Per proseguire l'installazione.\rContinuare?</MSGID_CLOSEAPP>
+		<MSGID_ABORTORNOT>Si vuole annullare il download dell'aggiornamento?</MSGID_ABORTORNOT>
 	</PopupMessages>
 </GUP_NativeLangue>
