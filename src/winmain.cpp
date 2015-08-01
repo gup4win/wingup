@@ -46,7 +46,7 @@ const char FLAG_HELP[] = "--help";
 
 const char MSGID_NOUPDATE[] = "No update is available.";
 const char MSGID_UPDATEAVAILABLE[] = "An update package is available, do you want to download it?";
-const char MSGID_DOWNLOADSTOPPED[] = "Download is stopped by user. Update is aborded.";
+const char MSGID_DOWNLOADSTOPPED[] = "Download is stopped by user. Update is aborted.";
 const char MSGID_CLOSEAPP[] = " is opened.\rUpdater will close it in order to process the installation.\rContinue?";
 const char MSGID_ABORTORNOT[] = "Do you want to abort update download?";
 const char MSGID_HELP[] = "Usage :\r\
