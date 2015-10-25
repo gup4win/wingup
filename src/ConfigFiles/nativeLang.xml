@@ -24,7 +24,7 @@
 	<PopupMessages>
 		<MSGID_NOUPDATE>No update is available.</MSGID_NOUPDATE>
 		<MSGID_UPDATEAVAILABLE>An update package is available, do you want to download it?</MSGID_UPDATEAVAILABLE>
-		<MSGID_DOWNLOADSTOPPED>Download is stopped by user. Update is aborded.</MSGID_DOWNLOADSTOPPED>
+		<MSGID_DOWNLOADSTOPPED>Download is stopped by user. Update is aborted.</MSGID_DOWNLOADSTOPPED>
 		<MSGID_CLOSEAPP> is opened.\rUpdater will close it in order to process the installation.\rContinue?</MSGID_CLOSEAPP>
 		<MSGID_ABORTORNOT>Do you want to abort update download?</MSGID_ABORTORNOT>
 	</PopupMessages>
