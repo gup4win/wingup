@@ -18,12 +18,13 @@
 */
 
 #include <windows.h>
-#include "../curl/include/curl/curl.h"
 #include <string>
 #include <commctrl.h>
 #include "resource.h"
 #include <shlwapi.h>
 #include "xmlTools.h"
+#define CURL_STATICLIB
+#include "../curl/include/curl/curl.h"
 
 using namespace std;
 

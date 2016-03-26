@@ -1,6 +1,11 @@
+GUP v3.2 bug fix:
+
+1. Support XP (without SSL).
+
+
 GUP v3.1 bug fix:
 
-1. Remove the dependency of  msvcr120.dll.
+1. Remove the dependency of msvcr120.dll.
 
 
 GUP v3.0 new feature and bug fix:
