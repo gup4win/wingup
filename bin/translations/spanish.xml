@@ -1,5 +1,5 @@
 <!--
-    Copyright 2007 Don HO <don.h@free.fr>
+    Copyright 2015 Adolfo Jayme Barrientos <fitojb@ubuntu.com>
 	
     This file is part of GUP.
 
@@ -19,13 +19,13 @@
 <!-- This file is optional.
 Use this file to set your proxy settings if need.
 -->
-<?xml version="1.0" encoding="Windows-1252"?>
-<GUP_NativeLangue name = "Italiano">
+<?xml version="1.0" encoding="Windows-1252" ?>
+<GUP_NativeLangue name = "Español">
 	<PopupMessages>
-		<MSGID_NOUPDATE>Nessun aggiornamento disponibile.</MSGID_NOUPDATE>
-		<MSGID_UPDATEAVAILABLE>E' disponibile un aggiornamento, si desidera scaricarlo?</MSGID_UPDATEAVAILABLE>
-		<MSGID_DOWNLOADSTOPPED>Download arrestato dall'utente. Aggiornamento annullato.</MSGID_DOWNLOADSTOPPED>
-		<MSGID_CLOSEAPP> Ã¨ aperto.\rL'aggiornamento lo chiuderÃ  Per proseguire l'installazione.\rContinuare?</MSGID_CLOSEAPP>
-		<MSGID_ABORTORNOT>Si vuole annullare il download dell'aggiornamento?</MSGID_ABORTORNOT>
+		<MSGID_NOUPDATE>No hay ninguna actualización disponible.</MSGID_NOUPDATE>
+		<MSGID_UPDATEAVAILABLE>Hay una actualización disponible. ¿Quiere descargarla?</MSGID_UPDATEAVAILABLE>
+		<MSGID_DOWNLOADSTOPPED>Se interrumpió la descarga. No se podrá realizar la actualización.</MSGID_DOWNLOADSTOPPED>
+		<MSGID_CLOSEAPP> está abierto.\rSe cerrará el programa para realizar la instalación.\r¿Quiere continuar?</MSGID_CLOSEAPP>
+		<MSGID_ABORTORNOT>¿Confirma que quiere interrumpir la descarga de la actualización?</MSGID_ABORTORNOT>
 	</PopupMessages>
 </GUP_NativeLangue>
