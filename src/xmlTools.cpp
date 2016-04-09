@@ -87,6 +87,17 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 			}
 		}
 
+		valStr = (progNameNode->ToElement())->Attribute("isModal");
+		if (valStr)
+		{
+			if (stricmp(valStr, "yes") == 0)
+				_isMessageBoxModal = true;
+			else if (stricmp(valStr, "no") == 0)
+				_isMessageBoxModal = false;
+			else
+				throw exception("isModal value is incorrect (only \"yes\" or \"no\" is allowed).");
+		}
+
         int val = 0;
 		valStr = (progNameNode->ToElement())->Attribute("extraCmd", &val);
 		if (valStr)
@@ -105,6 +116,8 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 		{
 			_3rdButton_lParam = val;
 		}
+
+
 	}
 
 	TiXmlNode *silentModeNode = root->FirstChildElement("SilentMode");

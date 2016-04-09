@@ -164,22 +164,23 @@ static string getParamVal(char c, char *list2Clean) {
 	return "";
 };
 
-static void goToCenter(HWND hwnd)
+static void goToScreenCenter(HWND hwnd)
 {
-    RECT rc;
-	::SystemParametersInfo(SPI_GETWORKAREA, 0, &rc, 0);
+    RECT screenRc;
+	::SystemParametersInfo(SPI_GETWORKAREA, 0, &screenRc, 0);
 
     POINT center;
-    center.x = rc.left + (rc.right - rc.left)/2;
-    center.y = rc.top + (rc.bottom - rc.top)/2;
+	center.x = screenRc.left + (screenRc.right - screenRc.left) / 2;
+    center.y = screenRc.top + (screenRc.bottom - screenRc.top)/2;
 
-	RECT _rc;
-	::GetWindowRect(hwnd, &_rc);
-	int x = center.x - (_rc.right - _rc.left)/2;
-	int y = center.y - (_rc.bottom - _rc.top)/2;
+	RECT rc;
+	::GetWindowRect(hwnd, &rc);
+	int x = center.x - (rc.right - rc.left)/2;
+	int y = center.y - (rc.bottom - rc.top)/2;
 
-	::SetWindowPos(hwnd, HWND_TOP, x, y, _rc.right - _rc.left, _rc.bottom - _rc.top, SWP_SHOWWINDOW);
+	::SetWindowPos(hwnd, HWND_TOP, x, y, rc.right - rc.left, rc.bottom - rc.top, SWP_SHOWWINDOW);
 };
+
 
 // This is the getUpdateInfo call back function used by curl
 static size_t getUpdateInfo(char *data, size_t size, size_t nmemb, std::string *updateInfo)
@@ -245,7 +246,7 @@ LRESULT CALLBACK progressBarDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARA
 										  hWndDlg, NULL, hInst, NULL);
 			SendMessage(hProgressBar, PBM_SETRANGE, 0, MAKELPARAM(0, 100)); 
 			SendMessage(hProgressBar, PBM_SETSTEP, 1, 0);
-			goToCenter(hWndDlg);
+			goToScreenCenter(hWndDlg);
 			return TRUE; 
 
 		case WM_COMMAND:
@@ -273,6 +274,40 @@ LRESULT CALLBACK progressBarDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARA
 	return FALSE;
 }
 
+
+LRESULT CALLBACK yesNoNeverDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+		case WM_INITDIALOG:
+		{
+			goToScreenCenter(hWndDlg);
+			return TRUE;
+		}
+
+		case WM_COMMAND:
+		{
+			switch (wParam)
+			{
+				case IDYES:
+				case IDNO:
+				case IDCANCEL:
+					EndDialog(hWndDlg, wParam);
+					return TRUE;
+
+				default:
+					break;
+			}
+		}
+
+		case WM_DESTROY:
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 LRESULT CALLBACK proxyDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 
@@ -281,7 +316,7 @@ LRESULT CALLBACK proxyDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lPar
 		case WM_INITDIALOG:
 			::SetDlgItemTextA(hWndDlg, IDC_PROXYSERVER_EDIT, proxySrv.c_str());
 			::SetDlgItemInt(hWndDlg, IDC_PORT_EDIT, proxyPort, FALSE);
-			goToCenter(hWndDlg);
+			goToScreenCenter(hWndDlg);
 			return TRUE; 
 
 		case WM_COMMAND:
@@ -442,13 +477,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 			return 0;
 		}
 
+		// Ask user if he/she want to do update
 		string updateAvailable = nativeLang.getMessageString("MSGID_UPDATEAVAILABLE");
 		if (updateAvailable == "")
 			updateAvailable = MSGID_UPDATEAVAILABLE;
 		
 		int thirdButtonCmd = gupParams.get3rdButtonCmd();
 		int buttonStyle = thirdButtonCmd?MB_YESNOCANCEL:MB_YESNO;
-		int dlAnswer = ::MessageBoxA(NULL, updateAvailable.c_str(), gupParams.getMessageBoxTitle().c_str(), buttonStyle);
+		int dlAnswer = 0;
+		HWND hApp = ::FindWindowExA(NULL, NULL, gupParams.getClassName().c_str(), NULL);
+		bool isModal = gupParams.isMessageBoxModal();
+
+		if (!thirdButtonCmd)
+			dlAnswer = ::MessageBoxA(isModal ? hApp : NULL, updateAvailable.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_YESNO);
+		else
+			dlAnswer = ::DialogBox(hInst, MAKEINTRESOURCE(IDD_YESNONEVERDLG), isModal ? hApp : NULL, reinterpret_cast<DLGPROC>(yesNoNeverDlgProc));
 
 		if (dlAnswer == IDNO)
 		{
@@ -459,15 +502,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 		{
 			if (gupParams.getClassName() != "")
 			{
-				HWND h = ::FindWindowExA(NULL, NULL, gupParams.getClassName().c_str(), NULL);
-
-				if (h)
+				if (hApp)
 				{
-					::SendMessage(h, thirdButtonCmd, gupParams.get3rdButtonWparam(), gupParams.get3rdButtonLparam());
+					::SendMessage(hApp, thirdButtonCmd, gupParams.get3rdButtonWparam(), gupParams.get3rdButtonLparam());
 				}
 			}
 			return 0;
 		}
+
 		
 		::CreateThread(NULL, 0, launchProgressBar, NULL, 0, NULL);
 		

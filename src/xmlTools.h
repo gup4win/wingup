@@ -29,7 +29,7 @@ protected:
 
 class GupParameters : public XMLTool {
 public:
-	GupParameters() : _currentVersion(""), _className2Close(""), _isSilentMode(true), _softwareName("") {};
+	GupParameters() {};
 	GupParameters(const char * xmlFileName);
 	
 	const std::string & getCurrentVersion() const { return _currentVersion;};
@@ -48,6 +48,7 @@ public:
 		return mode;
 	};
 	bool isSilentMode() const {return _isSilentMode;};
+	bool isMessageBoxModal() const { return _isMessageBoxModal; };
 
 private:
 	std::string _currentVersion;
@@ -55,10 +56,11 @@ private:
 	std::string _className2Close;
 	std::string _messageBoxTitle;
 	std::string _softwareName;
+	bool _isMessageBoxModal = false;
 	int _3rdButton_wm_cmd;
 	int _3rdButton_wParam;
 	int _3rdButton_lParam;
-	bool _isSilentMode;
+	bool _isSilentMode = true;
 };
 
 class GupExtraOptions : public XMLTool {
