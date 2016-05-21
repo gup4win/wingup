@@ -64,6 +64,8 @@ gup [-verbose] [-vVERSION_VALUE]\r\
          then the version set in the gup.xml will be overrided.\r\
     -verbose : Show error/warning message if any.";
 
+std::string thirdDoUpdateDlgButtonLabel;
+
 static bool isInList(const char *token2Find, char *list2Clean) {
 	char word[1024];
 	bool isFileNamePart = false;
@@ -281,6 +283,9 @@ LRESULT CALLBACK yesNoNeverDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LP
 	{
 		case WM_INITDIALOG:
 		{
+			if (thirdDoUpdateDlgButtonLabel != "")
+				::SetDlgItemTextA(hWndDlg, IDCANCEL, thirdDoUpdateDlgButtonLabel.c_str());
+
 			goToScreenCenter(hWndDlg);
 			return TRUE;
 		}
@@ -483,6 +488,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 			updateAvailable = MSGID_UPDATEAVAILABLE;
 		
 		int thirdButtonCmd = gupParams.get3rdButtonCmd();
+		thirdDoUpdateDlgButtonLabel = gupParams.get3rdButtonLabel();
+
 		int buttonStyle = thirdButtonCmd?MB_YESNOCANCEL:MB_YESNO;
 		int dlAnswer = 0;
 		HWND hApp = ::FindWindowExA(NULL, NULL, gupParams.getClassName().c_str(), NULL);

@@ -117,7 +117,11 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 			_3rdButton_lParam = val;
 		}
 
-
+		const char * extraCmdLabel = (progNameNode->ToElement())->Attribute("extraCmdButtonLabel");
+		if (extraCmdLabel != NULL)
+		{
+			_3rdButton_label = extraCmdLabel;
+		}
 	}
 
 	TiXmlNode *silentModeNode = root->FirstChildElement("SilentMode");

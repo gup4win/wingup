@@ -40,6 +40,7 @@ public:
 	int get3rdButtonCmd() const {return _3rdButton_wm_cmd;};
 	int get3rdButtonWparam() const {return _3rdButton_wParam;};
 	int get3rdButtonLparam() const {return _3rdButton_lParam;};
+	const std::string & get3rdButtonLabel() const { return _3rdButton_label; };
 
 	void setCurrentVersion(const char *currentVersion) {_currentVersion = currentVersion;};
 	bool setSilentMode(bool mode) {
@@ -60,6 +61,7 @@ private:
 	int _3rdButton_wm_cmd;
 	int _3rdButton_wParam;
 	int _3rdButton_lParam;
+	std::string _3rdButton_label;
 	bool _isSilentMode = true;
 };
 
