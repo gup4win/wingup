@@ -65,16 +65,21 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libcurl.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcurl_debug.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\curl\builds\libcurl-vc-x86-debug-dll-ipv6-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PreLinkEvent>
+      <Command>cd ..\curl\winbuild
+nmake /f Makefile.vc mode=dll DEBUG=yes</Command>
+    </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEvent>
-      <Command />
+      <Command>
+      </Command>
     </PreBuildEvent>
     <ClCompile>
       <AdditionalIncludeDirectories>..\src\libcurl\include;..\src\TinyXml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -102,6 +107,10 @@ copy ..\README.md ..\bin\README.md
 copy ..\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin\libcurl.dll
 </Command>
     </PostBuildEvent>
+    <PreLinkEvent>
+      <Command>cd ..\curl\winbuild
+nmake /f Makefile.vc mode=dll</Command>
+    </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\TinyXml\tinystr.cpp" />
