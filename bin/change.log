@@ -1,3 +1,10 @@
+GUP v3.3 new features:
+
+1.  Add alternative YesNoNever dialog for "available update package" message. "Never" button action should be defined and it could be renamed.
+2.  Add isModel option.
+3.  Enable new windows visual style.
+4.  Add Vietnamese translation.
+
 GUP v3.2 bug fix:
 
 1. Support XP (without SSL).
