@@ -56,7 +56,7 @@ How to build it?
 ----------------
 
  1. Open [`vcproj\GUP.vcxproj`](https://github.com/gup4win/wingup/blob/master/vcproj/GUP.vcxproj)
- 2. Build Notepad++ [like a normal Visual Studio project](https://msdn.microsoft.com/en-us/library/7s88b19e.aspx). with VS2013 or newer
+ 2. Build Notepad++ [like a normal Visual Studio project](https://msdn.microsoft.com/en-us/library/7s88b19e.aspx) with VS2013 or newer
 
 
 
