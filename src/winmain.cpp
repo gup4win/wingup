@@ -226,7 +226,7 @@ static size_t setProgress(HWND hProgress,	double t, /* dltotal */
 	SendMessage(hProgressBar, PBM_STEPIT, 0, 0);
 
 	char percentage[128];
-	sprintf(percentage, "Downloading %s: %d %%", dlFileName.c_str(), ratio);
+	sprintf(percentage, "Downloading %s: %zu %%", dlFileName.c_str(), ratio);
 	::SetWindowTextA(hProgressDlg, percentage);
 	return 0;
 };
@@ -399,7 +399,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 		abortOrNot = nativeLang.getMessageString("MSGID_ABORTORNOT");
 
 		std::string updateInfo;
-		char errorBuffer[CURL_ERROR_SIZE];
+		char errorBuffer[CURL_ERROR_SIZE] = { 0 };
 
 		// Get your software's current version.
 		// If you pass the version number as the argument
@@ -416,7 +416,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 		// Check on the web the availibility of update
 		// Get the update package's location
 		CURL *curl;
-		CURLcode res;
+		CURLcode res = CURLE_FAILED_INIT;
 
 		curl = curl_easy_init();
 		if(curl) 
@@ -461,7 +461,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 			curl_easy_cleanup(curl);
 		}
 
-		if (res != 0)
+		if (res != CURLE_OK)
 		{
 			if (!isSilentMode)
 				::MessageBoxA(NULL, errorBuffer, "curl error", MB_OK);
@@ -559,7 +559,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 			curl_easy_cleanup(curl);
 		}
 
-		if (res != 0)
+		if (res != CURLE_OK)
 		{
 			if (!isSilentMode)
 				::MessageBoxA(NULL, errorBuffer, "curl error", MB_OK);
