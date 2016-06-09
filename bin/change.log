@@ -1,14 +1,3 @@
-GUP v3.2 bug fix:
+GUP v4 :
 
-1. Support XP (without SSL).
-
-
-GUP v3.1 bug fix:
-
-1. Remove the dependency of msvcr120.dll.
-
-
-GUP v3.0 new feature and bug fix:
-
-1. Add SSL support
-2. Add and improve User-Agent.
+1. 64 bits build.

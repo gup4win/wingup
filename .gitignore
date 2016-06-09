@@ -51,6 +51,7 @@ UpgradeLog*.htm
 *.log
 .builds
 *.pidb
+bin64/
 curl/build
 curl/builds
 
