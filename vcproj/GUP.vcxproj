@@ -161,7 +161,8 @@ nmake /f Makefile.vc mode=dll DEBUG=yes MACHINE=x64</Command>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy ..\src\ConfigFiles\gup.xml ..\bin\gup.xml
+      <Command>copy ..\src\change.log ..\bin\change.log
+copy ..\src\ConfigFiles\gup.xml ..\bin\gup.xml
 copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin\getDownLoadUrl.php
 copy ..\LICENSE ..\bin\LICENSE
 copy ..\gpl.txt ..\bin\gpl.txt
@@ -198,7 +199,8 @@ nmake /f Makefile.vc mode=dll</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
     <PostBuildEvent>
-      <Command>copy ..\src\ConfigFiles\gup.xml ..\bin64\gup.xml
+      <Command>copy ..\src\change.log ..\bin64\change.log
+copy ..\src\ConfigFiles\gup.xml ..\bin64\gup.xml
 copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin64\getDownLoadUrl.php
 copy ..\LICENSE ..\bin64\LICENSE
 copy ..\gpl.txt ..\bin64\gpl.txt
