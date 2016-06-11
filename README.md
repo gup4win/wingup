@@ -55,14 +55,8 @@ to make sure it responds to your WinGup with the correct xml data.
 How to build it?
 ----------------
 
-Before building WinGup, you have to build curl lib.
-Launch your Visual Studio Command Prompt then go to wingup\curl\winbuild, then launch the makefile:
-
- *cd wingup\curl\winbuild*
- 
- *nmake /f Makefile.vc mode=dll*
- 
-Once curl lib is generated, you can use VS2005 to build your WinGup.
+ 1. Open [`vcproj\GUP.vcxproj`](https://github.com/gup4win/wingup/blob/master/vcproj/GUP.vcxproj)
+ 2. Build Notepad++ [like a normal Visual Studio project](https://msdn.microsoft.com/en-us/library/7s88b19e.aspx) with VS2013 or newer
 
 
 
