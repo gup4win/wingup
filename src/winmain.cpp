@@ -17,6 +17,7 @@
  along with GUP.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdint.h>
 #include <windows.h>
 #include <string>
 #include <commctrl.h>
@@ -212,10 +213,7 @@ static size_t getDownloadData(unsigned char *data, size_t size, size_t nmemb, FI
 
 static size_t ratio = 0;
 
-static size_t setProgress(HWND hProgress,	double t, /* dltotal */
-											double d, /* dlnow */
-											double ultotal,
-											double ulnow)
+static size_t setProgress(HWND, double t, double d, double, double)
 {
 	while (stopDL)
 		::Sleep(1000);
@@ -231,7 +229,7 @@ static size_t setProgress(HWND hProgress,	double t, /* dltotal */
 	return 0;
 };
 
-LRESULT CALLBACK progressBarDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK progressBarDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM )
 {
 	INITCOMMONCONTROLSEX InitCtrlEx;
 
@@ -277,7 +275,7 @@ LRESULT CALLBACK progressBarDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARA
 }
 
 
-LRESULT CALLBACK yesNoNeverDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK yesNoNeverDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM)
 {
 	switch (message)
 	{
@@ -313,7 +311,7 @@ LRESULT CALLBACK yesNoNeverDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LP
 	return FALSE;
 }
 
-LRESULT CALLBACK proxyDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK proxyDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM)
 {
 
 	switch(Msg)
@@ -352,7 +350,7 @@ static DWORD WINAPI launchProgressBar(void *)
 	return 0;
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 {
 	bool isSilentMode = false;
 	FILE *pFile = NULL;
@@ -490,7 +488,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 		int thirdButtonCmd = gupParams.get3rdButtonCmd();
 		thirdDoUpdateDlgButtonLabel = gupParams.get3rdButtonLabel();
 
-		int buttonStyle = thirdButtonCmd?MB_YESNOCANCEL:MB_YESNO;
+		//int buttonStyle = thirdButtonCmd?MB_YESNOCANCEL:MB_YESNO;
 		int dlAnswer = 0;
 		HWND hApp = ::FindWindowExA(NULL, NULL, gupParams.getClassName().c_str(), NULL);
 		bool isModal = gupParams.isMessageBoxModal();
@@ -498,7 +496,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int nCmdSh
 		if (!thirdButtonCmd)
 			dlAnswer = ::MessageBoxA(isModal ? hApp : NULL, updateAvailable.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_YESNO);
 		else
-			dlAnswer = ::DialogBox(hInst, MAKEINTRESOURCE(IDD_YESNONEVERDLG), isModal ? hApp : NULL, reinterpret_cast<DLGPROC>(yesNoNeverDlgProc));
+			dlAnswer = static_cast<int32_t>(::DialogBox(hInst, MAKEINTRESOURCE(IDD_YESNONEVERDLG), isModal ? hApp : NULL, reinterpret_cast<DLGPROC>(yesNoNeverDlgProc)));
 
 		if (dlAnswer == IDNO)
 		{

@@ -48,9 +48,10 @@ UpgradeLog*.htm
 *.tlh
 *.tmp
 *.tmp_proj
-*.log
 .builds
 *.pidb
+bin/
+bin64/
 curl/build
 curl/builds
 

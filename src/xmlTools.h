@@ -46,7 +46,7 @@ public:
 	bool setSilentMode(bool mode) {
 		bool oldMode = _isSilentMode;
 		_isSilentMode = mode;
-		return mode;
+		return oldMode;
 	};
 	bool isSilentMode() const {return _isSilentMode;};
 	bool isMessageBoxModal() const { return _isMessageBoxModal; };

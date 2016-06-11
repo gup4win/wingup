@@ -1,0 +1,31 @@
+<!--
+    Copyright 2007 Don HO <don.h@free.fr>
+	
+    This file is part of GUP.
+
+    GUP is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    GUP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with GUP.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<!-- This file is optional.
+Use this file to set your proxy settings if need.
+-->
+<?xml version="1.0" encoding="Windows-1252" ?>
+<GUP_NativeLangue name = "Français">
+	<PopupMessages>
+		<MSGID_NOUPDATE>La mise à jour n'est pas disponible.</MSGID_NOUPDATE>
+		<MSGID_UPDATEAVAILABLE>Une mise à jour est disponible, voulez-vous le télécharger?</MSGID_UPDATEAVAILABLE>
+		<MSGID_DOWNLOADSTOPPED>Le téléchargement est interrompu. La mise à jour ne sera pas poursuivie.</MSGID_DOWNLOADSTOPPED>
+		<MSGID_CLOSEAPP> est ouvert. Il sera fermé afin de pouvoir poursuivre l'installation. Continue?</MSGID_CLOSEAPP>
+		<MSGID_ABORTORNOT>Etes-vous sûr d'interrompre le téléchargement?</MSGID_ABORTORNOT>
+	</PopupMessages>
+</GUP_NativeLangue>

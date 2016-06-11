@@ -83,8 +83,8 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\bin64\</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\bin64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,8 +95,10 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader />
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl_debug.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -119,8 +121,9 @@ nmake /f Makefile.vc mode=dll DEBUG=yes</Command>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl_debug.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -130,7 +133,7 @@ nmake /f Makefile.vc mode=dll DEBUG=yes</Command>
     </Link>
     <PreLinkEvent>
       <Command>cd ..\curl\winbuild
-nmake /f Makefile.vc mode=dll MACHINE=x64 DEBUG=yes</Command>
+nmake /f Makefile.vc mode=dll DEBUG=yes MACHINE=x64</Command>
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -143,26 +146,29 @@ nmake /f Makefile.vc mode=dll MACHINE=x64 DEBUG=yes</Command>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy ..\src\ConfigFiles\gup.xml $(TargetDir)\gup.xml
-copy ..\src\ConfigFiles\getDownLoadUrl.php $(TargetDir)\getDownLoadUrl.php
-copy ..\LICENSE $(TargetDir)\LICENSE
-copy ..\gpl.txt $(TargetDir)\gpl.txt
-copy ..\README.md $(TargetDir)\README.md
-copy ..\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl\bin\libcurl.dll $(TargetDir)\libcurl.dll
-</Command>
+      <Command>copy ..\src\change.log ..\bin\change.log
+copy ..\src\ConfigFiles\gup.xml ..\bin\gup.xml
+copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin\getDownLoadUrl.php
+copy ..\LICENSE ..\bin\LICENSE
+copy ..\gpl.txt ..\bin\gpl.txt
+copy ..\README.md ..\bin\README.md
+copy ..\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin\libcurl.dll
+xcopy ..\src\translations ..\bin\translations\ /S /Y /E</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>cd ..\curl\winbuild
@@ -180,25 +186,27 @@ nmake /f Makefile.vc mode=dll</Command>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\curl\builds\libcurl-vc-x64-release-dll-ipv6-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
     <PostBuildEvent>
-      <Command>copy ..\src\ConfigFiles\gup.xml $(TargetDir)\gup.xml
-copy ..\src\ConfigFiles\getDownLoadUrl.php $(TargetDir)\getDownLoadUrl.php
-copy ..\LICENSE $(TargetDir)\LICENSE
-copy ..\gpl.txt $(TargetDir)\gpl.txt
-copy ..\README.md $(TargetDir)\README.md
-copy ..\curl\builds\libcurl-vc-x64-release-dll-ipv6-sspi-winssl\bin\libcurl.dll $(TargetDir)\libcurl.dll
-</Command>
+      <Command>copy ..\src\change.log ..\bin64\change.log
+copy ..\src\ConfigFiles\gup.xml ..\bin64\gup.xml
+copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin64\getDownLoadUrl.php
+copy ..\LICENSE ..\bin64\LICENSE
+copy ..\gpl.txt ..\bin64\gpl.txt
+copy ..\README.md ..\bin64\README.md
+copy ..\curl\builds\libcurl-vc-x64-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin64\libcurl.dll
+xcopy ..\src\translations ..\bin64\translations\  /S /Y /E</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>cd ..\curl\winbuild

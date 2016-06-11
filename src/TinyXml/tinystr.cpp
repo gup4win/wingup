@@ -195,7 +195,7 @@ void TiXmlString::append( const char * suffix )
     char * new_string;
     unsigned new_alloc, new_size;
 
-    new_size = length () + strlen (suffix) + 1;
+    new_size = static_cast<unsigned int>(length () + strlen (suffix) + 1);
     // check if we need to expand
     if (new_size > allocated)
     {

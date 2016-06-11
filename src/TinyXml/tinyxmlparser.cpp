@@ -238,7 +238,7 @@ const char* TiXmlBase::GetEntity( const char* p, char* value )
 		if ( *(p+4) == ';' )
 		{
 			// Short, one value entity.
-			if ( isalpha( *(p+3) ) ) *value += ( tolower( *(p+3) ) - 'a' + 10 );
+			if ( isalpha( *(p+3) ) ) *value += ( static_cast<char>(tolower( *(p+3) )) - 'a' + 10 );
 			else				     *value += ( *(p+3) - '0' );
 
 			return p+5;
@@ -246,10 +246,10 @@ const char* TiXmlBase::GetEntity( const char* p, char* value )
 		else
 		{
 			// two value entity
-			if ( isalpha( *(p+3) ) ) *value += ( tolower( *(p+3) ) - 'a' + 10 ) * 16;
+			if (isalpha(*(p + 3))) *value += (static_cast<char>(tolower(*(p + 3))) - 'a' + 10) * 16;
 			else				     *value += ( *(p+3) - '0' ) * 16;
 
-			if ( isalpha( *(p+4) ) ) *value += ( tolower( *(p+4) ) - 'a' + 10 );
+			if (isalpha(*(p + 4))) *value += (static_cast<char>(tolower(*(p + 4))) - 'a' + 10);
 			else				     *value += ( *(p+4) - '0' );
 
 			return p+6;
