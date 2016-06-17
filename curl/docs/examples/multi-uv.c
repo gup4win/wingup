@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2014, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -20,6 +20,10 @@
  *
  ***************************************************************************/
 
+/* <DESC>
+ * multi_socket API using libuv
+ * </DESC>
+ */
 /* Example application code using the multi socket interface to download
    multiple files at once, but instead of using curl_multi_perform and
    curl_multi_wait, which uses select(), we use libuv.
@@ -80,9 +84,9 @@ void add_download(const char *url, int num)
   FILE *file;
   CURL *handle;
 
-  sprintf(filename, "%d.download", num);
+  snprintf(filename, 50, "%d.download", num);
 
-  file = fopen(filename, "w");
+  file = fopen(filename, "wb");
   if(!file) {
     fprintf(stderr, "Error opening %s\n", filename);
     return;

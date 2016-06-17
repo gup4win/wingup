@@ -55,7 +55,7 @@ p.roffit {
 <p class="level0"><span Class="bold">#include &lt;curl/curl.h&gt;</span> 
 <p class="level0"><span Class="bold">CURLFORMcode curl_formadd(struct curl_httppost **  firstitem,</span> <span Class="bold">struct curl_httppost **  lastitem,  ...);</span> 
 <p class="level0"><a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
-<p class="level0">curl_formadd() is used to append sections when building a multipart/formdata HTTP POST (sometimes referred to as <a href="http://www.ietf.org/rfc/rfc2388.txt">RFC 2388</a>-style posts). Append one section at a time until you've added all the sections you want included and then you pass the <span Class="emphasis">firstitem</span> pointer as parameter to <span Class="bold">CURLOPT_HTTPPOST(3)</span>. <span Class="emphasis">lastitem</span> is set after each <a Class="emphasis" href="./curl_formadd.html">curl_formadd</a> call and on repeated invokes it should be left as set to allow repeated invokes to find the end of the list faster. 
+<p class="level0">curl_formadd() is used to append sections when building a multipart/formdata HTTP POST (sometimes referred to as <a href="http://www.ietf.org/rfc/rfc2388.txt">RFC 2388</a>-style posts). Append one section at a time until you've added all the sections you want included and then you pass the <span Class="emphasis">firstitem</span> pointer as parameter to <span Class="emphasis">CURLOPT_HTTPPOST(3)</span>. <span Class="emphasis">lastitem</span> is set after each <a Class="emphasis" href="./curl_formadd.html">curl_formadd</a> call and on repeated invokes it should be left as set to allow repeated invokes to find the end of the list faster. 
 <p class="level0">After the <span Class="emphasis">lastitem</span> pointer follow the real arguments. 
 <p class="level0">The pointers <span Class="emphasis">firstitem</span> and <span Class="emphasis">lastitem</span> should both be pointing to NULL in the first call to this function. All list-data will be allocated by the function itself. You must call <a Class="emphasis" href="./curl_formfree.html">curl_formfree</a> on the <span Class="emphasis">firstitem</span> after the form post has been done to free the resources. 
 <p class="level0">Using POST with HTTP 1.1 implies the use of a "Expect: 100-continue" header. You can disable this header with <span Class="emphasis">CURLOPT_HTTPHEADER(3)</span> as usual. 
@@ -70,13 +70,19 @@ p.roffit {
 <p class="level1">followed by a pointer to the contents of this part, the actual data to send away. libcurl copies the provided data, so your application doesn't need to keep it around after this function call. If the data isn't null terminated, or if you'd like it to contain zero bytes, you must set the length of the name with <a class="bold" href="#CURLFORMCONTENTSLENGTH">CURLFORM_CONTENTSLENGTH</a>. The copied data will be freed by <a Class="emphasis" href="./curl_formfree.html">curl_formfree</a>. 
 <p class="level0"><a name="CURLFORMPTRCONTENTS"></a><span class="nroffip">CURLFORM_PTRCONTENTS</span> 
 <p class="level1">followed by a pointer to the contents of this part, the actual data to send away. libcurl will use the pointer and refer to the data in your application, so you must make sure it remains until curl no longer needs it. If the data isn't NUL-terminated, or if you'd like it to contain zero bytes, you must set its length  with <a class="bold" href="#CURLFORMCONTENTSLENGTH">CURLFORM_CONTENTSLENGTH</a>. 
+<p class="level0"><a name="CURLFORMCONTENTLEN"></a><span class="nroffip">CURLFORM_CONTENTLEN</span> 
+<p class="level1">followed by a curl_off_t value giving the length of the contents. Note that for <a class="emphasis" href="#CURLFORMSTREAM">CURLFORM_STREAM</a> contents, this option is mandatory. 
+<p class="level1">If you pass a 0 (zero) for this option, libcurl will instead do a strlen() on the contents to figure out the size. If you really want to send a zero byte content then you must make sure strlen() on the data pointer returns zero. 
+<p class="level1">(Option added in 7.46.0) 
 <p class="level0"><a name="CURLFORMCONTENTSLENGTH"></a><span class="nroffip">CURLFORM_CONTENTSLENGTH</span> 
+<p class="level1">(This option is deprecated. Use <a class="emphasis" href="#CURLFORMCONTENTLEN">CURLFORM_CONTENTLEN</a> instead!) 
 <p class="level1">followed by a long giving the length of the contents. Note that for <a class="emphasis" href="#CURLFORMSTREAM">CURLFORM_STREAM</a> contents, this option is mandatory. 
 <p class="level1">If you pass a 0 (zero) for this option, libcurl will instead do a strlen() on the contents to figure out the size. If you really want to send a zero byte content then you must make sure strlen() on the data pointer returns zero. 
 <p class="level0"><a name="CURLFORMFILECONTENT"></a><span class="nroffip">CURLFORM_FILECONTENT</span> 
 <p class="level1">followed by a filename, causes that file to be read and its contents used as data in this part. This part does <span Class="emphasis">not</span> automatically become a file upload part simply because its data was read from a file. 
 <p class="level0"><a name="CURLFORMFILE"></a><span class="nroffip">CURLFORM_FILE</span> 
 <p class="level1">followed by a filename, makes this part a file upload part. It sets the <span Class="emphasis">filename</span> field to the basename of the provided filename, it reads the contents of the file and passes them as data and sets the content-type if the given file match one of the internally known file extensions.  For <a class="bold" href="#CURLFORMFILE">CURLFORM_FILE</a> the user may send one or more files in one part by providing multiple <a class="bold" href="#CURLFORMFILE">CURLFORM_FILE</a> arguments each followed by the filename (and each <a class="emphasis" href="#CURLFORMFILE">CURLFORM_FILE</a> is allowed to have a <a class="emphasis" href="#CURLFORMCONTENTTYPE">CURLFORM_CONTENTTYPE</a>). 
+<p class="level1">The given upload file has to exist in its full in the file system already when the upload starts, as libcurl needs to read the correct file size beforehand. 
 <p class="level0"><a name="CURLFORMCONTENTTYPE"></a><span class="nroffip">CURLFORM_CONTENTTYPE</span> 
 <p class="level1">is used in combination with <a class="emphasis" href="#CURLFORMFILE">CURLFORM_FILE</a>. Followed by a pointer to a string which provides the content-type for this part, possibly instead of an internally chosen one. 
 <p class="level0"><a name="CURLFORMFILENAME"></a><span class="nroffip">CURLFORM_FILENAME</span> 
@@ -97,7 +103,7 @@ p.roffit {
 <p class="level1">See example below. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">0 means everything was ok, non-zero means an error occurred corresponding to a CURL_FORMADD_* constant defined in <span Class="emphasis">&lt;curl/curl.h&gt;</span> <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
 <p class="level0"><pre class="level0">
-
+&nbsp;
 &nbsp;struct curl_httppost* post = NULL;
 &nbsp;struct curl_httppost* last = NULL;
 &nbsp;char namebuffer[] = "name buffer";
@@ -112,52 +118,52 @@ p.roffit {
 &nbsp;   transfers of buffers containing null characters actually work
 &nbsp;*/
 &nbsp;htmlbuffer[8] = '\0';
-
+&nbsp;
 &nbsp;/* Add simple name/content section */
 &nbsp;curl_formadd(&post, &last, CURLFORM_COPYNAME, "name",
 &nbsp;             CURLFORM_COPYCONTENTS, "content", CURLFORM_END);
-
+&nbsp;
 &nbsp;/* Add simple name/content/contenttype section */
 &nbsp;curl_formadd(&post, &last, CURLFORM_COPYNAME, "htmlcode",
 &nbsp;             CURLFORM_COPYCONTENTS, "&lt;HTML&gt;&lt;/HTML&gt;",
 &nbsp;             CURLFORM_CONTENTTYPE, "text/html", CURLFORM_END);
-
+&nbsp;
 &nbsp;/* Add name/ptrcontent section */
 &nbsp;curl_formadd(&post, &last, CURLFORM_COPYNAME, "name_for_ptrcontent",
 &nbsp;             CURLFORM_PTRCONTENTS, buffer, CURLFORM_END);
-
+&nbsp;
 &nbsp;/* Add ptrname/ptrcontent section */
 &nbsp;curl_formadd(&post, &last, CURLFORM_PTRNAME, namebuffer,
 &nbsp;             CURLFORM_PTRCONTENTS, buffer, CURLFORM_NAMELENGTH,
 &nbsp;             namelength, CURLFORM_END);
-
+&nbsp;
 &nbsp;/* Add name/ptrcontent/contenttype section */
 &nbsp;curl_formadd(&post, &last, CURLFORM_COPYNAME, "html_code_with_hole",
 &nbsp;             CURLFORM_PTRCONTENTS, htmlbuffer,
 &nbsp;             CURLFORM_CONTENTSLENGTH, htmlbufferlength,
 &nbsp;             CURLFORM_CONTENTTYPE, "text/html", CURLFORM_END);
-
+&nbsp;
 &nbsp;/* Add simple file section */
 &nbsp;curl_formadd(&post, &last, CURLFORM_COPYNAME, "picture",
 &nbsp;             CURLFORM_FILE, "my-face.jpg", CURLFORM_END);
-
+&nbsp;
 &nbsp;/* Add file/contenttype section */
 &nbsp;curl_formadd(&post, &last, CURLFORM_COPYNAME, "picture",
 &nbsp;             CURLFORM_FILE, "my-face.jpg",
 &nbsp;             CURLFORM_CONTENTTYPE, "image/jpeg", CURLFORM_END);
-
+&nbsp;
 &nbsp;/* Add two file section */
 &nbsp;curl_formadd(&post, &last, CURLFORM_COPYNAME, "pictures",
 &nbsp;             CURLFORM_FILE, "my-face.jpg",
 &nbsp;             CURLFORM_FILE, "your-face.jpg", CURLFORM_END);
-
+&nbsp;
 &nbsp;/* Add two file section using CURLFORM_ARRAY */
 &nbsp;forms[0].option = CURLFORM_FILE;
 &nbsp;forms[0].value  = file1;
 &nbsp;forms[1].option = CURLFORM_FILE;
 &nbsp;forms[1].value  = file2;
 &nbsp;forms[2].option  = CURLFORM_END;
-
+&nbsp;
 &nbsp;/* Add a buffer to upload */
 &nbsp;curl_formadd(&post, &last,
 &nbsp;             CURLFORM_COPYNAME, "name",
@@ -165,7 +171,7 @@ p.roffit {
 &nbsp;             CURLFORM_BUFFERPTR, record,
 &nbsp;             CURLFORM_BUFFERLENGTH, record_length,
 &nbsp;             CURLFORM_END);
-
+&nbsp;
 &nbsp;/* no option needed for the end marker */
 &nbsp;curl_formadd(&post, &last, CURLFORM_COPYNAME, "pictures",
 &nbsp;             CURLFORM_ARRAY, forms, CURLFORM_END);
@@ -174,9 +180,9 @@ p.roffit {
 &nbsp;             CURLFORM_FILECONTENT, ".bashrc", CURLFORM_END);
 &nbsp;/* Set the form info */
 &nbsp;curl_easy_setopt(curl, CURLOPT_HTTPPOST, post);
-
+&nbsp;
 </pre>
 <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./curl_easy_setopt.html">curl_easy_setopt</a>, <span Class="manpage"> </span> <a Class="manpage" href="./curl_formfree.html">curl_formfree</a>, <p class="roffit">
+<p class="level0"><a Class="manpage" href="./curl_easy_setopt.html">curl_easy_setopt</a>, <a Class="manpage" href="./curl_formfree.html">curl_formfree</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

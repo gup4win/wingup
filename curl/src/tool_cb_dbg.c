@@ -9,7 +9,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -79,7 +79,7 @@ int tool_debug_cb(CURL *handle, curl_infotype type,
       /* Ok, this is somewhat hackish but we do it undocumented for now */
       config->trace_stream = config->errors;  /* aka stderr */
     else {
-      config->trace_stream = fopen(config->trace_dump, "w");
+      config->trace_stream = fopen(config->trace_dump, FOPEN_WRITETEXT);
       config->trace_fopened = TRUE;
     }
   }

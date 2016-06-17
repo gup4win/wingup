@@ -10,7 +10,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://curl.haxx.se/docs/copyright.html.
+# are also available at https://curl.haxx.se/docs/copyright.html.
 #
 # You may opt to use, copy, modify, merge, publish, distribute and/or sell
 # copies of the Software, and permit persons to whom the Software is
@@ -32,7 +32,7 @@
 # curl-autocompile@haxx.se to be dealt with automatically (make sure the
 # subject includes the word "autobuild" as the mail gets silently discarded
 # otherwise).  The most current build status (with a resonable backlog) will
-# be published on the curl site, at http://curl.haxx.se/auto/
+# be published on the curl site, at https://curl.haxx.se/auto/
 
 # USAGE:
 # testcurl.pl [options] [curl-daily-name] > output
@@ -61,6 +61,7 @@
 use strict;
 
 use Cwd;
+use File::Spec;
 
 # Turn on warnings (equivalent to -w, which can't be used with /usr/bin/env)
 #BEGIN { $^W = 1; }
@@ -387,6 +388,10 @@ if (-d $CURLDIR) {
     mydie "$CURLDIR is not a daily source dir or checked out from git!"
   }
 }
+
+# make the path absolute so we can use it everywhere
+$CURLDIR = File::Spec->rel2abs("$CURLDIR");
+
 $build="build-$$";
 $buildlogname="buildlog-$$";
 $buildlog="$pwd/$buildlogname";
@@ -459,7 +464,7 @@ if ($git) {
       logit "  $_";
     }
 
-    chdir "$pwd/$CURLDIR";
+    chdir "$CURLDIR";
   }
 
   if($nobuildconf) {
@@ -558,7 +563,7 @@ chdir "$pwd/$build";
 
 if ($configurebuild) {
   # run configure script
-  print `../$CURLDIR/configure $confopts 2>&1`;
+  print `$CURLDIR/configure $confopts 2>&1`;
 
   if (-f "lib/Makefile") {
     logit "configure seems to have finished fine";
@@ -568,26 +573,26 @@ if ($configurebuild) {
 } else {
   logit "copying files to build dir ...";
   if (($^O eq 'MSWin32') && ($targetos !~ /netware/)) {
-    system("xcopy /s /q ..\\$CURLDIR .");
+    system("xcopy /s /q \"$CURLDIR\" .");
     system("buildconf.bat");
   }
   elsif ($targetos =~ /netware/) {
-    system("cp -afr ../$CURLDIR/* .");
-    system("cp -af ../$CURLDIR/Makefile.dist Makefile");
+    system("cp -afr $CURLDIR/* .");
+    system("cp -af $CURLDIR/Makefile.dist Makefile");
     system("$make -i -C lib -f Makefile.netware prebuild");
     system("$make -i -C src -f Makefile.netware prebuild");
-    if (-d "../$CURLDIR/ares") {
+    if (-d "$CURLDIR/ares") {
       system("$make -i -C ares -f Makefile.netware prebuild");
     }
   }
   elsif ($^O eq 'linux') {
-    system("cp -afr ../$CURLDIR/* .");
-    system("cp -af ../$CURLDIR/Makefile.dist Makefile");
-    system("cp -af ../$CURLDIR/include/curl/curlbuild.h.dist ./include/curl/curlbuild.h");
+    system("cp -afr $CURLDIR/* .");
+    system("cp -af $CURLDIR/Makefile.dist Makefile");
+    system("cp -af $CURLDIR/include/curl/curlbuild.h.dist ./include/curl/curlbuild.h");
     system("$make -i -C lib -f Makefile.$targetos prebuild");
     system("$make -i -C src -f Makefile.$targetos prebuild");
-    if (-d "../$CURLDIR/ares") {
-      system("cp -af ../$CURLDIR/ares/ares_build.h.dist ./ares/ares_build.h");
+    if (-d "$CURLDIR/ares") {
+      system("cp -af $CURLDIR/ares/ares_build.h.dist ./ares/ares_build.h");
       system("$make -i -C ares -f Makefile.$targetos prebuild");
     }
   }

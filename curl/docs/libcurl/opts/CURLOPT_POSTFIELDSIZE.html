@@ -62,14 +62,14 @@ p.roffit {
 CURL *curl = curl_easy_init();
 if(curl) {
 &nbsp; const char *data = "data to send";
-
-&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "<a href="http://example.com">http://example.com</a>");
-
+&nbsp;
+&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "http://example.com");
+&nbsp;
 &nbsp; /* size of the POST data */
 &nbsp; curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long) strlen(data));
-
+&nbsp;
 &nbsp; curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-
+&nbsp;
 &nbsp; curl_easy_perform(curl);
 }
 </pre>
@@ -77,6 +77,6 @@ if(curl) {
 <p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">Along with HTTP <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if HTTP is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_POSTFIELDS.html">CURLOPT_POSTFIELDS</a>, <a Class="manpage" href="./CURLOPT_POSTFIELDSIZE_LARGE.html">CURLOPT_POSTFIELDSIZE_LARGE</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_POSTFIELDS.html">CURLOPT_POSTFIELDS</a>, <a Class="manpage" href="./CURLOPT_POSTFIELDSIZE_LARGE.html">CURLOPT_POSTFIELDSIZE_LARGE</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

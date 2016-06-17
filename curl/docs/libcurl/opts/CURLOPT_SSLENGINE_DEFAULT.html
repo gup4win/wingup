@@ -54,13 +54,17 @@ p.roffit {
 <p class="level0">CURLOPT_SSLENGINE_DEFAULT - make SSL engine default <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
 <p class="level0">&#35;include &lt;curl/curl.h&gt; 
 <p class="level0">CURLcode curl_easy_setopt(CURL *handle, CURLOPT_SSLENGINE_DEFAULT, long val); <a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
-<p class="level0">Pass a long set to 1 as parameter. Sets the actual crypto engine as the default for (asymmetric) crypto operations. 
-<p class="level0">If the crypto device cannot be set, <span Class="emphasis">CURLE_SSL_ENGINE_SETFAILED</span> is returned. <a name="DEFAULT"></a><h2 class="nroffsh">DEFAULT</h2>
+<p class="level0">Pass a long set to 1 to make the already specified crypto engine the default for (asymmetric) crypto operations. 
+<p class="level0">This option has no effect unless set after <a Class="emphasis" href="./CURLOPT_SSLENGINE.html">CURLOPT_SSLENGINE</a>. <a name="DEFAULT"></a><h2 class="nroffsh">DEFAULT</h2>
 <p class="level0">None <a name="PROTOCOLS"></a><h2 class="nroffsh">PROTOCOLS</h2>
-<p class="level0">All TLS based protocols: HTTPS, FTPS, IMAPS, POP3, SMTPS etc. <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
+<p class="level0">All TLS based protocols: HTTPS, FTPS, IMAPS, POP3S, SMTPS etc. <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
 <p class="level0">TODO <a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
-<p class="level0">If built TLS enabled. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
-<p class="level0">Returns CURLE_OK if TLS is supported, CURLE_UNKNOWN_OPTION if not, or CURLE_OUT_OF_MEMORY if there was insufficient heap space. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_SSLENGINE.html">CURLOPT_SSLENGINE</a>, <a Class="manpage" href="./CURLOPT_SSLCERT.html">CURLOPT_SSLCERT</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0">Only if the SSL backend is OpenSSL built with engine support. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
+<p class="level0">CURLE_OK - Engine set as default. 
+<p class="level0">CURLE_SSL_ENGINE_SETFAILED - Engine could not be set as default. 
+<p class="level0">CURLE_NOT_BUILT_IN - Option not built in, OpenSSL is not the SSL backend. 
+<p class="level0">CURLE_UNKNOWN_OPTION - Option not recognized. 
+<p class="level0">CURLE_OUT_OF_MEMORY - Insufficient heap space. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
+<p class="level0"><a Class="manpage" href="./CURLOPT_SSLENGINE.html">CURLOPT_SSLENGINE</a>, <a Class="manpage" href="./CURLOPT_SSLCERT.html">CURLOPT_SSLCERT</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

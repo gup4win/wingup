@@ -56,9 +56,9 @@ p.roffit {
 <p class="level0"><span Class="bold">void curl_formfree(struct curl_httppost * form);</span> 
 <p class="level0"><a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
 <p class="level0">curl_formfree() is used to clean up data previously built/appended with <a Class="emphasis" href="./curl_formadd.html">curl_formadd</a>. This must be called when the data has been used, which typically means after <a Class="emphasis" href="./curl_easy_perform.html">curl_easy_perform</a> has been called. 
-<p class="level0">The pointer to free is the same pointer you passed to the <span Class="bold">CURLOPT_HTTPPOST(3)</span> option, which is the <span Class="emphasis">firstitem</span> pointer from the <a Class="emphasis" href="./curl_formadd.html">curl_formadd</a> invoke(s). 
+<p class="level0">The pointer to free is the same pointer you passed to the <span Class="emphasis">CURLOPT_HTTPPOST(3)</span> option, which is the <span Class="emphasis">firstitem</span> pointer from the <a Class="emphasis" href="./curl_formadd.html">curl_formadd</a> invoke(s). 
 <p class="level0"><span Class="bold">form</span> is the pointer as returned from a previous call to <a Class="emphasis" href="./curl_formadd.html">curl_formadd</a> and may be NULL. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">None <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./curl_formadd.html">curl_formadd</a>, <p class="roffit">
+<p class="level0"><a Class="manpage" href="./curl_formadd.html">curl_formadd</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

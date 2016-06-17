@@ -9,7 +9,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://curl.haxx.se/docs/copyright.html.
+# are also available at https://curl.haxx.se/docs/copyright.html.
 #
 # You may opt to use, copy, modify, merge, publish, distribute and/or sell
 # copies of the Software, and permit persons to whom the Software is
@@ -66,7 +66,7 @@ AC_DEFUN([CURL_CHECK_COMPILER], [
 ***
 *** If you wish to help the cURL project to better support your compiler
 *** you can report this and the required info on the libcurl development
-*** mailing list: http://cool.haxx.se/mailman/listinfo/curl-library/
+*** mailing list: https://cool.haxx.se/mailman/listinfo/curl-library/
 ***
 _EOF
   fi

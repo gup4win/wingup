@@ -58,7 +58,7 @@ p.roffit {
 <p class="level0">scheme://host:port/path 
 <p class="level0">For a greater explanation of the format please see <a href="http://www.ietf.org/rfc/rfc3986.txt">RFC 3986</a>. 
 <p class="level0">libcurl doesn't validate the syntax or use this variable until the transfer is issued. Even if you set a crazy value here, <span Class="emphasis">curl_easy_setopt(3)</span> will still return <span Class="emphasis">CURLE_OK</span>. 
-<p class="level0">If the given URL lacks the scheme (such as "http://" or "ftp://" etc) then libcurl will attempt to resolve the protocol based on one of the following given host names: HTTP, FTP, DICT, LDAP, IMAP, POP3 or SMTP 
+<p class="level0">If the given URL is missing a scheme name (such as "http://" or "ftp://" etc) then libcurl will make a guess based on the host. If the outermost sub-domain name matches DICT, FTP, IMAP, LDAP, POP3 or SMTP then that protocol will be used, otherwise HTTP will be used. Since 7.45.0 guessing can be disabled by setting a default protocol, see <a Class="emphasis" href="./CURLOPT_DEFAULT_PROTOCOL.html">CURLOPT_DEFAULT_PROTOCOL</a> for details. 
 <p class="level0">Should the protocol, either that specified by the scheme or deduced by libcurl from the host name, not be supported by libcurl then <span Class="emphasis">CURLE_UNSUPPORTED_PROTOCOL</span> will be returned from either the <span Class="emphasis">curl_easy_perform(3)</span> or <span Class="emphasis">curl_multi_perform(3)</span> functions when you call them. Use <span Class="emphasis">curl_version_info(3)</span> for detailed information of which protocols are supported by the build of libcurl you are using. 
 <p class="level0"><a Class="emphasis" href="./CURLOPT_PROTOCOLS.html">CURLOPT_PROTOCOLS</a> can be used to limit what protocols libcurl will use for this transfer, independent of what libcurl has been compiled to support. That may be useful if you accept the URL from an external source and want to limit the accessibility. 
 <p class="level0"><a Class="emphasis" href="./CURLOPT_URL.html">CURLOPT_URL</a> is the only option that <span Class="bold">must</span> be set before a transfer is started. 
@@ -66,17 +66,17 @@ p.roffit {
 <p class="level0"><a href="http://www.example.com/">http://www.example.com/</a> 
 <p class="level0"><a href="http://hostname/">http://hostname/</a> 
 <p class="level0"><a href="http://192.168.0.1/">http://192.168.0.1/</a> 
-<p class="level0">http://[2001:1890:1112:1::20]/ 
+<p class="level0"><a href="http://[2001:1890:1112:1::20]/">http://[2001:1890:1112:1::20]/</a> 
 <p class="level0">It is also possible to specify the user name, password and any supported login options as part of the host, for the following protocols, when connecting to servers that require authentication: 
-<p class="level0"><a href="http://user">http://user</a>:password@www.example.com 
-<p class="level0"><a href="ftp://user">ftp://user</a>:password@ftp.example.com 
+<p class="level0"><a href="http://user:password@www.example.com">http://user:password@www.example.com</a> 
+<p class="level0"><a href="ftp://user:password@ftp.example.com">ftp://user:password@ftp.example.com</a> 
 <p class="level0">smb://domain%2fuser:password@server.example.com 
 <p class="level0">imap://user:password;options@mail.example.com 
 <p class="level0">pop3://user:password;options@mail.example.com 
 <p class="level0">smtp://user:password;options@mail.example.com 
 <p class="level0">At present only IMAP, POP3 and SMTP support login options as part of the host. For more information about the login options in URL syntax please see <a href="http://www.ietf.org/rfc/rfc2384.txt">RFC 2384</a>, <a href="http://www.ietf.org/rfc/rfc5092.txt">RFC 5092</a> and IETF draft draft-earhart-url-smtp-00.txt (Added in 7.31.0). 
 <p class="level0">The port is optional and when not specified libcurl will use the default port based on the determined or specified protocol: 80 for HTTP, 21 for FTP and 25 for SMTP, etc. The following examples show how to specify the port: 
-<p class="level0"><a href="http://www.example.com">http://www.example.com</a>:8080/ - This will connect to a web server using port 8080 rather than 80. 
+<p class="level0"><a href="http://www.example.com:8080/">http://www.example.com:8080/</a> - This will connect to a web server using port 8080 rather than 80. 
 <p class="level0">smtp://mail.example.com:587/ - This will connect to a SMTP server on the alternative mail port. 
 <p class="level0">The path part of the URL is protocol specific and whilst some examples are given below this list is not conclusive: 
 <p class="level0">
@@ -91,8 +91,8 @@ p.roffit {
 <p class="level1"><a href="ftp://ftp.example.com">ftp://ftp.example.com</a> - This retrieves the directory listing for the root directory. 
 <p class="level1"><a href="ftp://ftp.example.com/readme.txt">ftp://ftp.example.com/readme.txt</a> - This downloads the file readme.txt from the root directory. 
 <p class="level1"><a href="ftp://ftp.example.com/libcurl/readme.txt">ftp://ftp.example.com/libcurl/readme.txt</a> - This downloads readme.txt from the libcurl directory. 
-<p class="level1"><a href="ftp://user">ftp://user</a>:password@ftp.example.com/readme.txt - This retrieves the readme.txt file from the user's home directory. When a username and password is specified, everything that is specified in the path part is relative to the user's home directory. To retrieve files from the root directory or a directory underneath the root directory then the absolute path must be specified by prepending an additional forward slash to the beginning of the path. 
-<p class="level1"><a href="ftp://user">ftp://user</a>:password@ftp.example.com//readme.txt - This retrieves the readme.txt from the root directory when logging in as a specified user. 
+<p class="level1"><a href="ftp://user:password@ftp.example.com/readme.txt">ftp://user:password@ftp.example.com/readme.txt</a> - This retrieves the readme.txt file from the user's home directory. When a username and password is specified, everything that is specified in the path part is relative to the user's home directory. To retrieve files from the root directory or a directory underneath the root directory then the absolute path must be specified by prepending an additional forward slash to the beginning of the path. 
+<p class="level1"><a href="ftp://user:password@ftp.example.com//readme.txt">ftp://user:password@ftp.example.com//readme.txt</a> - This retrieves the readme.txt from the root directory when logging in as a specified user. 
 <p class="level1">
 <p class="level0"><a name="SMTP"></a><span class="nroffip">SMTP</span> 
 <p class="level1">The path part of a SMTP request specifies the host name to present during communication with the mail server. If the path is omitted then libcurl will attempt to resolve the local computer's host name. However, this may not return the fully qualified domain name that is required by some mail servers and specifying this path allows you to set an alternative name, such as your machine's fully qualified domain name, which you might have obtained from an external function such as gethostname or getaddrinfo. 
@@ -123,9 +123,9 @@ p.roffit {
 <p class="level1">
 <p class="level0"><a name="SFTP"></a><span class="nroffip">SFTP</span> 
 <p class="level1">The path part of a SFTP request specifies the file to retrieve and from what directory. If the file part is omitted then libcurl downloads the directory listing for the directory specified.  If the path ends in a / then a directory listing is returned instead of a file.  If the path is omitted entirely then the directory listing for the root / home directory will be returned.  If the user name is not embedded in the URL, it can be set with the <a Class="emphasis" href="./CURLOPT_USERPWD.html">CURLOPT_USERPWD</a> or <a Class="emphasis" href="./CURLOPT_USERNAME.html">CURLOPT_USERNAME</a> option. 
-<p class="level1">s<a href="ftp://user">ftp://user</a>:password@example.com/etc/issue - This specifies the file /etc/issue 
-<p class="level1">s<a href="ftp://user">ftp://user</a>@example.com/~/my-file - This specifies the file my-file in the user's home directory 
-<p class="level1">s<a href="ftp://ssh.example.com/">ftp://ssh.example.com/</a>~/Documents/ - This requests a directory listing of the Documents directory under the user's home directory 
+<p class="level1">sftp://user:password@example.com/etc/issue - This specifies the file /etc/issue 
+<p class="level1">sftp://user@example.com/~/my-file - This specifies the file my-file in the user's home directory 
+<p class="level1">sftp://ssh.example.com/~/Documents/ - This requests a directory listing of the Documents directory under the user's home directory 
 <p class="level1">
 <p class="level0"><a name="SMB"></a><span class="nroffip">SMB</span> 
 <p class="level1">The path part of a SMB request specifies the file to retrieve and from what share and directory or the share to upload to and as such, may not be omitted. If the user name is not embedded in the URL, it can be set with the <a Class="emphasis" href="./CURLOPT_USERPWD.html">CURLOPT_USERPWD</a> or <a Class="emphasis" href="./CURLOPT_USERNAME.html">CURLOPT_USERNAME</a> option. If the user name is embedded in the URL then it must contain the domain name and as such, the backslash must be URL encoded as %2f. 
@@ -152,8 +152,8 @@ p.roffit {
 <p class="level0"><pre class="level0">
 CURL *curl = curl_easy_init();
 if(curl) {
-&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "<a href="http://example.com">http://example.com</a>");
-
+&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "http://example.com");
+&nbsp;
 &nbsp; curl_easy_perform(curl);
 }
 </pre>
@@ -162,6 +162,6 @@ if(curl) {
 <p class="level0">POP3 and SMTP were added in 7.31.0 <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK on success or CURLE_OUT_OF_MEMORY if there was insufficient heap space. 
 <p class="level0">Note that <span Class="emphasis">curl_easy_setopt(3)</span> won't actually parse the given string so given a bad URL, it will not be detected until <span Class="emphasis">curl_easy_perform(3)</span> or similar is called. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_VERBOSE.html">CURLOPT_VERBOSE</a>, <a Class="manpage" href="./CURLOPT_PROTOCOLS.html">CURLOPT_PROTOCOLS</a>, <span Class="manpage"> </span> <a Class="manpage" href="./CURLOPT_FORBID_REUSE.html">CURLOPT_FORBID_REUSE</a>, <a Class="manpage" href="./CURLOPT_FRESH_CONNECT.html">CURLOPT_FRESH_CONNECT</a>, <span Class="manpage"> </span> <span Class="manpage">curl_easy_perform (3)</span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_VERBOSE.html">CURLOPT_VERBOSE</a>, <a Class="manpage" href="./CURLOPT_PROTOCOLS.html">CURLOPT_PROTOCOLS</a>, <a Class="manpage" href="./CURLOPT_FORBID_REUSE.html">CURLOPT_FORBID_REUSE</a>, <a Class="manpage" href="./CURLOPT_FRESH_CONNECT.html">CURLOPT_FRESH_CONNECT</a>, <span Class="manpage">curl_easy_perform (3)</span>, <a Class="manpage" href="./CURLINFO_REDIRECT_URL.html">CURLINFO_REDIRECT_URL</a>, <a Class="manpage" href="./CURLOPT_PATH_AS_IS.html">CURLOPT_PATH_AS_IS</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

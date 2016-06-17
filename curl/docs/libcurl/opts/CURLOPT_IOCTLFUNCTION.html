@@ -54,22 +54,22 @@ p.roffit {
 <p class="level0">CURLOPT_IOCTLFUNCTION - callback for I/O operations <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
 <p class="level0"><pre class="level0">
 &#35;include &lt;curl/curl.h&gt;
-
+&nbsp;
 typedef enum {
 &nbsp; CURLIOE_OK,            /* I/O operation successful */
 &nbsp; CURLIOE_UNKNOWNCMD,    /* command was unknown to callback */
 &nbsp; CURLIOE_FAILRESTART,   /* failed to restart the read */
 &nbsp; CURLIOE_LAST           /* never use */
 } curlioerr;
-
+&nbsp;
 typedef enum  {
 &nbsp; CURLIOCMD_NOP,         /* no operation */
 &nbsp; CURLIOCMD_RESTARTREAD, /* restart the read stream from start */
 &nbsp; CURLIOCMD_LAST         /* never use */
 } curliocmd;
-
+&nbsp;
 curlioerr ioctl_callback(CURL *handle, int cmd, void *clientp);
-
+&nbsp;
 CURLcode curl_easy_setopt(CURL *handle, CURLOPT_IOCTLFUNCTION, ioctl_callback);
 </pre>
 <a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
@@ -83,6 +83,6 @@ CURLcode curl_easy_setopt(CURL *handle, CURLOPT_IOCTLFUNCTION, ioctl_callback);
 <p class="level0">TODO <a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">Added in 7.12.3 <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_IOCTLDATA.html">CURLOPT_IOCTLDATA</a>, <a Class="manpage" href="./CURLOPT_SEEKFUNCTION.html">CURLOPT_SEEKFUNCTION</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_IOCTLDATA.html">CURLOPT_IOCTLDATA</a>, <a Class="manpage" href="./CURLOPT_SEEKFUNCTION.html">CURLOPT_SEEKFUNCTION</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

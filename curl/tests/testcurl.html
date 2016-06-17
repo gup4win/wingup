@@ -53,7 +53,7 @@ p.roffit {
 <p class="level0"><a name="NAME"></a><h2 class="nroffsh">NAME</h2>
 <p class="level0">testcurl.pl - (automatically) test curl <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
 <p class="level0"><span Class="bold">testcurl.pl [options] [dir] &gt; output</span> <a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
-<p class="level0"><span Class="emphasis">testcurl.pl</span> is the master script to use for automatic testing of curl off git or daily snapshots. It is written for the purpose of being run from a crontab job or similar at a regular interval. The output is suitable to be mailed to curl-autocompile@haxx.se to be dealt with automatically (make sure the subject includes the word "autobuild" as the mail gets silently discarded otherwise).  The most current build status (with a reasonable backlog) will be published on the curl site, at <a href="http://curl.haxx.se/auto/">http://curl.haxx.se/auto/</a> 
+<p class="level0"><span Class="emphasis">testcurl.pl</span> is the master script to use for automatic testing of curl off git or daily snapshots. It is written for the purpose of being run from a crontab job or similar at a regular interval. The output is suitable to be mailed to curl-autocompile@haxx.se to be dealt with automatically (make sure the subject includes the word "autobuild" as the mail gets silently discarded otherwise).  The most current build status (with a reasonable backlog) will be published on the curl site, at <a href="https://curl.haxx.se/auto/">https://curl.haxx.se/auto/</a> 
 <p class="level0"><span Class="emphasis">options</span> may be omitted. See <span Class="emphasis">--setup</span> for what happens then. 
 <p class="level0"><span Class="emphasis">dir</span> is a curl source dir, possibly a daily snapshot one. Using this will make testcurl.pl skip the 'buildconf' stage and thus it removes the dependency on automake, autoconf, libtool, GNU m4 and possibly a few other things. 
 <p class="level0">testcurl.pl will run 'buildconf' (or similar), run configure, build curl and libcurl in a separate build directory and then run 'make test' to test the fresh build. <a name="OPTIONS"></a><h2 class="nroffsh">OPTIONS</h2>
@@ -80,11 +80,11 @@ p.roffit {
 <p class="level1">File name to read setup from (deprecated). The old style of providing info. If info is missing when testcurl.pl is started, it will prompt you and then store the info in a 'setup' file, which it will look for on each invoke. Use <span Class="emphasis">--name</span>, <span Class="emphasis">--email</span>, <span Class="emphasis">--configure</span> and <span Class="emphasis">--desc</span> instead. 
 <p class="level0"><a name="--targetyour"></a><span class="nroffip">--target=[your os]</span> 
 <p class="level1">Specify your target environment. Recognized strings include 'vc', 'mingw32', 'borland' and 'netware'. <a name="INITIAL"></a><h2 class="nroffsh">INITIAL SETUP</h2>
-<p class="level0">First you make a checkout from git (or you write a script that downloads daily snapshots automatically, find inspiration at <a href="http://curl.haxx.se/auto/autocurl.txt">http://curl.haxx.se/auto/autocurl.txt</a>): 
+<p class="level0">First you make a checkout from git (or you write a script that downloads daily snapshots automatically, find inspiration at <a href="https://curl.haxx.se/auto/autocurl.txt):">https://curl.haxx.se/auto/autocurl.txt):</a> 
 <p class="level0"><pre class="level0">
 &nbsp; $ mkdir daily-curl
 &nbsp; $ cd daily-curl
-&nbsp; $ git clone git://github.com/bagder/curl.git
+&nbsp; $ git clone git://github.com/curl/curl.git
 </pre>
 
 <p class="level0">
@@ -111,10 +111,10 @@ desc='"--desc=supermachine Turbo 2000"'
 testprog="perl ./curl/tests/testcurl.pl $name $email $desc"
 opts1="--configure=--enable-debug"
 opts2="--configure=--enable-ipv6"
-
+&nbsp;
 &#35; run first test
 $testprog $opts1 | $mail
-
+&nbsp;
 &#35; run second test
 $testprog $opts2 | $mail
 <p class="roffit">

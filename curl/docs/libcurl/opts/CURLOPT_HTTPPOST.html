@@ -54,12 +54,12 @@ p.roffit {
 <p class="level0">CURLOPT_HTTPPOST - specify the multipart formpost content <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
 <p class="level0"><pre class="level0">
 &#35;include &lt;curl/curl.h&gt;
-
+&nbsp;
 CURLcode curl_easy_setopt(CURL *handle, CURLOPT_HTTPPOST,
 &nbsp;                         struct curl_httppost *formpost);
 </pre>
 <a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
-<p class="level0">Tells libcurl you want a multipart/formdata HTTP POST to be made and you instruct what data to pass on to the server in the <span Class="emphasis">formpost</span> argument. Pass a pointer to a linked list of curl_httppost structs as parameter.  The easiest way to create such a list, is to use <span Class="emphasis">curl_formadd(3)</span> as documented. The data in this list must remain intact until you close this curl handle again with <span Class="emphasis">curl_easy_cleanup(3)</span>. 
+<p class="level0">Tells libcurl you want a multipart/formdata HTTP POST to be made and you instruct what data to pass on to the server in the <span Class="emphasis">formpost</span> argument. Pass a pointer to a linked list of curl_httppost structs as parameter.  The easiest way to create such a list, is to use <span Class="emphasis">curl_formadd(3)</span> as documented. The data in this list must remain intact as long as the curl transfer is alive and is using it. 
 <p class="level0">Using POST with HTTP 1.1 implies the use of a "Expect: 100-continue" header. You can disable this header with <a Class="emphasis" href="./CURLOPT_HTTPHEADER.html">CURLOPT_HTTPHEADER</a>. 
 <p class="level0">When setting <a Class="emphasis" href="./CURLOPT_HTTPPOST.html">CURLOPT_HTTPPOST</a>, it will automatically set <a Class="emphasis" href="./CURLOPT_NOBODY.html">CURLOPT_NOBODY</a> to 0. <a name="DEFAULT"></a><h2 class="nroffsh">DEFAULT</h2>
 <p class="level0">NULL <a name="PROTOCOLS"></a><h2 class="nroffsh">PROTOCOLS</h2>
@@ -72,14 +72,14 @@ curl_formadd(&formpost,
 &nbsp;            CURLFORM_COPYNAME, "sendfile",
 &nbsp;            CURLFORM_FILE, "postit2.c",
 &nbsp;            CURLFORM_END);
-
+&nbsp;
 /* Fill in the filename field */
 curl_formadd(&formpost,
 &nbsp;            &lastptr,
 &nbsp;            CURLFORM_COPYNAME, "filename",
 &nbsp;            CURLFORM_COPYCONTENTS, "postit2.c",
 &nbsp;            CURLFORM_END);
-
+&nbsp;
 /* Fill in the submit field too, even if this is rarely needed */
 curl_formadd(&formpost,
 &nbsp;            &lastptr,
@@ -91,6 +91,6 @@ curl_formadd(&formpost,
 <p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">As long as HTTP is enabled <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if HTTP is enabled, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_POSTFIELDS.html">CURLOPT_POSTFIELDS</a>, <a Class="manpage" href="./CURLOPT_POST.html">CURLOPT_POST</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_POSTFIELDS.html">CURLOPT_POSTFIELDS</a>, <a Class="manpage" href="./CURLOPT_POST.html">CURLOPT_POST</a>, <span Class="manpage">curl_formadd (3)</span>, <span Class="manpage">curl_formfree (3)</span><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

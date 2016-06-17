@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -64,9 +64,9 @@ struct LongShort {
 };
 
 static const struct LongShort aliases[]= {
-  /* all these ones, starting with "*" or "$" as a short-option have *no*
-     short option to mention. */
-  {"*",  "url",                      TRUE},
+  /* 'letter' strings with more than one character have *no* short option to
+     mention. */
+  {"*@", "url",                      TRUE},
   {"*4", "dns-ipv4-addr",            TRUE},
   {"*6", "dns-ipv6-addr",            TRUE},
   {"*a", "random-file",              TRUE},
@@ -106,23 +106,21 @@ static const struct LongShort aliases[]= {
   {"*u", "crlf",                     FALSE},
   {"*v", "stderr",                   TRUE},
   {"*w", "interface",                TRUE},
-  {"*x", "krb" ,                     TRUE},
-  {"*x", "krb4" ,                    TRUE},
+  {"*x", "krb",                      TRUE},
+  {"*x", "krb4",                     TRUE},
          /* 'krb4' is the previous name */
   {"*y", "max-filesize",             TRUE},
   {"*z", "disable-eprt",             FALSE},
   {"*Z", "eprt",                     FALSE},
          /* 'eprt' made like this to make --no-eprt and --eprt to work
              although --disable-eprt is the documented option */
+  {"*~", "xattr",                    FALSE},
   {"$a", "ftp-ssl",                  FALSE},
          /* 'ftp-ssl' deprecated name since 7.20.0 */
   {"$a", "ssl",                      FALSE},
          /* 'ssl' new option name in 7.20.0, previously this was ftp-ssl */
   {"$b", "ftp-pasv",                 FALSE},
   {"$c", "socks5",                   TRUE},
-  {"$c", "socks",                    TRUE},
-         /* 'socks' is how the option once was documented but we prefer
-            the --socks5 version for explicit version */
   {"$d", "tcp-nodelay",              FALSE},
   {"$e", "proxy-digest",             FALSE},
   {"$f", "proxy-basic",              FALSE},
@@ -145,7 +143,7 @@ static const struct LongShort aliases[]= {
   {"$v", "ssl-reqd",                 FALSE},
          /* 'ssl-reqd' new in 7.20.0, previously this was ftp-ssl-reqd */
   {"$w", "sessionid",                FALSE},
-         /* ¡sessionid' listed as --no-sessionid in the help */
+         /* 'sessionid' listed as --no-sessionid in the help */
   {"$x", "ftp-ssl-control",          FALSE},
   {"$y", "ftp-ssl-ccc",              FALSE},
   {"$j", "ftp-ssl-ccc-mode",         TRUE},
@@ -158,10 +156,7 @@ static const struct LongShort aliases[]= {
   {"$3", "keepalive-time",           TRUE},
   {"$4", "post302",                  FALSE},
   {"$5", "noproxy",                  TRUE},
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  {"$6", "socks5-gssapi-service",    TRUE},
   {"$7", "socks5-gssapi-nec",        FALSE},
-#endif
   {"$8", "proxy1.0",                 TRUE},
   {"$9", "tftp-blksize",             TRUE},
   {"$A", "mail-from",                TRUE},
@@ -178,9 +173,19 @@ static const struct LongShort aliases[]= {
   {"$L", "test-event",               FALSE},
   {"$M", "unix-socket",              TRUE},
   {"$N", "path-as-is",               FALSE},
+  {"$O", "socks5-gssapi-service",    TRUE},
+         /* 'socks5-gssapi-service' merged with'proxy-service-name' and
+            deprecated since 7.49.0 */
+  {"$O", "proxy-service-name",       TRUE},
+  {"$P", "service-name",             TRUE},
+  {"$Q", "proto-default",            TRUE},
+  {"$R", "expect100-timeout",        TRUE},
+  {"$S", "tftp-no-options",          FALSE},
+  {"$U", "connect-to",               TRUE},
   {"0",   "http1.0",                 FALSE},
   {"01",  "http1.1",                 FALSE},
   {"02",  "http2",                   FALSE},
+  {"03",  "http2-prior-knowledge",   FALSE},
   {"1",  "tlsv1",                    FALSE},
   {"10",  "tlsv1.0",                 FALSE},
   {"11",  "tlsv1.1",                 FALSE},
@@ -196,6 +201,7 @@ static const struct LongShort aliases[]= {
   {"c",  "cookie-jar",               TRUE},
   {"C",  "continue-at",              TRUE},
   {"d",  "data",                     TRUE},
+  {"dr", "data-raw",                 TRUE},
   {"da", "data-ascii",               TRUE},
   {"db", "data-binary",              TRUE},
   {"de", "data-urlencode",           TRUE},
@@ -208,7 +214,7 @@ static const struct LongShort aliases[]= {
   {"Ed", "key-type",                 TRUE},
   {"Ee", "pass",                     TRUE},
   {"Ef", "engine",                   TRUE},
-  {"Eg", "capath ",                  TRUE},
+  {"Eg", "capath",                   TRUE},
   {"Eh", "pubkey",                   TRUE},
   {"Ei", "hostpubmd5",               TRUE},
   {"Ej", "crlfile",                  TRUE},
@@ -220,6 +226,8 @@ static const struct LongShort aliases[]= {
   {"Ep", "pinnedpubkey",             TRUE},
   {"Eq", "cert-status",              FALSE},
   {"Er", "false-start",              FALSE},
+  {"Es", "ssl-no-revoke",            FALSE},
+  {"Et", "tcp-fastopen",             FALSE},
   {"f",  "fail",                     FALSE},
   {"F",  "form",                     TRUE},
   {"Fs", "form-string",              TRUE},
@@ -248,8 +256,6 @@ static const struct LongShort aliases[]= {
   {"O",  "remote-name",              FALSE},
   {"Oa", "remote-name-all",          FALSE},
   {"p",  "proxytunnel",              FALSE},
-  {"P",  "ftpport",                  TRUE},
-         /* 'ftpport' old version */
   {"P",  "ftp-port",                 TRUE},
   {"q",  "disable",                  FALSE},
   {"Q",  "quote",                    TRUE},
@@ -257,8 +263,7 @@ static const struct LongShort aliases[]= {
   {"R",  "remote-time",              FALSE},
   {"s",  "silent",                   FALSE},
   {"S",  "show-error",               FALSE},
-  {"t",  "telnet-options",           TRUE},
-         /* 'telnet-options' documented as telnet-option */
+  {"t",  "telnet-option",            TRUE},
   {"T",  "upload-file",              TRUE},
   {"u",  "user",                     TRUE},
   {"U",  "proxy-user",               TRUE},
@@ -267,14 +272,11 @@ static const struct LongShort aliases[]= {
   {"w",  "write-out",                TRUE},
   {"x",  "proxy",                    TRUE},
   {"X",  "request",                  TRUE},
-  {"X",  "http-request",             TRUE},
-         /* 'http-request' OBSOLETE VERSION */
   {"Y",  "speed-limit",              TRUE},
   {"y",  "speed-time",               TRUE},
   {"z",  "time-cond",                TRUE},
   {"#",  "progress-bar",             FALSE},
   {":",  "next",                     FALSE},
-  {"~",  "xattr",                    FALSE},
 };
 
 /* Split the argument of -E to 'certname' and 'passphrase' separated by colon.
@@ -492,8 +494,8 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
       case 'b': /* egd-file */
         GetStr(&config->egd_file, nextarg);
         break;
-      case 'B': /* XOAUTH2 Bearer */
-        GetStr(&config->xoauth2_bearer, nextarg);
+      case 'B': /* OAuth 2.0 bearer token */
+        GetStr(&config->oauth_bearer, nextarg);
         break;
       case 'c': /* connect-timeout */
         err = str2udouble(&config->connecttimeout, nextarg);
@@ -678,7 +680,7 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
 
       case 'v': /* --stderr */
         if(strcmp(nextarg, "-")) {
-          FILE *newfile = fopen(nextarg, "wt");
+          FILE *newfile = fopen(nextarg, FOPEN_WRITETEXT);
           if(!newfile)
             warnf(global, "Failed to open %s!\n", nextarg);
           else {
@@ -713,8 +715,10 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
       case 'Z': /* --eprt */
         config->disable_eprt = (!toggle)?TRUE:FALSE;
         break;
-
-      default: /* the URL! */
+      case '~': /* --xattr */
+        config->xattr = toggle;
+        break;
+      case '@': /* the URL! */
       {
         struct getout *url;
         if(config->url_get || ((config->url_get = config->url_list) != NULL)) {
@@ -895,14 +899,9 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
         /* This specifies the noproxy list */
         GetStr(&config->noproxy, nextarg);
         break;
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-      case '6': /* --socks5-gssapi-service */
-        GetStr(&config->socks5_gssapi_service, nextarg);
-        break;
-      case '7': /* --socks5-gssapi-nec*/
+       case '7': /* --socks5-gssapi-nec*/
         config->socks5_gssapi_nec = toggle;
         break;
-#endif
       case '8': /* --proxy1.0 */
         /* http 1.0 proxy */
         GetStr(&config->proxy, nextarg);
@@ -986,6 +985,31 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
       case 'N': /* --path-as-is */
         config->path_as_is = toggle;
         break;
+      case 'O': /* --proxy-service-name */
+        GetStr(&config->proxy_service_name, nextarg);
+        break;
+      case 'P': /* --service-name */
+        GetStr(&config->service_name, nextarg);
+        break;
+      case 'Q': /* --proto-default */
+        GetStr(&config->proto_default, nextarg);
+        err = check_protocol(config->proto_default);
+        if(err)
+          return err;
+        break;
+      case 'R': /* --expect100-timeout */
+        err = str2udouble(&config->expect100timeout, nextarg);
+        if(err)
+          return err;
+        break;
+      case 'S': /* --tftp-no-options */
+        config->tftp_no_options = toggle;
+        break;
+      case 'U': /* --connect-to */
+        err = add2list(&config->connect_to, nextarg);
+        if(err)
+          return err;
+        break;
       }
       break;
     case '#': /* --progress-bar */
@@ -996,9 +1020,6 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
       break;
     case ':': /* --next */
       return PARAM_NEXT_OPERATION;
-    case '~': /* --xattr */
-      config->xattr = toggle;
-      break;
     case '0': /* --http* options */
       switch(subletter) {
       case '\0':
@@ -1012,6 +1033,10 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
       case '2':
         /* HTTP version 2.0 */
         config->httpversion = CURL_HTTP_VERSION_2_0;
+        break;
+      case '3':
+        /* HTTP version 2.0 over clean TCP*/
+        config->httpversion = CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE;
         break;
       }
       break;
@@ -1099,6 +1124,7 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
       char *postdata = NULL;
       FILE *file;
       size_t size = 0;
+      bool raw_mode = (subletter == 'r');
 
       if(subletter == 'e') { /* --data-urlencode*/
         /* [name]=[content], we encode the content part only
@@ -1124,7 +1150,6 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
         }
         if('@' == is_file) {
           /* a '@' letter, it means that a file name or - (stdin) follows */
-
           if(curlx_strequal("-", p)) {
             file = stdin;
             set_binmode(stdin);
@@ -1185,7 +1210,7 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
             return PARAM_NO_MEM;
         }
       }
-      else if('@' == *nextarg) {
+      else if('@' == *nextarg && !raw_mode) {
         /* the data begins with a '@' letter, it means that a file name
            or - (stdin) follows */
         nextarg++; /* pass the @ */
@@ -1377,6 +1402,15 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
         config->falsestart = TRUE;
         break;
 
+      case 's': /* --ssl-no-revoke */
+        if(curlinfo->features & CURL_VERSION_SSL)
+          config->ssl_no_revoke = TRUE;
+        break;
+
+      case 't': /* --tcp-fastopen */
+        config->tcp_fastopen = TRUE;
+        break;
+
       default: /* certificate file */
       {
         char *certname, *passphrase;
@@ -1404,7 +1438,7 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
                    &config->last_post,
                    (subletter=='s')?TRUE:FALSE)) /* 's' means literal string */
         return PARAM_BAD_USE;
-      if(SetHTTPrequest(config, HTTPREQ_POST, &config->httpreq))
+      if(SetHTTPrequest(config, HTTPREQ_FORMPOST, &config->httpreq))
         return PARAM_BAD_USE;
       break;
 
@@ -1739,7 +1773,7 @@ ParameterError getparameter(char *flag,    /* f or -long-flag */
         }
         else {
           fname = nextarg;
-          file = fopen(nextarg, "r");
+          file = fopen(nextarg, FOPEN_READTEXT);
         }
         err = file2string(&config->writeout, file);
         if(file && (file != stdin))

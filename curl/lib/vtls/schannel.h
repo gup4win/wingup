@@ -12,7 +12,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -72,6 +72,7 @@
 #define SECBUFFER_ALERT                 17
 #endif
 
+/* Both schannel buffer sizes must be > 0 */
 #define CURL_SCHANNEL_BUFFER_INIT_SIZE   4096
 #define CURL_SCHANNEL_BUFFER_FREE_SIZE   1024
 

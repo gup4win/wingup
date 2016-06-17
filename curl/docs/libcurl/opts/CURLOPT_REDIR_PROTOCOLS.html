@@ -54,7 +54,8 @@ p.roffit {
 <p class="level0">CURLOPT_REDIR_PROTOCOLS - set protocols allowed to redirect to <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
 <p class="level0">&#35;include &lt;curl/curl.h&gt; 
 <p class="level0">CURLcode curl_easy_setopt(CURL *handle, CURLOPT_REDIR_PROTOCOLS, long bitmask); <a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
-<p class="level0">Pass a long that holds a bitmask of CURLPROTO_* defines. If used, this bitmask limits what protocols libcurl may use in a transfer that it follows to in a redirect when <a Class="emphasis" href="./CURLOPT_FOLLOWLOCATION.html">CURLOPT_FOLLOWLOCATION</a> is enabled. This allows you to limit specific transfers to only be allowed to use a subset of protocols in redirections. By default libcurl will allow all protocols except for FILE and SCP. 
+<p class="level0">Pass a long that holds a bitmask of CURLPROTO_* defines. If used, this bitmask limits what protocols libcurl may use in a transfer that it follows to in a redirect when <a Class="emphasis" href="./CURLOPT_FOLLOWLOCATION.html">CURLOPT_FOLLOWLOCATION</a> is enabled. This allows you to limit specific transfers to only be allowed to use a subset of protocols in redirections. 
+<p class="level0">By default libcurl will allow all protocols on redirect except several disabled for security reasons: Since 7.19.4 FILE and SCP are disabled, and since 7.40.0 SMB and SMBS are also disabled. <span Class="emphasis">CURLPROTO_ALL</span> enables all protocols on redirect, including those disabled for security. 
 <p class="level0">These are the available protocol defines: <pre class="level0">
 CURLPROTO_DICT
 CURLPROTO_FILE
@@ -79,6 +80,7 @@ CURLPROTO_RTSP
 CURLPROTO_SCP
 CURLPROTO_SFTP
 CURLPROTO_SMB
+CURLPROTO_SMBS
 CURLPROTO_SMTP
 CURLPROTO_SMTPS
 CURLPROTO_TELNET
@@ -86,18 +88,18 @@ CURLPROTO_TFTP
 </pre>
 
 <p class="level0"><a name="DEFAULT"></a><h2 class="nroffsh">DEFAULT</h2>
-<p class="level0">All protocols except for FILE, SCP and SMB. <a name="PROTOCOLS"></a><h2 class="nroffsh">PROTOCOLS</h2>
+<p class="level0">All protocols except for FILE, SCP and since 7.40.0 SMB and SMBS. <a name="PROTOCOLS"></a><h2 class="nroffsh">PROTOCOLS</h2>
 <p class="level0">All <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
 <p class="level0"><pre class="level0">
 curl = curl_easy_init();
 if(curl) {
 &nbsp; /* pass in the URL from an external source */
 &nbsp; curl_easy_setopt(curl, CURLOPT_URL, argv[1]);
-
+&nbsp;
 &nbsp; /* only allow redirects to HTTP and HTTPS URLs */
 &nbsp; curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS,
 &nbsp;                  CURLPROTO_HTTP | CURLPROTO_HTTPS);
-
+&nbsp;
 &nbsp; /* Perform the request */
 &nbsp; curl_easy_perform(curl);
 }
@@ -106,6 +108,6 @@ if(curl) {
 <p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">Added in 7.19.4, before then it would follow all protocols. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_PROTOCOLS.html">CURLOPT_PROTOCOLS</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_PROTOCOLS.html">CURLOPT_PROTOCOLS</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

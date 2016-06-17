@@ -7,11 +7,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -56,6 +56,11 @@ void Curl_nss_md5sum(unsigned char *tmp, /* input */
                      unsigned char *md5sum, /* output */
                      size_t md5len);
 
+void Curl_nss_sha256sum(const unsigned char *tmp, /* input */
+                     size_t tmplen,
+                     unsigned char *sha256sum, /* output */
+                     size_t sha256len);
+
 bool Curl_nss_cert_status_request(void);
 
 bool Curl_nss_false_start(void);
@@ -68,6 +73,9 @@ bool Curl_nss_false_start(void);
 
 /* this backend supports CURLOPT_CERTINFO */
 #define have_curlssl_certinfo 1
+
+/* this backends supports CURLOPT_PINNEDPUBLICKEY */
+#define have_curlssl_pinnedpubkey 1
 
 /* API setup for NSS */
 #define curlssl_init Curl_nss_init
@@ -89,6 +97,7 @@ bool Curl_nss_false_start(void);
 #define curlssl_data_pending(x,y) ((void)x, (void)y, 0)
 #define curlssl_random(x,y,z) Curl_nss_random(x,y,z)
 #define curlssl_md5sum(a,b,c,d) Curl_nss_md5sum(a,b,c,d)
+#define curlssl_sha256sum(a,b,c,d) Curl_nss_sha256sum(a,b,c,d)
 #define curlssl_cert_status_request() Curl_nss_cert_status_request()
 #define curlssl_false_start() Curl_nss_false_start()
 
