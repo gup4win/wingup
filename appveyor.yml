@@ -1,0 +1,54 @@
+version: 4.0.{build}
+image: Visual Studio 2015
+
+
+clone_depth: 1
+
+
+environment:
+  matrix:
+  - PlatformToolset: v140
+  - PlatformToolset: v120
+
+platform:
+    - x64
+    - Win32
+
+configuration:
+    - Release
+    - Debug
+
+install:
+    - if "%platform%"=="x64" set archi=amd64
+    - if "%platform%"=="Win32" set archi=x86
+    - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %archi%
+
+build:
+    parallel: true                  # enable MSBuild parallel builds
+    verbosity: minimal
+
+build_script:
+    - cd c:\projects\wingup\vcproj
+    - msbuild GUP.vcxproj /p:configuration="%configuration%" /p:platform="%platform%" /p:PlatformToolset="%PlatformToolset%"
+
+after_build:
+    - cd c:\projects\wingup\
+    - ps: >-
+        $wingupFileName = "GUP.$env:PLATFORM.$env:CONFIGURATION.$env:PLATFORMTOOLSET.exe"
+
+        if ($env:PLATFORM -eq "x64" -and $env:CONFIGURATION -eq "Release") {
+            Push-AppveyorArtifact "bin64\GUP.exe" -FileName "$wingupFileName"
+        }
+
+        if ($env:PLATFORM -eq "x64" -and $env:CONFIGURATION -eq "Debug") {
+            Push-AppveyorArtifact "vcproj\x64\Debug\GUP.exe" -FileName "$wingupFileName"
+        }
+
+        if ($env:PLATFORM -eq "Win32" -and $env:CONFIGURATION -eq "Release") {
+            Push-AppveyorArtifact "bin\GUP.exe" -FileName "$wingupFileName"
+        }
+
+        if ($env:PLATFORM -eq "Win32" -and $env:CONFIGURATION -eq "Debug") {
+            Push-AppveyorArtifact "vcproj\Debug\GUP.exe" -FileName "$wingupFileName"
+        }
+
