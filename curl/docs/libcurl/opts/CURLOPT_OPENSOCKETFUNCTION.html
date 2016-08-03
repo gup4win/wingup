@@ -54,13 +54,13 @@ p.roffit {
 <p class="level0">CURLOPT_OPENSOCKETFUNCTION - set callback for opening sockets <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
 <p class="level0"><pre class="level0">
 &#35;include &lt;curl/curl.h&gt;
-
+&nbsp;
 typedef enum  {
 &nbsp; CURLSOCKTYPE_IPCXN,  /* socket created for a specific IP connection */
 &nbsp; CURLSOCKTYPE_ACCEPT, /* socket created by accept() call */
 &nbsp; CURLSOCKTYPE_LAST    /* never use */
 } curlsocktype;
-
+&nbsp;
 struct curl_sockaddr {
 &nbsp; int family;
 &nbsp; int socktype;
@@ -68,11 +68,11 @@ struct curl_sockaddr {
 &nbsp; unsigned int addrlen;
 &nbsp; struct sockaddr addr;
 };
-
+&nbsp;
 curl_socket_t opensocket_callback(void *clientp,
 &nbsp;                                 curlsocktype purpose,
 &nbsp;                                 struct curl_sockaddr *address);
-
+&nbsp;
 CURLcode curl_easy_setopt(CURL *handle, CURLOPT_OPENSOCKETFUNCTION, opensocket_callback);
 </pre>
 <a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
@@ -90,6 +90,6 @@ CURLcode curl_easy_setopt(CURL *handle, CURLOPT_OPENSOCKETFUNCTION, opensocket_c
 <p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">Added in 7.17.1. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_OPENSOCKETDATA.html">CURLOPT_OPENSOCKETDATA</a>, <a Class="manpage" href="./CURLOPT_SOCKOPTFUNCTION.html">CURLOPT_SOCKOPTFUNCTION</a>, <span Class="manpage"> </span> <a Class="manpage" href="./CURLOPT_CLOSESOCKETFUNCTION.html">CURLOPT_CLOSESOCKETFUNCTION</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_OPENSOCKETDATA.html">CURLOPT_OPENSOCKETDATA</a>, <a Class="manpage" href="./CURLOPT_SOCKOPTFUNCTION.html">CURLOPT_SOCKOPTFUNCTION</a>, <a Class="manpage" href="./CURLOPT_CLOSESOCKETFUNCTION.html">CURLOPT_CLOSESOCKETFUNCTION</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

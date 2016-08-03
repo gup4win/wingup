@@ -10,7 +10,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -131,7 +131,7 @@ const struct Curl_handler Curl_handler_smbs = {
    defined(__OS400__)
 static unsigned short smb_swap16(unsigned short x)
 {
-  return (x << 8) | ((x >> 8) & 0xff);
+  return (unsigned short) ((x << 8) | ((x >> 8) & 0xff));
 }
 
 static unsigned int smb_swap32(unsigned int x)
@@ -143,12 +143,14 @@ static unsigned int smb_swap32(unsigned int x)
 #ifdef HAVE_LONGLONG
 static unsigned long long smb_swap64(unsigned long long x)
 {
-  return ((unsigned long long)smb_swap32(x) << 32) | smb_swap32(x >> 32);
+  return ((unsigned long long) smb_swap32((unsigned int) x) << 32) |
+          smb_swap32((unsigned int) (x >> 32));
 }
 #else
 static unsigned __int64 smb_swap64(unsigned __int64 x)
 {
-  return ((unsigned __int64)smb_swap32(x) << 32) | smb_swap32(x >> 32);
+  return ((unsigned __int64) smb_swap32((unsigned int) x) << 32) |
+          smb_swap32((unsigned int) (x >> 32));
 }
 #endif
 #else
@@ -783,9 +785,15 @@ static CURLcode smb_request_state(struct connectdata *conn, bool *done)
     off = Curl_read16_le(((unsigned char *) msg) +
                          sizeof(struct smb_header) + 13);
     if(len > 0) {
-      result = Curl_client_write(conn, CLIENTWRITE_BODY,
-                                 (char *)msg + off + sizeof(unsigned int),
-                                 len);
+      struct smb_conn *smbc = &conn->proto.smbc;
+      if(off + sizeof(unsigned int) + len > smbc->got) {
+        failf(conn->data, "Invalid input packet");
+        result = CURLE_RECV_ERROR;
+      }
+      else
+        result = Curl_client_write(conn, CLIENTWRITE_BODY,
+                                   (char *)msg + off + sizeof(unsigned int),
+                                   len);
       if(result) {
         req->result = result;
         next_state = SMB_CLOSE;
@@ -897,7 +905,6 @@ static CURLcode smb_disconnect(struct connectdata *conn, bool dead)
   /* smb_done is not always called, so cleanup the request */
   if(req) {
     Curl_safefree(req->share);
-    Curl_safefree(conn->data->req.protop);
   }
 
   return CURLE_OK;
@@ -922,7 +929,7 @@ static int smb_getsock(struct connectdata *conn, curl_socket_t *socks,
 static CURLcode smb_parse_url_path(struct connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   struct smb_request *req = data->req.protop;
   char *path;
   char *slash;

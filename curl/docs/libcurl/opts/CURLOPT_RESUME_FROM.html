@@ -62,17 +62,17 @@ p.roffit {
 <p class="level0"><pre class="level0">
 CURL *curl = curl_easy_init();
 if(curl) {
-&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "<a href="ftp://example.com">ftp://example.com</a>");
-
+&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "ftp://example.com");
+&nbsp;
 &nbsp; /* resume upload at byte index 200 */
 &nbsp; curl_easy_setopt(curl, CURLOPT_RESUME_FROM, 200L);
-
+&nbsp;
 &nbsp; /* ask for upload */
 &nbsp; curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-
+&nbsp;
 &nbsp; /* set total data amount to expect */
 &nbsp; curl_easy_setopt(curl, CURLOPT_INFILESIZE, size_of_file);
-
+&nbsp;
 &nbsp; /* Perform the request */
 &nbsp; curl_easy_perform(curl);
 }
@@ -81,6 +81,6 @@ if(curl) {
 <p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">Always <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_RESUME_FROM_LARGE.html">CURLOPT_RESUME_FROM_LARGE</a>, <a Class="manpage" href="./CURLOPT_RANGE.html">CURLOPT_RANGE</a>, <span Class="manpage"> </span> <a Class="manpage" href="./CURLOPT_INFILESIZE.html">CURLOPT_INFILESIZE</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_RESUME_FROM_LARGE.html">CURLOPT_RESUME_FROM_LARGE</a>, <a Class="manpage" href="./CURLOPT_RANGE.html">CURLOPT_RANGE</a>, <a Class="manpage" href="./CURLOPT_INFILESIZE.html">CURLOPT_INFILESIZE</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

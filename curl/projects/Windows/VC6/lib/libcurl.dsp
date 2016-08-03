@@ -63,8 +63,8 @@ CFG=libcurl - Win32 LIB Debug
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /FD /EHsc /GZ /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /win32
 # ADD MTL /nologo /D "_DEBUG" /win32
@@ -93,8 +93,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_OPENSSL" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_OPENSSL" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_OPENSSL" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_OPENSSL" /FD /EHsc /GZ /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /win32
 # ADD MTL /nologo /D "_DEBUG" /win32
@@ -123,8 +123,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /win32
 # ADD MTL /nologo /D "_DEBUG" /win32
@@ -153,8 +153,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /FD /EHsc /GZ /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /win32
 # ADD MTL /nologo /D "_DEBUG" /win32
@@ -165,8 +165,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 advapi32.lib wldap32.lib ws2_32.lib /nologo /dll /incremental:no /debug /machine:I386 /out:"..\..\..\..\build\Win32\VC6\DLL Debug - DLL Windows SSPI\libcurld.dll" /pdbtype:con /fixed:no
-# ADD LINK32 advapi32.lib wldap32.lib ws2_32.lib /nologo /dll /incremental:no /debug /machine:I386 /out:"..\..\..\..\build\Win32\VC6\DLL Debug - DLL Windows SSPI\libcurld.dll" /pdbtype:con /fixed:no
+# ADD BASE LINK32 advapi32.lib wldap32.lib ws2_32.lib crypt32.lib /nologo /dll /incremental:no /debug /machine:I386 /out:"..\..\..\..\build\Win32\VC6\DLL Debug - DLL Windows SSPI\libcurld.dll" /pdbtype:con /fixed:no
+# ADD LINK32 advapi32.lib wldap32.lib ws2_32.lib crypt32.lib /nologo /dll /incremental:no /debug /machine:I386 /out:"..\..\..\..\build\Win32\VC6\DLL Debug - DLL Windows SSPI\libcurld.dll" /pdbtype:con /fixed:no
 
 !ELSEIF  "$(CFG)" == "libcurl - Win32 DLL Debug DLL Windows SSPI DLL WinIDN"
 
@@ -183,8 +183,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /GZ /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /win32
 # ADD MTL /nologo /D "_DEBUG" /win32
@@ -195,8 +195,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 advapi32.lib normaliz.lib wldap32.lib ws2_32.lib /nologo /dll /incremental:no /debug /machine:I386 /out:"..\..\..\..\build\Win32\VC6\DLL Debug - DLL Windows SSPI - DLL WinIDN\libcurld.dll" /pdbtype:con /fixed:no
-# ADD LINK32 advapi32.lib normaliz.lib wldap32.lib ws2_32.lib /nologo /dll /incremental:no /debug /machine:I386 /out:"..\..\..\..\build\Win32\VC6\DLL Debug - DLL Windows SSPI - DLL WinIDN\libcurld.dll" /pdbtype:con /fixed:no
+# ADD BASE LINK32 advapi32.lib normaliz.lib wldap32.lib ws2_32.lib crypt32.lib /nologo /dll /incremental:no /debug /machine:I386 /out:"..\..\..\..\build\Win32\VC6\DLL Debug - DLL Windows SSPI - DLL WinIDN\libcurld.dll" /pdbtype:con /fixed:no
+# ADD LINK32 advapi32.lib normaliz.lib wldap32.lib ws2_32.lib crypt32.lib /nologo /dll /incremental:no /debug /machine:I386 /out:"..\..\..\..\build\Win32\VC6\DLL Debug - DLL Windows SSPI - DLL WinIDN\libcurld.dll" /pdbtype:con /fixed:no
 
 !ELSEIF  "$(CFG)" == "libcurl - Win32 DLL Release"
 
@@ -212,8 +212,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /FD /EHsc /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /win32
 # ADD MTL /nologo /D "NDEBUG" /win32
@@ -242,8 +242,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_OPENSSL" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_OPENSSL" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_OPENSSL" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_OPENSSL" /FD /EHsc /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /win32
 # ADD MTL /nologo /D "NDEBUG" /win32
@@ -272,8 +272,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /win32
 # ADD MTL /nologo /D "NDEBUG" /win32
@@ -302,8 +302,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /FD /EHsc /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /win32
 # ADD MTL /nologo /D "NDEBUG" /win32
@@ -314,8 +314,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 advapi32.lib wldap32.lib ws2_32.lib /nologo /dll /pdb:none /machine:I386 /fixed:no /release
-# ADD LINK32 advapi32.lib wldap32.lib ws2_32.lib /nologo /dll /pdb:none /machine:I386 /fixed:no /release
+# ADD BASE LINK32 advapi32.lib wldap32.lib ws2_32.lib crypt32.lib /nologo /dll /pdb:none /machine:I386 /fixed:no /release
+# ADD LINK32 advapi32.lib wldap32.lib ws2_32.lib crypt32.lib /nologo /dll /pdb:none /machine:I386 /fixed:no /release
 
 !ELSEIF  "$(CFG)" == "libcurl - Win32 DLL Release DLL Windows SSPI DLL WinIDN"
 
@@ -332,8 +332,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /win32
 # ADD MTL /nologo /D "NDEBUG" /win32
@@ -344,8 +344,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 advapi32.lib normaliz.lib wldap32.lib ws2_32.lib /nologo /dll /pdb:none /machine:I386 /fixed:no /release
-# ADD LINK32 advapi32.lib normaliz.lib wldap32.lib ws2_32.lib /nologo /dll /pdb:none /machine:I386 /fixed:no /release
+# ADD BASE LINK32 advapi32.lib normaliz.lib wldap32.lib ws2_32.lib crypt32.lib /nologo /dll /pdb:none /machine:I386 /fixed:no /release
+# ADD LINK32 advapi32.lib normaliz.lib wldap32.lib ws2_32.lib crypt32.lib /nologo /dll /pdb:none /machine:I386 /fixed:no /release
 
 !ELSEIF  "$(CFG)" == "libcurl - Win32 LIB Debug"
 
@@ -360,8 +360,8 @@ LINK32=link.exe
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Debug\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /FD /EHsc /GZ /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -385,8 +385,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Debug - DLL OpenSSL\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /GZ /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -410,8 +410,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Debug - DLL OpenSSL - DLL LibSSH2\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -435,8 +435,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Debug - DLL Windows SSPI\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /FD /EHsc /GZ /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -460,8 +460,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Debug - DLL Windows SSPI - DLL WinIDN\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /GZ /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -485,8 +485,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Debug - LIB OpenSSL\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /GZ /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -510,8 +510,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Debug - LIB OpenSSL - LIB LibSSH2\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
+# ADD BASE CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
+# ADD CPP /nologo /MDd /W4 /Zi /Od /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "_DEBUG" /D "BUILDING_LIBCURL" /D "DEBUGBUILD" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /GZ /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -535,8 +535,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Release\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /FD /EHsc /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -560,8 +560,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Release - DLL OpenSSL\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -585,8 +585,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Release - DLL OpenSSL - DLL LibSSH2\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -610,8 +610,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Release - DLL Windows SSPI\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /FD /EHsc /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -635,8 +635,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Release - DLL Windows SSPI - DLL WinIDN\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_WINDOWS_SSPI" /D "USE_SCHANNEL" /D "USE_WIN32_IDN" /D "WANT_IDN_PROTOTYPES" /FD /EHsc /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -660,8 +660,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Release - LIB OpenSSL\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /FD /EHsc /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -685,8 +685,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\..\..\build\Win32\VC6\LIB Release - LIB OpenSSL - LIB LibSSH2\lib"
 # PROP Target_Dir ""
 CPP=cl.exe
-# ADD BASE CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
+# ADD BASE CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
+# ADD CPP /nologo /MD /W4 /O2 /I "$(ProgramFiles)\Microsoft Platform SDK\Include" /I "..\..\..\..\include" /I "..\..\..\..\lib" /I "..\..\..\..\..\openssl\inc32" /I "..\..\..\..\..\libssh2\include" /D "NDEBUG" /D "BUILDING_LIBCURL" /D "CURL_STATICLIB" /D "USE_OPENSSL" /D "USE_LIBSSH2" /D "HAVE_LIBSSH2_H" /FD /EHsc /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -746,10 +746,6 @@ SOURCE=..\..\..\..\lib\base64.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\..\lib\bundles.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\..\..\lib\conncache.c
 # End Source File
 # Begin Source File
@@ -798,15 +794,7 @@ SOURCE=..\..\..\..\lib\curl_multibyte.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\..\lib\curl_ntlm.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\..\..\lib\curl_ntlm_core.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\..\lib\curl_ntlm_msgs.c
 # End Source File
 # Begin Source File
 
@@ -819,14 +807,6 @@ SOURCE=..\..\..\..\lib\curl_rtmp.c
 # Begin Source File
 
 SOURCE=..\..\..\..\lib\curl_sasl.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\..\lib\curl_sasl_gssapi.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\..\lib\curl_sasl_sspi.c
 # End Source File
 # Begin Source File
 
@@ -938,7 +918,7 @@ SOURCE=..\..\..\..\lib\http_negotiate.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\..\lib\http_negotiate_sspi.c
+SOURCE=..\..\..\..\lib\http_ntlm.c
 # End Source File
 # Begin Source File
 
@@ -1114,6 +1094,10 @@ SOURCE=..\..\..\..\lib\strtoofft.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\..\lib\system_win32.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\..\lib\telnet.c
 # End Source File
 # Begin Source File
@@ -1150,6 +1134,54 @@ SOURCE=..\..\..\..\lib\x509asn1.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\..\lib\vauth\cleartext.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\cram.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\digest.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\digest_sspi.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\krb5_gssapi.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\krb5_sspi.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\ntlm.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\ntlm_sspi.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\oauth2.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\spnego_gssapi.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\spnego_sspi.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\vauth.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\..\lib\vtls\axtls.c
 # End Source File
 # Begin Source File
@@ -1167,6 +1199,10 @@ SOURCE=..\..\..\..\lib\vtls\gskit.c
 # Begin Source File
 
 SOURCE=..\..\..\..\lib\vtls\gtls.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vtls\mbedtls.c
 # End Source File
 # Begin Source File
 
@@ -1207,10 +1243,6 @@ SOURCE=..\..\..\..\lib\arpa_telnet.h
 # Begin Source File
 
 SOURCE=..\..\..\..\lib\asyn.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\..\lib\bundles.h
 # End Source File
 # Begin Source File
 
@@ -1291,14 +1323,6 @@ SOURCE=..\..\..\..\lib\curl_multibyte.h
 # Begin Source File
 
 SOURCE=..\..\..\..\lib\curl_ntlm_core.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\..\lib\curl_ntlm.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\..\lib\curl_ntlm_msgs.h
 # End Source File
 # Begin Source File
 
@@ -1415,6 +1439,10 @@ SOURCE=..\..\..\..\lib\http.h
 # Begin Source File
 
 SOURCE=..\..\..\..\lib\http_negotiate.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\http_ntlm.h
 # End Source File
 # Begin Source File
 
@@ -1566,6 +1594,10 @@ SOURCE=..\..\..\..\lib\strtoofft.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\..\lib\system_win32.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\..\lib\telnet.h
 # End Source File
 # Begin Source File
@@ -1602,6 +1634,18 @@ SOURCE=..\..\..\..\lib\x509asn1.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\..\lib\vauth\digest.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\ntlm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vauth\vauth.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\..\lib\vtls\axtls.h
 # End Source File
 # Begin Source File
@@ -1619,6 +1663,10 @@ SOURCE=..\..\..\..\lib\vtls\gskit.h
 # Begin Source File
 
 SOURCE=..\..\..\..\lib\vtls\gtls.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\lib\vtls\mbedtls.h
 # End Source File
 # Begin Source File
 

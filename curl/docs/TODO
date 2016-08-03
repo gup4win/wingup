@@ -25,14 +25,27 @@
  1.7 Detect when called from within callbacks
  1.8 Allow SSL (HTTPS) to proxy
  1.9 Cache negative name resolves
+ 1.10 Support IDNA2008
+ 1.11 minimize dependencies with dynamicly loaded modules
+ 1.12 have form functions use CURL handle argument
+ 1.13 Add CURLOPT_MAIL_CLIENT option
+ 1.14 Typesafe curl_easy_setopt()
+ 1.15 TCP Fast Open
+ 1.16 Try to URL encode given URL
+ 1.17 Add support for IRIs
+ 1.18 try next proxy if one doesn't work
+ 1.19 Timeout idle connections from the pool
 
  2. libcurl - multi interface
  2.1 More non-blocking
- 2.2 Fix HTTP Pipelining for PUT
- 2.3 Better support for same name resolves
+ 2.2 Better support for same name resolves
+ 2.3 Non-blocking curl_multi_remove_handle()
+ 2.4 Split connect and authentication process
+ 2.5 Edge-triggered sockets should work
 
  3. Documentation
  3.1 Update date and version in man pages
+ 3.2 Provide cmake config-file
 
  4. FTP
  4.1 HOST
@@ -49,6 +62,8 @@
  5.3 Rearrange request header order
  5.4 SPDY
  5.5 auth= in URLs
+ 5.6 Refuse "downgrade" redirects
+ 5.7 More compressions
 
  6. TELNET
  6.1 ditch stdin
@@ -59,22 +74,23 @@
  7. SMTP
  7.1 Pipelining
  7.2 Enhanced capability support
- 
+
  8. POP3
  8.1 Pipelining
  8.2 Enhanced capability support
- 
+
  9. IMAP
  9.1 Enhanced capability support
- 
+
  10. LDAP
  10.1 SASL based authentication mechanisms
- 
+
  11. SMB
  11.1 File listing support
  11.2 Honor file timestamps
  11.3 Use NTLMv2
- 
+ 11.4 Create remote directories
+
  12. New protocols
  12.1 RSYNC
 
@@ -100,8 +116,9 @@
  16. SASL
  16.1 Other authentication mechanisms
  16.2 Add QOP support to GSSAPI authentication
- 
- 17. Client
+ 16.3 Support binary messages (i.e.: non-base64)
+
+ 17. Command line tool
  17.1 sync
  17.2 glob posts
  17.3 prevent file overwriting
@@ -111,6 +128,11 @@
  17.7 warning when sending binary output to terminal
  17.8 offer color-coded HTTP header output
  17.9 Choose the name of file in braces for complex URLs
+ 17.10 improve how curl works in a windows console window
+ 17.11 -w output to stderr
+ 17.12 keep running, read instructions from pipe/socket
+ 17.13 support metalink in http headers
+ 17.14 --fail without --location should treat 3xx as a failure
 
  18. Build
  18.1 roffit
@@ -121,6 +143,7 @@
  19.3 more protocols supported
  19.4 more platforms supported
  19.5 Add support for concurrent connections
+ 19.6 Use the RFC6265 test suite
 
  20. Next SONAME bump
  20.1 http-style HEAD output for FTP
@@ -136,8 +159,6 @@
  21.6 remove CURLOPT_DNS_USE_GLOBAL_CACHE
  21.7 remove progress meter from libcurl
  21.8 remove 'curl_httppost' from public
- 21.9 have form functions use CURL handle argument
- 21.10 Add CURLOPT_MAIL_CLIENT option
 
 ==============================================================================
 
@@ -162,7 +183,7 @@
  signal handler back into the library with a sigsetjmp, which effectively
  causes libcurl to continue running within the signal handler. This is
  non-portable and could cause problems on some platforms. A discussion on the
- problem is available at http://curl.haxx.se/mail/lib-2008-09/0197.html
+ problem is available at https://curl.haxx.se/mail/lib-2008-09/0197.html
 
  Also, alarm() provides timeout resolution only to the nearest second. alarm
  ought to be replaced by setitimer on systems that support it.
@@ -207,7 +228,7 @@
 
  To prevent local users from snooping on your traffic to the proxy. Supported
  by Chrome already:
- http://www.chromium.org/developers/design-documents/secure-web-proxy
+ https://www.chromium.org/developers/design-documents/secure-web-proxy
 
  ...and by Firefox soon:
  https://bugzilla.mozilla.org/show_bug.cgi?id=378637
@@ -216,6 +237,110 @@
 
  A name resolve that has failed is likely to fail when made again within a
  short period of time. Currently we only cache positive responses.
+
+1.10 Support IDNA2008
+
+ International Domain Names are supported in libcurl since years back, powered
+ by libidn. libidn implements IDNA2003 which has been superseded by IDNA2008.
+ libidn2 is an existing library offering support for IDNA2008.
+
+1.11 minimize dependencies with dynamicly loaded modules
+
+ We can create a system with loadable modules/plug-ins, where these modules
+ would be the ones that link to 3rd party libs. That would allow us to avoid
+ having to load ALL dependencies since only the necessary ones for this
+ app/invoke/used protocols would be necessary to load.  See
+ https://github.com/curl/curl/issues/349
+
+1.12 have form functions use CURL handle argument
+
+ curl_formadd() and curl_formget() both currently have no CURL handle
+ argument, but both can use a callback that is set in the easy handle, and
+ thus curl_formget() with callback cannot function without first having
+ curl_easy_perform() (or similar) called - which is hard to grasp and a design
+ mistake.
+
+ The curl_formadd() design can probably also be reconsidered to make it easier
+ to use and less error-prone. Probably easiest by splitting it into several
+ function calls.
+
+1.13 Add CURLOPT_MAIL_CLIENT option
+
+ Rather than use the URL to specify the mail client string to present in the
+ HELO and EHLO commands, libcurl should support a new CURLOPT specifically for
+ specifying this data as the URL is non-standard and to be honest a bit of a
+ hack ;-)
+
+ Please see the following thread for more information:
+ https://curl.haxx.se/mail/lib-2012-05/0178.html
+
+1.14 Typesafe curl_easy_setopt()
+
+ One of the most common problems in libcurl using applications is the lack of
+ type checks for curl_easy_setopt() which happens because it accepts varargs
+ and thus can take any type.
+
+ One possible solution to this is to introduce a few different versions of the
+ setopt version for the different kinds of data you can set.
+
+  curl_easy_set_num() - sets a long value
+
+  curl_easy_set_large() - sets a curl_off_t value
+
+  curl_easy_set_ptr() - sets a pointer
+
+  curl_easy_set_cb() - sets a callback PLUS its callback data
+
+1.15 Monitor connections in the connection pool
+
+ libcurl's connection cache or pool holds a number of open connections for the
+ purpose of possible subsequent connection reuse. It may contain a few up to a
+ significant amount of connections. Currently, libcurl leaves all connections
+ as they are and first when a connection is iterated over for matching or
+ reuse purpose it is verified that it is still alive.
+
+ Those connections may get closed by the server side for idleness or they may
+ get a HTTP/2 ping from the peer to verify that they're still alive. By adding
+ monitoring of the connections while in the pool, libcurl can detect dead
+ connections (and close them) better and earlier, and it can handle HTTP/2
+ pings to keep such ones alive even when not actively doing transfers on them.
+
+1.16 Try to URL encode given URL
+
+ Given a URL that for example contains spaces, libcurl could have an option
+ that would try somewhat harder than it does now and convert spaces to %20 and
+ perhaps URL encoded byte values over 128 etc (basically do what the redirect
+ following code already does).
+
+ https://github.com/curl/curl/issues/514
+
+1.17 Add support for IRIs
+
+ IRIs (RFC 3987) allow localized, non-ascii, names in the URL. To properly
+ support this, curl/libcurl would need to translate/encode the given input
+ from the input string encoding into percent encoded output "over the wire".
+
+ To make that work smoothly for curl users even on Windows, curl would
+ probably need to be able to convert from several input encodings.
+
+1.18 try next proxy if one doesn't work
+
+ Allow an application to specify a list of proxies to try, and failing to
+ connect to the first go on and try the next instead until the list is
+ exhausted. Browsers support this feature at least when they specify proxies
+ using PACs.
+
+ https://github.com/curl/curl/issues/896
+
+1.19 Timeout idle connections from the pool
+
+ libcurl currently keeps connections in its connection pool for an indefinite
+ period of time, until it either gets reused, gets noticed that it has been
+ closed by the server or gets pruned to make room for a new connection.
+
+ To reduce overhead (especially for when we add monitoring of the connections
+ in the pool), we should introduce a timeout so that connections that have
+ been idle for N seconds get closed.
 
 
 2. libcurl - multi interface
@@ -234,13 +359,7 @@
  - The "DONE" operation (post transfer protocol-specific actions) for the
    protocols SFTP, SMTP, FTP. Fixing Curl_done() for this is a worthy task.
 
-2.2 Fix HTTP Pipelining for PUT
-
- HTTP Pipelining can be a way to greatly enhance performance for multiple
- serial requests and currently libcurl only supports that for HEAD and GET
- requests but it should also be possible for PUT.
-
-2.3 Better support for same name resolves
+2.2 Better support for same name resolves
 
  If a name resolve has been initiated for name NN and a second easy handle
  wants to resolve that name as well, make it wait for the first resolve to end
@@ -248,6 +367,26 @@
  especially needed when adding many simultaneous handles using the same host
  name when the DNS resolver can get flooded.
 
+2.3 Non-blocking curl_multi_remove_handle()
+
+ The multi interface has a few API calls that assume a blocking behavior, like
+ add_handle() and remove_handle() which limits what we can do internally. The
+ multi API need to be moved even more into a single function that "drives"
+ everything in a non-blocking manner and signals when something is done. A
+ remove or add would then only ask for the action to get started and then
+ multi_perform() etc still be called until the add/remove is completed.
+
+2.4 Split connect and authentication process
+
+ The multi interface treats the authentication process as part of the connect
+ phase. As such any failures during authentication won't trigger the relevant
+ QUIT or LOGOFF for protocols such as IMAP, POP3 and SMTP.
+
+2.5 Edge-triggered sockets should work
+
+ The multi_socket API should work with edge-triggered socket events. One of
+ the internal actions that need to be improved for this to work perfectly is
+ the 'maxloops' handling in transfer.c:readwrite_data().
 
 3. Documentation
 
@@ -257,6 +396,12 @@
  pages at release time to use the current date and curl/libcurl version
  number.
 
+3.2 Provide cmake config-file
+
+ A config-file package is a set of files provided by us to allow applications
+ to write cmake scripts to find and use libcurl easier. See
+ https://github.com/curl/curl/issues/885
+
 4. FTP
 
 4.1 HOST
@@ -264,14 +409,14 @@
  HOST is a command for a client to tell which host name to use, to offer FTP
  servers named-based virtual hosting:
 
- http://tools.ietf.org/html/rfc7151
+ https://tools.ietf.org/html/rfc7151
 
 4.2 Alter passive/active on failure and retry
 
  When trying to connect passively to a server which only supports active
  connections, libcurl returns CURLE_FTP_WEIRD_PASV_REPLY and closes the
  connection. There could be a way to fallback to an active connection (and
- vice versa). http://curl.haxx.se/bug/feature.cgi?id=1754793
+ vice versa). https://curl.haxx.se/bug/feature.cgi?id=1754793
 
 4.3 Earlier bad letter detection
 
@@ -308,13 +453,13 @@ This is not detailed in any FTP specification.
 5.1 Better persistency for HTTP 1.0
 
  "Better" support for persistent connections over HTTP 1.0
- http://curl.haxx.se/bug/feature.cgi?id=1089001
+ https://curl.haxx.se/bug/feature.cgi?id=1089001
 
 5.2 support FF3 sqlite cookie files
 
  Firefox 3 is changing from its former format to a a sqlite database instead.
  We should consider how (lib)curl can/should support this.
- http://curl.haxx.se/bug/feature.cgi?id=1871388
+ https://curl.haxx.se/bug/feature.cgi?id=1871388
 
 5.3 Rearrange request header order
 
@@ -344,9 +489,25 @@ This is not detailed in any FTP specification.
  For example:
 
  http://test:pass;auth=NTLM@example.com would be equivalent to specifying --user
- test:pass;auth=NTLM or --user test:pass --ntlm from the command line. 
+ test:pass;auth=NTLM or --user test:pass --ntlm from the command line.
 
  Additionally this should be implemented for proxy base URLs as well.
+
+5.6 Refuse "downgrade" redirects
+
+ See https://github.com/curl/curl/issues/226
+
+ Consider a way to tell curl to refuse to "downgrade" protocol with a redirect
+ and/or possibly a bit that refuses redirect to change protocol completely.
+
+5.7 More compressions
+
+ Compression algorithms that perform better than gzip are being considered for
+ use and inclusion in existing browsers. For example 'brotli'. If servers
+ follow along it is a good reason for us to also allow users to take advantage
+ of this. The algorithm: https://github.com/google/brotli The Firefox bug:
+ https://bugzilla.mozilla.org/show_bug.cgi?id=366559
+
 
 6. TELNET
 
@@ -420,11 +581,16 @@ be the same as/similar to FTP.
 
 11.2 Honor file timestamps
 
-The timestamp of the transfered file should reflect that of the original file.
+The timestamp of the transferred file should reflect that of the original file.
 
 11.3 Use NTLMv2
 
 Currently the SMB authentication uses NTLMv1.
+
+11.4 Create remote directories
+
+Support for creating remote directories when uploading a file to a directory
+that doesn't exist on the server, just like --ftp-create-dirs.
 
 12. New protocols
 
@@ -438,7 +604,7 @@ Currently the SMB authentication uses NTLMv1.
 13.1 Disable specific versions
 
  Provide an option that allows for disabling specific SSL versions, such as
- SSLv2 http://curl.haxx.se/bug/feature.cgi?id=1767276
+ SSLv2 https://curl.haxx.se/bug/feature.cgi?id=1767276
 
 13.2 Provide mutex locking API
 
@@ -449,7 +615,7 @@ Currently the SMB authentication uses NTLMv1.
 13.3 Evaluate SSL patches
 
  Evaluate/apply Gertjan van Wingerde's SSL patches:
- http://curl.haxx.se/mail/lib-2004-03/0087.html
+ https://curl.haxx.se/mail/lib-2004-03/0087.html
 
 13.4 Cache OpenSSL contexts
 
@@ -484,12 +650,12 @@ Currently the SMB authentication uses NTLMv1.
 
  DNS-Based Authentication of Named Entities (DANE) is a way to provide SSL
  keys and certs over DNS using DNSSEC as an alternative to the CA model.
- http://www.rfc-editor.org/rfc/rfc6698.txt
+ https://www.rfc-editor.org/rfc/rfc6698.txt
 
  An initial patch was posted by Suresh Krishnaswamy on March 7th 2013
- (http://curl.haxx.se/mail/lib-2013-03/0075.html) but it was a too simple
+ (https://curl.haxx.se/mail/lib-2013-03/0075.html) but it was a too simple
  approach. See Daniel's comments:
- http://curl.haxx.se/mail/lib-2013-03/0103.html . libunbound may be the
+ https://curl.haxx.se/mail/lib-2013-03/0103.html . libunbound may be the
  correct library to base this development on.
 
 14. GnuTLS
@@ -514,7 +680,7 @@ Currently the SMB authentication uses NTLMv1.
  Therefore support for the existing -E/--cert and --key options should be
  implemented by supplying a custom certificate to the SChannel APIs, see:
  - Getting a Certificate for Schannel
-   http://msdn.microsoft.com/en-us/library/windows/desktop/aa375447.aspx
+   https://msdn.microsoft.com/en-us/library/windows/desktop/aa375447.aspx
 
 15.2 Add support for custom server certificate validation
 
@@ -525,7 +691,7 @@ Currently the SMB authentication uses NTLMv1.
  Therefore support for the existing --cacert or --capath options should be
  implemented by supplying a custom certificate to the SChannel APIs, see:
  - Getting a Certificate for Schannel
-   http://msdn.microsoft.com/en-us/library/windows/desktop/aa375447.aspx
+   https://msdn.microsoft.com/en-us/library/windows/desktop/aa375447.aspx
 
 15.3 Add support for the --ciphers option
 
@@ -536,7 +702,7 @@ Currently the SMB authentication uses NTLMv1.
  Therefore support for the existing --ciphers option should be implemented
  by mapping the OpenSSL/GnuTLS cipher suites to the SChannel APIs, see
  - Specifying Schannel Ciphers and Cipher Strengths
-   http://msdn.microsoft.com/en-us/library/windows/desktop/aa380161.aspx
+   https://msdn.microsoft.com/en-us/library/windows/desktop/aa380161.aspx
 
 16. SASL
 
@@ -544,7 +710,7 @@ Currently the SMB authentication uses NTLMv1.
 
  Add support for other authentication mechanisms such as OLP,
  GSS-SPNEGO and others.
- 
+
 16.2 Add QOP support to GSSAPI authentication
 
  Currently the GSSAPI authentication only supports the default QOP of auth
@@ -552,7 +718,11 @@ Currently the SMB authentication uses NTLMv1.
  with integrity protection) and auth-conf (Authentication with integrity and
  privacy protection).
 
-17. Client
+16.3 Support binary messages (i.e.: non-base64)
+
+  Mandatory to support LDAP SASL authentication.
+
+17. Command line tool
 
 17.1 sync
 
@@ -581,7 +751,10 @@ Currently the SMB authentication uses NTLMv1.
  The client could be told to use maximum N simultaneous parallel transfers and
  then just make sure that happens. It should of course not make more than one
  connection to the same remote host. This would require the client to use the
- multi interface. http://curl.haxx.se/bug/feature.cgi?id=1558595
+ multi interface. https://curl.haxx.se/bug/feature.cgi?id=1558595
+
+ Using the multi interface would also allow properly using parallel transfers
+ with HTTP/2 and supporting HTTP/2 server push from the command line.
 
 17.5 provide formpost headers
 
@@ -599,32 +772,78 @@ Currently the SMB authentication uses NTLMv1.
 
 17.6 warning when setting an option
 
-  Display a warning when libcurl returns an error when setting an option.
-  This can be useful to tell when support for a particular feature hasn't been
-  compiled into the library.
+ Display a warning when libcurl returns an error when setting an option.
+ This can be useful to tell when support for a particular feature hasn't been
+ compiled into the library.
 
 17.7 warning when sending binary output to terminal
 
-  Provide a way that prompts the user for confirmation before binary data is
-  sent to the terminal, much in the style 'less' does it.
+ Provide a way that prompts the user for confirmation before binary data is
+ sent to the terminal, much in the style 'less' does it.
 
 17.8 offer color-coded HTTP header output
 
-  By offering different color output on the header name and the header
-  contents, they could be made more readable and thus help users working on
-  HTTP services.
+ By offering different color output on the header name and the header
+ contents, they could be made more readable and thus help users working on
+ HTTP services.
 
 17.9 Choose the name of file in braces for complex URLs
 
-  When using braces to download a list of URLs and you use complicated names
-  in the list of alternatives, it could be handy to allow curl to use other
-  names when saving.
+ When using braces to download a list of URLs and you use complicated names
+ in the list of alternatives, it could be handy to allow curl to use other
+ names when saving.
 
-  Consider a way to offer that. Possibly like
-  {partURL1:name1,partURL2:name2,partURL3:name3} where the name following the
-  colon is the output name.
+ Consider a way to offer that. Possibly like
+ {partURL1:name1,partURL2:name2,partURL3:name3} where the name following the
+ colon is the output name.
 
-  See https://github.com/bagder/curl/issues/221
+ See https://github.com/curl/curl/issues/221
+
+17.10 improve how curl works in a windows console window
+
+ If you pull the scrollbar when transferring with curl in a Windows console
+ window, the transfer is interrupted and can get disconnected. This can
+ probably be improved. See https://github.com/curl/curl/issues/322
+
+17.11 -w output to stderr
+
+ -w is quite useful, but not to those of us who use curl without -o or -O
+ (such as for scripting through a higher level language). It would be nice to
+ have an option that is exactly like -w but sends it to stderr
+ instead. Proposed name: --write-stderr. See
+ https://github.com/curl/curl/issues/613
+
+17.12 keep running, read instructions from pipe/socket
+
+ Provide an option that makes curl not exit after the last URL (or even work
+ without a given URL), and then make it read instructions passed on a pipe or
+ over a socket to make further instructions so that a second subsequent curl
+ invoke can talk to the still running instance and ask for transfers to get
+ done, and thus maintain its connection pool, DNS cache and more.
+
+17.13 support metalink in http headers
+
+ Curl has support for downloading a metalink xml file, processing it, and then
+ downloading the target of the metalink. This is done via the --metalink option.
+ It would be nice if metalink also supported downloading via metalink
+ information that is stored in HTTP headers (RFC 6249). Theoretically this could
+ also be supported with the --metalink option.
+
+ See https://tools.ietf.org/html/rfc6249
+
+ See also https://lists.gnu.org/archive/html/bug-wget/2015-06/msg00034.html for
+ an implematation of this in wget.
+
+17.14 --fail without --location should treat 3xx as a failure
+
+ To allow a command line like this to detect a redirect and consider it a
+ failure:
+
+    curl -v --fail -O https://example.com/curl-7.48.0.tar.gz
+
+ ... --fail must treat 3xx responses as failures too. The least problematic
+ way to implement this is probably to add that new logic in the command line
+ tool only and not in the underlying CURLOPT_FAILONERROR logic.
 
 
 18. Build
@@ -670,6 +889,16 @@ Currently the SMB authentication uses NTLMv1.
  been dropped (unless it has been forced - which we shouldn't do in these tests)
  and thus the wait for connections loop is never entered to receive the second
  connection.
+
+19.6 Use the RFC6265 test suite
+
+ A test suite made for HTTP cookies (RFC 6265) by Adam Barth is available at
+ https://github.com/abarth/http-state/tree/master/tests
+
+ It'd be really awesome if someone would write a script/setup that would run
+ curl with that test suite and detect deviances. Ideally, that would even be
+ incorporated into our regular test suite.
+
 
 20. Next SONAME bump
 
@@ -775,22 +1004,3 @@ Currently the SMB authentication uses NTLMv1.
 
  Changing them to return a private handle will benefit the implementation and
  allow us much greater freedoms while still maintaining a solid API and ABI.
-
-21.9 have form functions use CURL handle argument
-
- curl_formadd() and curl_formget() both currently have no CURL handle
- argument, but both can use a callback that is set in the easy handle, and
- thus curl_formget() with callback cannot function without first having
- curl_easy_perform() (or similar) called - which is hard to grasp and a design
- mistake.
-
-21.10 Add CURLOPT_MAIL_CLIENT option
-
- Rather than use the URL to specify the mail client string to present in the
- HELO and EHLO commands, libcurl should support a new CURLOPT specifically for
- specifying this data as the URL is non-standard and to be honest a bit of a
- hack ;-)
-
- Please see the following thread for more information:
- http://curl.haxx.se/mail/lib-2012-05/0178.html
- 

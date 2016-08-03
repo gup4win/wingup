@@ -54,7 +54,7 @@ p.roffit {
 <p class="level0">CURLOPT_RESUME_FROM_LARGE - set a point to resume transfer from <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
 <p class="level0"><pre class="level0">
 &#35;include &lt;curl/curl.h&gt;
-
+&nbsp;
 CURLcode curl_easy_setopt(CURL *handle, CURLOPT_RESUME_FROM_LARGE,
 &nbsp;                         curl_off_t from);
 </pre>
@@ -68,18 +68,18 @@ CURL *curl = curl_easy_init();
 if(curl) {
 &nbsp; curl_off_t resume_position = GET_IT_SOMEHOW;
 &nbsp; curl_off_t file_size = GET_IT_SOMEHOW_AS_WELL;
-
-&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "<a href="ftp://example.com">ftp://example.com</a>");
-
+&nbsp;
+&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "ftp://example.com");
+&nbsp;
 &nbsp; /* resuming upload at this position, possibly beyond 2GB */
 &nbsp; curl_easy_setopt(curl, CURLOPT_RESUME_FROM_LARGE, resume_position);
-
+&nbsp;
 &nbsp; /* ask for upload */
 &nbsp; curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-
+&nbsp;
 &nbsp; /* set total data amount to expect */
 &nbsp; curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, file_size);
-
+&nbsp;
 &nbsp; /* Perform the request */
 &nbsp; curl_easy_perform(curl);
 }
@@ -88,6 +88,6 @@ if(curl) {
 <p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">Added in 7.11.0 <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_RESUME_FROM.html">CURLOPT_RESUME_FROM</a>, <a Class="manpage" href="./CURLOPT_RANGE.html">CURLOPT_RANGE</a>, <span Class="manpage"> </span> <a Class="manpage" href="./CURLOPT_INFILESIZE_LARGE.html">CURLOPT_INFILESIZE_LARGE</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_RESUME_FROM.html">CURLOPT_RESUME_FROM</a>, <a Class="manpage" href="./CURLOPT_RANGE.html">CURLOPT_RANGE</a>, <a Class="manpage" href="./CURLOPT_INFILESIZE_LARGE.html">CURLOPT_INFILESIZE_LARGE</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

@@ -79,6 +79,7 @@ CURLPROTO_RTSP
 CURLPROTO_SCP
 CURLPROTO_SFTP
 CURLPROTO_SMB
+CURLPROTO_SMBS
 CURLPROTO_SMTP
 CURLPROTO_SMTPS
 CURLPROTO_TELNET
@@ -93,11 +94,11 @@ curl = curl_easy_init();
 if(curl) {
 &nbsp; /* pass in the URL from an external source */
 &nbsp; curl_easy_setopt(curl, CURLOPT_URL, argv[1]);
-
+&nbsp;
 &nbsp; /* only allow HTTP, TFTP and SFTP */
 &nbsp; curl_easy_setopt(curl, CURLOPT_PROTOCOLS,
 &nbsp;                  CURLPROTO_HTTP | CURLPROTO_TFTP | CURLPROTO_SFTP);
-
+&nbsp;
 &nbsp; /* Perform the request */
 &nbsp; curl_easy_perform(curl);
 }
@@ -106,6 +107,6 @@ if(curl) {
 <p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">Added in 7.19.4 <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_REDIR_PROTOCOLS.html">CURLOPT_REDIR_PROTOCOLS</a>, <a Class="manpage" href="./CURLOPT_URL.html">CURLOPT_URL</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_REDIR_PROTOCOLS.html">CURLOPT_REDIR_PROTOCOLS</a>, <a Class="manpage" href="./CURLOPT_URL.html">CURLOPT_URL</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

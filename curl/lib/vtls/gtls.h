@@ -7,11 +7,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -41,13 +41,17 @@ void Curl_gtls_close(struct connectdata *conn, int sockindex);
 void Curl_gtls_session_free(void *ptr);
 size_t Curl_gtls_version(char *buffer, size_t size);
 int Curl_gtls_shutdown(struct connectdata *conn, int sockindex);
-int Curl_gtls_random(struct SessionHandle *data,
+int Curl_gtls_random(struct Curl_easy *data,
                      unsigned char *entropy,
                      size_t length);
 void Curl_gtls_md5sum(unsigned char *tmp, /* input */
                       size_t tmplen,
                       unsigned char *md5sum, /* output */
                       size_t md5len);
+void Curl_gtls_sha256sum(const unsigned char *tmp, /* input */
+                      size_t tmplen,
+                      unsigned char *sha256sum, /* output */
+                      size_t sha256len);
 
 bool Curl_gtls_cert_status_request(void);
 
@@ -59,6 +63,9 @@ bool Curl_gtls_cert_status_request(void);
 
 /* this backend supports CURLOPT_CERTINFO */
 #define have_curlssl_certinfo 1
+
+/* this backend supports CURLOPT_PINNEDPUBLICKEY */
+#define have_curlssl_pinnedpubkey 1
 
 /* API setup for GnuTLS */
 #define curlssl_init Curl_gtls_init
@@ -77,6 +84,7 @@ bool Curl_gtls_cert_status_request(void);
 #define curlssl_data_pending(x,y) ((void)x, (void)y, 0)
 #define curlssl_random(x,y,z) Curl_gtls_random(x,y,z)
 #define curlssl_md5sum(a,b,c,d) Curl_gtls_md5sum(a,b,c,d)
+#define curlssl_sha256sum(a,b,c,d) Curl_gtls_sha256sum(a,b,c,d)
 #define curlssl_cert_status_request() Curl_gtls_cert_status_request()
 
 #endif /* USE_GNUTLS */

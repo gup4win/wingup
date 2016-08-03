@@ -64,15 +64,15 @@ p.roffit {
 <p class="level0">The default value for this option is 2. 
 <p class="level0">This option controls checking the server's certificate's claimed identity. The server could be lying.  To control lying, see <a Class="emphasis" href="./CURLOPT_SSL_VERIFYPEER.html">CURLOPT_SSL_VERIFYPEER</a>.  If libcurl is built against NSS and <a Class="emphasis" href="./CURLOPT_SSL_VERIFYPEER.html">CURLOPT_SSL_VERIFYPEER</a> is zero, <a Class="emphasis" href="./CURLOPT_SSL_VERIFYHOST.html">CURLOPT_SSL_VERIFYHOST</a> is also set to zero and cannot be overridden. <a name="DEFAULT"></a><h2 class="nroffsh">DEFAULT</h2>
 <p class="level0">2 <a name="PROTOCOLS"></a><h2 class="nroffsh">PROTOCOLS</h2>
-<p class="level0">All TLS based protocols: HTTPS, FTPS, IMAPS, POP3, SMTPS etc. <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
+<p class="level0">All TLS based protocols: HTTPS, FTPS, IMAPS, POP3S, SMTPS etc. <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
 <p class="level0"><pre class="level0">
 CURL *curl = curl_easy_init();
 if(curl) {
 &nbsp; curl_easy_setopt(curl, CURLOPT_URL, "https://example.com");
-
+&nbsp;
 &nbsp; /* Set the default value: strict name check please */
 &nbsp; curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
-
+&nbsp;
 &nbsp; curl_easy_perform(curl);
 }
 </pre>
@@ -81,6 +81,6 @@ if(curl) {
 <p class="level0">If built TLS enabled. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if TLS is supported, and CURLE_UNKNOWN_OPTION if not. 
 <p class="level0">If 1 is set as argument, <span Class="emphasis">CURLE_BAD_FUNCTION_ARGUMENT</span> is returned. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_SSL_VERIFYPEER.html">CURLOPT_SSL_VERIFYPEER</a>, <a Class="manpage" href="./CURLOPT_CAINFO.html">CURLOPT_CAINFO</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_SSL_VERIFYPEER.html">CURLOPT_SSL_VERIFYPEER</a>, <a Class="manpage" href="./CURLOPT_CAINFO.html">CURLOPT_CAINFO</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

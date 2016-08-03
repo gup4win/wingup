@@ -68,19 +68,19 @@ p.roffit {
 <p class="level0">HTTP <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
 <p class="level0"><pre class="level0">
 CURL *curl = curl_easy_init();
-
+&nbsp;
 struct curl_slist *list = NULL;
-
+&nbsp;
 if(curl) {
-&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "<a href="http://example.com">http://example.com</a>");
-
+&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "http://example.com");
+&nbsp;
 &nbsp; list = curl_slist_append(list, "Shoesize: 10");
 &nbsp; list = curl_slist_append(list, "Accept:");
-
+&nbsp;
 &nbsp; curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
-
+&nbsp;
 &nbsp; curl_easy_perform(curl);
-
+&nbsp;
 &nbsp; curl_slist_free_all(list); /* free the list again */
 }
 </pre>
@@ -89,6 +89,6 @@ if(curl) {
 <p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">As long as HTTP is enabled <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if HTTP is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_CUSTOMREQUEST.html">CURLOPT_CUSTOMREQUEST</a>, <a Class="manpage" href="./CURLOPT_HEADEROPT.html">CURLOPT_HEADEROPT</a>, <span Class="manpage"> </span> <a Class="manpage" href="./CURLOPT_PROXYHEADER.html">CURLOPT_PROXYHEADER</a>, <a Class="manpage" href="./CURLOPT_HEADER.html">CURLOPT_HEADER</a>, <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_CUSTOMREQUEST.html">CURLOPT_CUSTOMREQUEST</a>, <a Class="manpage" href="./CURLOPT_HEADEROPT.html">CURLOPT_HEADEROPT</a>, <a Class="manpage" href="./CURLOPT_PROXYHEADER.html">CURLOPT_PROXYHEADER</a>, <a Class="manpage" href="./CURLOPT_HEADER.html">CURLOPT_HEADER</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

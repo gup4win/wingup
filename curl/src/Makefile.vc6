@@ -5,11 +5,11 @@
 #                            | (__| |_| |  _ <| |___
 #                             \___|\___/|_| \_\_____|
 #
-# Copyright (C) 1999 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+# Copyright (C) 1999 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://curl.haxx.se/docs/copyright.html.
+# are also available at https://curl.haxx.se/docs/copyright.html.
 #
 # You may opt to use, copy, modify, merge, publish, distribute and/or sell
 # copies of the Software, and permit persons to whom the Software is
@@ -56,7 +56,7 @@ PROGRAM_NAME = curl.exe
 
 
 !IFNDEF OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8zc
+OPENSSL_PATH = ../../openssl-1.0.2a
 !ENDIF
 
 !IFNDEF ZLIB_PATH
@@ -77,7 +77,7 @@ MACHINE  = X86
 # If, for some reason the Windows SDK is installed but not installed
 # in the default location, you can specify WINDOWS_SDK_PATH.
 # It can be downloaded from:
-# http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
+# https://msdn.microsoft.com/windows/bb980924.aspx
 
 # WINDOWS_SSPI = 1
 
@@ -145,6 +145,7 @@ RELEASE_OBJS= \
 	rawstrr.obj \
 	strtoofftr.obj \
 	warnless.obj \
+	slist_wc.obj \
 	tool_binmoder.obj \
 	tool_bnamer.obj \
 	tool_cb_dbgr.obj \
@@ -190,6 +191,7 @@ DEBUG_OBJS= \
 	rawstrd.obj \
 	strtoofftd.obj \
 	warnlessd.obj \
+	slist_wcd.obj \
 	tool_binmoded.obj \
 	tool_bnamed.obj \
 	tool_cb_dbgd.obj \
@@ -367,6 +369,8 @@ strtoofftr.obj: ../lib/strtoofft.c
 	$(CCR) $(CFLAGS) /Fo"$@" ../lib/strtoofft.c
 warnless.obj: ../lib/warnless.c
 	$(CCR) $(CFLAGS) /Fo"$@" ../lib/warnless.c
+slist_wc.obj: slist_wc.c
+	$(CCR) $(CFLAGS) /Fo"$@" slist_wc.c
 tool_binmoder.obj: tool_binmode.c
 	$(CCR) $(CFLAGS) /Fo"$@" tool_binmode.c
 tool_bnamer.obj: tool_bname.c
@@ -455,6 +459,8 @@ strtoofftd.obj: ../lib/strtoofft.c
 	$(CCD) $(CFLAGS) /Fo"$@" ../lib/strtoofft.c
 warnlessd.obj: ../lib/warnless.c
 	$(CCD) $(CFLAGS) /Fo"$@" ../lib/warnless.c
+slist_wcd.obj: slist_wc.c
+	$(CCD) $(CFLAGS) /Fo"$@" slist_wc.c
 tool_binmoded.obj: tool_binmode.c
 	$(CCD) $(CFLAGS) /Fo"$@" tool_binmode.c
 tool_bnamed.obj: tool_bname.c

@@ -23,6 +23,7 @@ CURLX_HFILES = \
 	../lib/warnless.h
 
 CURL_CFILES = \
+	slist_wc.c \
 	tool_binmode.c \
 	tool_bname.c \
 	tool_cb_dbg.c \
@@ -64,6 +65,7 @@ CURL_CFILES = \
 	tool_xattr.c
 
 CURL_HFILES = \
+	slist_wc.h \
 	tool_binmode.h \
 	tool_bname.h \
 	tool_cb_dbg.h \
@@ -109,5 +111,5 @@ CURL_HFILES = \
 
 CURL_RCFILES = curl.rc
 
-curl_SOURCES = $(CURL_CFILES) $(CURLX_CFILES) $(CURL_HFILES)
-
+# curl_SOURCES is special and gets assigned in src/Makefile.am
+CURL_FILES = $(CURL_CFILES) $(CURLX_CFILES) $(CURL_HFILES)

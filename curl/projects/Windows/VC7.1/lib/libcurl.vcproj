@@ -27,7 +27,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -84,7 +84,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;USE_OPENSSL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -143,7 +143,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -202,7 +202,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -248,7 +248,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;USE_LIBSSH2;HAVE_LIBSSH2_H"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -296,7 +296,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -352,7 +352,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;USE_LIBSSH2;HAVE_LIBSSH2_H"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -399,7 +399,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_WINDOWS_SSPI;USE_SCHANNEL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -446,7 +446,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -494,7 +494,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -502,7 +502,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386 /FIXED:NO"
-				AdditionalDependencies="wldap32.lib ws2_32.lib"
+				AdditionalDependencies="wldap32.lib ws2_32.lib crypt32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -550,7 +550,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;USE_WINDOWS_SSPI;USE_SCHANNEL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -559,7 +559,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386 /FIXED:NO"
-				AdditionalDependencies="wldap32.lib ws2_32.lib"
+				AdditionalDependencies="wldap32.lib ws2_32.lib crypt32.lib"
 				OutputFile="$(OutDir)\$(ProjectName)d.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -609,7 +609,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -656,7 +656,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -714,7 +714,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -761,7 +761,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -808,7 +808,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -855,7 +855,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -901,7 +901,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -948,7 +948,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;USE_OPENSSL;USE_LIBSSH2;HAVE_LIBSSH2_H"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -1007,7 +1007,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -1054,7 +1054,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;USE_WINDOWS_SSPI;USE_SCHANNEL;USE_WIN32_IDN;WANT_IDN_PROTOTYPES"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -1063,7 +1063,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386 /FIXED:NO"
-				AdditionalDependencies="normaliz.lib wldap32.lib ws2_32.lib"
+				AdditionalDependencies="normaliz.lib wldap32.lib ws2_32.lib crypt32.lib"
 				OutputFile="$(OutDir)\$(ProjectName)d.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -1113,7 +1113,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -1121,7 +1121,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386 /FIXED:NO"
-				AdditionalDependencies="normaliz.lib wldap32.lib ws2_32.lib"
+				AdditionalDependencies="normaliz.lib wldap32.lib ws2_32.lib crypt32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -1169,7 +1169,7 @@
 				PreprocessorDefinitions="_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_WINDOWS_SSPI;USE_SCHANNEL;USE_WIN32_IDN;WANT_IDN_PROTOTYPES"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
@@ -1217,7 +1217,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
@@ -1268,9 +1268,6 @@
 				RelativePath="..\..\..\..\lib\base64.c">
 			</File>
 			<File
-				RelativePath="..\..\..\..\lib\bundles.c">
-			</File>
-			<File
 				RelativePath="..\..\..\..\lib\conncache.c">
 			</File>
 			<File
@@ -1307,13 +1304,7 @@
 				RelativePath="..\..\..\..\lib\curl_multibyte.c">
 			</File>
 			<File
-				RelativePath="..\..\..\..\lib\curl_ntlm.c">
-			</File>
-			<File
 				RelativePath="..\..\..\..\lib\curl_ntlm_core.c">
-			</File>
-			<File
-				RelativePath="..\..\..\..\lib\curl_ntlm_msgs.c">
 			</File>
 			<File
 				RelativePath="..\..\..\..\lib\curl_ntlm_wb.c">
@@ -1323,12 +1314,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\lib\curl_sasl.c">
-			</File>
-			<File
-				RelativePath="..\..\..\..\lib\curl_sasl_gssapi.c">
-			</File>
-			<File
-				RelativePath="..\..\..\..\lib\curl_sasl_sspi.c">
 			</File>
 			<File
 				RelativePath="..\..\..\..\lib\curl_sspi.c">
@@ -1412,7 +1397,7 @@
 				RelativePath="..\..\..\..\lib\http_negotiate.c">
 			</File>
 			<File
-				RelativePath="..\..\..\..\lib\http_negotiate_sspi.c">
+				RelativePath="..\..\..\..\lib\http_ntlm.c">
 			</File>
 			<File
 				RelativePath="..\..\..\..\lib\http_proxy.c">
@@ -1544,6 +1529,9 @@
 				RelativePath="..\..\..\..\lib\strtoofft.c">
 			</File>
 			<File
+				RelativePath="..\..\..\..\lib\system_win32.c">
+			</File>
+			<File
 				RelativePath="..\..\..\..\lib\telnet.c">
 			</File>
 			<File
@@ -1582,9 +1570,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\lib\asyn.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\lib\bundles.h">
 			</File>
 			<File
 				RelativePath="..\..\..\..\lib\config-win32.h">
@@ -1645,12 +1630,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\lib\curl_ntlm_core.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\lib\curl_ntlm.h">
-			</File>
-			<File
-				RelativePath="..\..\..\..\lib\curl_ntlm_msgs.h">
 			</File>
 			<File
 				RelativePath="..\..\..\..\lib\curl_ntlm_wb.h">
@@ -1738,6 +1717,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\lib\http_negotiate.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\lib\http_ntlm.h">
 			</File>
 			<File
 				RelativePath="..\..\..\..\lib\http_proxy.h">
@@ -1851,6 +1833,9 @@
 				RelativePath="..\..\..\..\lib\strtoofft.h">
 			</File>
 			<File
+				RelativePath="..\..\..\..\lib\system_win32.h">
+			</File>
+			<File
 				RelativePath="..\..\..\..\lib\telnet.h">
 			</File>
 			<File
@@ -1886,6 +1871,63 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="vauth"
+			Filter="">
+			<Filter
+				Name="Source Files"
+				Filter="">
+				<File
+					RelativePath="..\..\..\..\lib\vauth\cleartext.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\cram.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\digest.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\digest_sspi.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\krb5_gssapi.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\krb5_sspi.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\ntlm.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\ntlm_sspi.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\oauth2.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\spnego_gssapi.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\spnego_sspi.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\vauth.c">
+				</File>
+			</Filter>
+			<Filter
+				Name="Header Files"
+				Filter="">
+				<File
+					RelativePath="..\..\..\..\lib\vauth\digest.h">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\ntlm.h">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vauth\vauth.h">
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
 			Name="vtls"
 			Filter="">
 			<Filter
@@ -1905,6 +1947,9 @@
 				</File>
 				<File
 					RelativePath="..\..\..\..\lib\vtls\gtls.c">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vtls\mbedtls.c">
 				</File>
 				<File
 					RelativePath="..\..\..\..\lib\vtls\nss.c">
@@ -1942,6 +1987,9 @@
 				</File>
 				<File
 					RelativePath="..\..\..\..\lib\vtls\gtls.h">
+				</File>
+				<File
+					RelativePath="..\..\..\..\lib\vtls\mbedtls.h">
 				</File>
 				<File
 					RelativePath="..\..\..\..\lib\vtls\nssg.h">
