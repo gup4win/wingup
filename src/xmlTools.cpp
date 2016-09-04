@@ -24,16 +24,20 @@ using namespace std;
 GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _className2Close(""), _messageBoxTitle(""),\
                                                          _3rdButton_wm_cmd(0), _3rdButton_wParam(0), _3rdButton_lParam(0), _isSilentMode(true)
 {
-	_xmlDoc.LoadFile(xmlFileName);
+	tinyxml2::XMLError ErrLoadFile = _xmlDoc.LoadFile(xmlFileName);
+	if(ErrLoadFile != tinyxml2::XMLError::XML_SUCCESS)
+	{
+		throw exception("File gup.xml not found.");
+	}
 
-	TiXmlNode *root = _xmlDoc.FirstChild("GUPInput");
+	const tinyxml2::XMLNode *root = _xmlDoc.FirstChildElement("GUPInput");
 	if (!root)
 		throw exception("It's not a valid GUP input xml.");
 
-	TiXmlNode *versionNode = root->FirstChildElement("Version");
+	const tinyxml2::XMLNode *versionNode = root->FirstChildElement("Version");
 	if (versionNode)
 	{
-		TiXmlNode *n = versionNode->FirstChild();
+		const tinyxml2::XMLNode *n = versionNode->FirstChild();
 		if (n)
 		{
 			const char *val = n->Value();
@@ -44,11 +48,11 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 		}
 	}
 	
-	TiXmlNode *infoURLNode = root->FirstChildElement("InfoUrl");
+	const tinyxml2::XMLNode *infoURLNode = root->FirstChildElement("InfoUrl");
 	if (!infoURLNode)
 		throw exception("InfoUrl node is missed.");
 
-	TiXmlNode *iu = infoURLNode->FirstChild();
+	const tinyxml2::XMLNode *iu = infoURLNode->FirstChild();
 	if (!iu)
 		throw exception("InfoUrl is missed.");
 		
@@ -58,10 +62,10 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 	
 	_infoUrl = iuVal;
 
-	TiXmlNode *classeNameNode = root->FirstChildElement("ClassName2Close");
+	const tinyxml2::XMLNode *classeNameNode = root->FirstChildElement("ClassName2Close");
 	if (classeNameNode)
 	{
-		TiXmlNode *n = classeNameNode->FirstChild();
+		const tinyxml2::XMLNode *n = classeNameNode->FirstChild();
 		if (n)
 		{
 			const char *val = n->Value();
@@ -72,10 +76,10 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 		}
 	}
 
-	TiXmlNode *progNameNode = root->FirstChildElement("MessageBoxTitle");
+	const tinyxml2::XMLNode *progNameNode = root->FirstChildElement("MessageBoxTitle");
 	if (progNameNode)
 	{
-		TiXmlNode *n = progNameNode->FirstChild();
+		const tinyxml2::XMLNode *n = progNameNode->FirstChild();
         const char *valStr = NULL;
 
 		if (n)
@@ -99,20 +103,20 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 		}
 
         int val = 0;
-		valStr = (progNameNode->ToElement())->Attribute("extraCmd", &val);
-		if (valStr)
+		tinyxml2::XMLError ErrReturn = (progNameNode->ToElement())->QueryIntAttribute("extraCmd", &val);
+		if (ErrReturn == tinyxml2::XML_SUCCESS)
 		{
 			_3rdButton_wm_cmd = val;
 		}
 		
-		valStr = (progNameNode->ToElement())->Attribute("ecWparam", &val);
-		if (valStr)
+		ErrReturn = (progNameNode->ToElement())->QueryIntAttribute("ecWparam", &val);
+		if (ErrReturn == tinyxml2::XML_SUCCESS)
 		{
 			_3rdButton_wParam = val;
 		}
 		
-		valStr = (progNameNode->ToElement())->Attribute("ecLparam", &val);
-		if (valStr)
+		ErrReturn = (progNameNode->ToElement())->QueryIntAttribute("ecLparam", &val);
+		if (ErrReturn == tinyxml2::XML_SUCCESS)
 		{
 			_3rdButton_lParam = val;
 		}
@@ -124,10 +128,10 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 		}
 	}
 
-	TiXmlNode *silentModeNode = root->FirstChildElement("SilentMode");
+	const tinyxml2::XMLNode *silentModeNode = root->FirstChildElement("SilentMode");
 	if (silentModeNode)
 	{
-		TiXmlNode *smn = silentModeNode->FirstChild();
+		const tinyxml2::XMLNode *smn = silentModeNode->FirstChild();
 		if (smn)
 		{
 			const char *smnVal = smn->Value();
@@ -147,10 +151,10 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 	//
 	// Get optional parameters
 	//
-	TiXmlNode *userAgentNode = root->FirstChildElement("SoftwareName");
+	const tinyxml2::XMLNode *userAgentNode = root->FirstChildElement("SoftwareName");
 	if (userAgentNode)
 	{
-		TiXmlNode *un = userAgentNode->FirstChild();
+		const tinyxml2::XMLNode *un = userAgentNode->FirstChild();
 		if (un)
 		{
 			const char *uaVal = un->Value();
@@ -162,17 +166,22 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 
 GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _updateLocation("")
 {
-	_xmlDoc.Parse(xmlString);
+	
+	tinyxml2::XMLError ErrParse = _xmlDoc.Parse(xmlString);
+	if (ErrParse != tinyxml2::XMLError::XML_SUCCESS)
+	{
+		throw exception("DownloadInfo xml parser error.");
+	}
 
-	TiXmlNode *root = _xmlDoc.FirstChild("GUP");
+	const tinyxml2::XMLNode *root = _xmlDoc.FirstChildElement("GUP");
 	if (!root)
 		throw exception("It's not a valid GUP xml.");
 
-	TiXmlNode *needUpdateNode = root->FirstChildElement("NeedToBeUpdated");
+	const tinyxml2::XMLNode *needUpdateNode = root->FirstChildElement("NeedToBeUpdated");
 	if (!needUpdateNode)
 		throw exception("NeedToBeUpdated node is missed.");
 
-	TiXmlNode *nun = needUpdateNode->FirstChild();
+	const tinyxml2::XMLNode *nun = needUpdateNode->FirstChild();
 	if (!nun)
 		throw exception("NeedToBeUpdated is missed.");
 		
@@ -192,10 +201,10 @@ GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _
 		//
 		// Get mandatory parameters
 		//
-		TiXmlNode *versionNode = root->FirstChildElement("Version");
+		const tinyxml2::XMLNode *versionNode = root->FirstChildElement("Version");
 		if (versionNode)
 		{
-			TiXmlNode *n = versionNode->FirstChild();
+			const tinyxml2::XMLNode *n = versionNode->FirstChild();
 			if (n)
 			{
 				const char *val = n->Value();
@@ -206,11 +215,11 @@ GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _
 			}
 		}
 		
-		TiXmlNode *locationNode = root->FirstChildElement("Location");
+		const tinyxml2::XMLNode *locationNode = root->FirstChildElement("Location");
 		if (!locationNode)
 			throw exception("Location node is missed.");
 
-		TiXmlNode *ln = locationNode->FirstChild();
+		const tinyxml2::XMLNode *ln = locationNode->FirstChild();
 		if (!ln)
 			throw exception("Location is missed.");
 			
@@ -224,19 +233,24 @@ GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _
 
 GupExtraOptions::GupExtraOptions(const char * xmlFileName) : _proxyServer(""), _port(-1)//, _hasProxySettings(false)
 {
-	_xmlDoc.LoadFile(xmlFileName);
+	tinyxml2::XMLError ErrLoadFile = _xmlDoc.LoadFile(xmlFileName);
+	if (ErrLoadFile != tinyxml2::XMLError::XML_SUCCESS)
+	{
+		//GUPOptions.xml is just an optional file, so this is not necessarily an error
+		return;
+	}
 
-	TiXmlNode *root = _xmlDoc.FirstChild("GUPOptions");
+	const tinyxml2::XMLNode *root = _xmlDoc.FirstChildElement("GUPOptions");
 	if (!root)
 		return;
 		
-	TiXmlNode *proxyNode = root->FirstChildElement("Proxy");
+	const tinyxml2::XMLNode *proxyNode = root->FirstChildElement("Proxy");
 	if (proxyNode)
 	{
-		TiXmlNode *serverNode = proxyNode->FirstChildElement("server");
+		const tinyxml2::XMLNode *serverNode = proxyNode->FirstChildElement("server");
 		if (serverNode)
 		{
-			TiXmlNode *server = serverNode->FirstChild();
+			const tinyxml2::XMLNode *server = serverNode->FirstChild();
 			if (server)
 			{
 				const char *val = server->Value();
@@ -245,10 +259,10 @@ GupExtraOptions::GupExtraOptions(const char * xmlFileName) : _proxyServer(""), _
 			}
 		}
 
-		TiXmlNode *portNode = proxyNode->FirstChildElement("port");
+		const tinyxml2::XMLNode *portNode = proxyNode->FirstChildElement("port");
 		if (portNode)
 		{
-			TiXmlNode *port = portNode->FirstChild();
+			const tinyxml2::XMLNode *port = portNode->FirstChild();
 			if (port)
 			{
 				const char *val = port->Value();
@@ -261,17 +275,22 @@ GupExtraOptions::GupExtraOptions(const char * xmlFileName) : _proxyServer(""), _
 
 void GupExtraOptions::writeProxyInfo(const char *fn, const char *proxySrv, long port)
 {
-	TiXmlDocument newProxySettings(fn);
-	TiXmlNode *root = newProxySettings.InsertEndChild(TiXmlElement("GUPOptions"));
-	TiXmlNode *proxy = root->InsertEndChild(TiXmlElement("Proxy"));
-	TiXmlNode *server = proxy->InsertEndChild(TiXmlElement("server"));
-	server->InsertEndChild(TiXmlText(proxySrv));
-	TiXmlNode *portNode = proxy->InsertEndChild(TiXmlElement("port"));
+	tinyxml2::XMLDocument newProxySettings;
+	tinyxml2::XMLNode *root = newProxySettings.InsertEndChild(newProxySettings.NewElement( "GUPOptions" ));
+	tinyxml2::XMLNode *proxy = root->InsertEndChild(newProxySettings.NewElement( "Proxy" ));
+	tinyxml2::XMLNode *server = proxy->InsertEndChild(newProxySettings.NewElement( "server" ));
+	server->InsertEndChild(newProxySettings.NewText(proxySrv));
+	tinyxml2::XMLNode *portNode = proxy->InsertEndChild(newProxySettings.NewElement( "port" ));
 	char portStr[10];
 	sprintf(portStr, "%d", port);
-	portNode->InsertEndChild(TiXmlText(portStr));
+	portNode->InsertEndChild(newProxySettings.NewText(portStr));
 
-	newProxySettings.SaveFile();
+	tinyxml2::XMLError ErrSaveFile = newProxySettings.SaveFile(fn);
+	if (ErrSaveFile != tinyxml2::XMLError::XML_SUCCESS)
+	{
+		throw exception("Proxy settings can't be saved to GUPOptions.xml .");
+		return;
+	}
 }
 
 std::string GupNativeLang::getMessageString(std::string msgID)
@@ -279,15 +298,15 @@ std::string GupNativeLang::getMessageString(std::string msgID)
 	if (!_nativeLangRoot)
 		return "";
 
-	TiXmlNode *popupMessagesNode = _nativeLangRoot->FirstChildElement("PopupMessages");
+	const tinyxml2::XMLNode *popupMessagesNode = _nativeLangRoot->FirstChildElement("PopupMessages");
 	if (!popupMessagesNode)
 		return "";
 
-	TiXmlNode *node = popupMessagesNode->FirstChildElement(msgID.c_str());
+	const tinyxml2::XMLNode *node = popupMessagesNode->FirstChildElement(msgID.c_str());
 	if (!node)
 		return "";
 
-	TiXmlNode *sn = node->FirstChild();
+	const tinyxml2::XMLNode *sn = node->FirstChild();
 	if (!sn)
 		return "";
 		
