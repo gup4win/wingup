@@ -33,6 +33,7 @@ public:
 	GupParameters(const char * xmlFileName);
 	
 	const std::string & getCurrentVersion() const { return _currentVersion;};
+	const std::string & getParam() const { return _param; };
 	const std::string & getInfoLocation() const {return _infoUrl;};
 	const std::string & getClassName() const {return _className2Close;};
 	const std::string & getMessageBoxTitle() const {return _messageBoxTitle;};
@@ -53,14 +54,15 @@ public:
 
 private:
 	std::string _currentVersion;
+	std::string _param;
 	std::string _infoUrl;
 	std::string _className2Close;
 	std::string _messageBoxTitle;
 	std::string _softwareName;
 	bool _isMessageBoxModal = false;
-	int _3rdButton_wm_cmd;
-	int _3rdButton_wParam;
-	int _3rdButton_lParam;
+	int _3rdButton_wm_cmd = 0;
+	int _3rdButton_wParam = 0;
+	int _3rdButton_lParam = 0;
 	std::string _3rdButton_label;
 	bool _isSilentMode = true;
 };

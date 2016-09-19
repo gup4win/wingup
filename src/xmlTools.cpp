@@ -21,8 +21,7 @@
 
 using namespace std;
 
-GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _className2Close(""), _messageBoxTitle(""),\
-                                                         _3rdButton_wm_cmd(0), _3rdButton_wParam(0), _3rdButton_lParam(0), _isSilentMode(true)
+GupParameters::GupParameters(const char * xmlFileName)
 {
 	_xmlDoc.LoadFile(xmlFileName);
 
@@ -40,6 +39,20 @@ GupParameters::GupParameters(const char * xmlFileName) : _currentVersion(""), _c
 			if (val)
 			{
 				_currentVersion = val;
+			}
+		}
+	}
+
+	TiXmlNode *paramNode = root->FirstChildElement("Param");
+	if (paramNode)
+	{
+		TiXmlNode *n = paramNode->FirstChild();
+		if (n)
+		{
+			const char *val = n->Value();
+			if (val)
+			{
+				_param = val;
 			}
 		}
 	}

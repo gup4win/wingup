@@ -20,9 +20,16 @@
 <GUPInput>
 	<!-- optional.
 	It's the current version of your program. WinGup will add "?version=versionNumber" at the end of InfoUrl.
-	This parameter will be ignored if you pass directly your version number to WinGup via command line.
+	This parameter will be ignored if you pass directly your version number to WinGup via command line "-v".
 	-->
 	<Version>4.6</Version>
+	
+	<!-- optional.
+	It could be whatever you want.
+	If this node is present and the VALUE is not empty,	WinGup will add "&param=VALUE" at the end of version param.
+	This parameter will be ignored if you pass directly your param VALUE to WinGup via command line "-p".
+	-->
+	<Param>x64</Param>
 
 	<!-- Mandatory.
 	This is the url (your web application, both http and https are supported) from where your WinGup gets the update information.

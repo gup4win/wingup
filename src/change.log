@@ -1,3 +1,8 @@
+GUP v4.1 new feature:
+
+1. Add option -pVALUE for custom parameter. The VALUE can be retieved from "param" via GET method on the server side. 
+
+
 GUP v4 new feature:
 
-1. 64 bits build.
+1. 64-bit build.

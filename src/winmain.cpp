@@ -42,7 +42,7 @@ static string winGupUserAgent = "WinGup/";
 static string dlFileName = "";
 
 const char FLAG_OPTIONS[] = "-options";
-const char FLAG_VERSION[] = "-v";
+//const char FLAG_VERSION[] = "-v";
 const char FLAG_VERBOSE[] = "-verbose";
 const char FLAG_HELP[] = "--help";
 
@@ -55,7 +55,7 @@ const char MSGID_HELP[] = "Usage :\r\
 \r\
 gup --help\r\
 gup -options\r\
-gup [-verbose] [-vVERSION_VALUE]\r\
+gup [-verbose] [-vVERSION_VALUE] [-pCUSTOM_PARAM]\r\
 \r\
     --help : Show this help message (and quit program).\r\
     -options : Show the proxy configuration dialog (and quit program).\r\
@@ -63,6 +63,9 @@ gup [-verbose] [-vVERSION_VALUE]\r\
          VERSION_VALUE is the current version number of program to update.\r\
          If you pass the version number as the argument,\r\
          then the version set in the gup.xml will be overrided.\r\
+	-p : Launch GUP with CUSTOM_PARAM.\r\
+	     CUSTOM_PARAM will pass to destination by using GET method\r\
+         with argument name \"param\"\r\
     -verbose : Show error/warning message if any.";
 
 std::string thirdDoUpdateDlgButtonLabel;
@@ -359,6 +362,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	bool isVerbose = false;
 	bool isHelp = false;
 	string version = "";
+	string customParam = "";
 
 	if (lpszCmdLine && lpszCmdLine[0])
 	{
@@ -366,6 +370,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		isVerbose = isInList(FLAG_VERBOSE, lpszCmdLine);
 		isHelp = isInList(FLAG_HELP, lpszCmdLine);
 		version = getParamVal('v', lpszCmdLine);
+		customParam = getParamVal('p', lpszCmdLine);
 	}
 
 	if (isHelp)
@@ -420,12 +425,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		if (curl) 
 		{
 			std::string urlComplete = gupParams.getInfoLocation() + "?version=";
-			if (version != "")
+			if (!version.empty())
 				urlComplete += version;
 			else
 				urlComplete += gupParams.getCurrentVersion();
 
+			if (!customParam.empty())
+			{
+				string customParamPost = "&param=";
+				customParamPost += customParam;
+				urlComplete += customParamPost;
+			}
+			else if (!gupParams.getParam().empty())
+			{
+				string customParamPost = "&param=";
+				customParamPost += gupParams.getParam();
+				urlComplete += customParamPost;
+			}
+
 			curl_easy_setopt(curl, CURLOPT_URL, urlComplete.c_str());
+
+
             curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, TRUE);
 
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, getUpdateInfo);

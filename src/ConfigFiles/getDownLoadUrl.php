@@ -20,6 +20,7 @@ $lastestVersion = 1.23; // X.YZ
 $lastestVersionStr = "1.2.3"; // X.Y.Z
 $DLURL = "http://download.my-software.com/my-software/1.2.3/mySoftware.1.2.3.Installer.exe";
 $curentVersion = $_GET["version"];
+$param = $_GET["param"]; // optional
 
 if ($curentVersion >= $lastestVersion)
 {
