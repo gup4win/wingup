@@ -29,7 +29,7 @@
 	If this node is present and the VALUE is not empty,	WinGup will add "&param=VALUE" at the end of version param.
 	This parameter will be ignored if you pass directly your param VALUE to WinGup via command line "-p".
 	-->
-	<Param>x64</Param>
+	<Param></Param>
 
 	<!-- Mandatory.
 	This is the url (your web application, both http and https are supported) from where your WinGup gets the update information.
