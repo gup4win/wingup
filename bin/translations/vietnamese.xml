@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!--
+    Copyright 2015 Juno_okyo <junookyo@gmail.com>
+	
+    This file is part of GUP.
+    GUP is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    GUP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+    You should have received a copy of the GNU Lesser General Public License
+    along with GUP.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!-- This file is optional.-->
+
+<GUP_NativeLangue name = "Vietnamese">
+	<PopupMessages>
+		<MSGID_NOUPDATE>Hiện tại không có bản cập nhật nào.</MSGID_NOUPDATE>
+		<MSGID_UPDATEAVAILABLE>Một gói cập nhật hiện sẵn có, bạn có muốn tải về không?</MSGID_UPDATEAVAILABLE>
+		<MSGID_DOWNLOADSTOPPED>Quá trình tải đã dừng lại bởi người dùng. Cập nhật bị hủy bỏ.</MSGID_DOWNLOADSTOPPED>
+		<MSGID_CLOSEAPP> đã được mở.\rTrình cập nhật sẽ đóng nó để xử lý việc cài đặt.\rTiếp tục?</MSGID_CLOSEAPP>
+		<MSGID_ABORTORNOT>Bạn có muốn hủy bỏ việc tải về cập nhật?</MSGID_ABORTORNOT>
+	</PopupMessages>
+</GUP_NativeLangue>
