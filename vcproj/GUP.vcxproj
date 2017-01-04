@@ -105,7 +105,7 @@
     </Link>
     <PreLinkEvent>
       <Command>cd ..\curl\winbuild
-nmake /f Makefile.vc mode=dll DEBUG=yes</Command>
+nmake /f Makefile.vc mode=dll DEBUG=yes RTLIBCFG=static</Command>
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -129,7 +129,7 @@ nmake /f Makefile.vc mode=dll DEBUG=yes</Command>
     </Link>
     <PreLinkEvent>
       <Command>cd ..\curl\winbuild
-nmake /f Makefile.vc mode=dll DEBUG=yes MACHINE=x64</Command>
+nmake /f Makefile.vc mode=dll DEBUG=yes RTLIBCFG=static MACHINE=x64</Command>
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -168,7 +168,7 @@ xcopy ..\src\translations ..\bin\translations\ /S /Y /E</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>cd ..\curl\winbuild
-nmake /f Makefile.vc mode=dll</Command>
+nmake /f Makefile.vc mode=dll RTLIBCFG=static</Command>
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -206,7 +206,7 @@ xcopy ..\src\translations ..\bin64\translations\  /S /Y /E</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>cd ..\curl\winbuild
-nmake /f Makefile.vc mode=dll MACHINE=x64</Command>
+nmake /f Makefile.vc mode=dll RTLIBCFG=static MACHINE=x64</Command>
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

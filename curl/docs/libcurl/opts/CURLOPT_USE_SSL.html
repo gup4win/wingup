@@ -70,11 +70,11 @@ p.roffit {
 <p class="level0"><pre class="level0">
 CURL *curl = curl_easy_init();
 if(curl) {
-&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "<a href="ftp://example.com/dir/file.ext">ftp://example.com/dir/file.ext</a>");
-
+&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "ftp://example.com/dir/file.ext");
+&nbsp;
 &nbsp; /* require use of SSL for this, or fail */
 &nbsp; curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
-
+&nbsp;
 &nbsp; /* Perform the request */
 &nbsp; curl_easy_perform(curl);
 }
@@ -83,6 +83,6 @@ if(curl) {
 <p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">Added in 7.11.0. This option was known as CURLOPT_FTP_SSL up to 7.16.4, and the constants were known as CURLFTPSSL_* <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_SSLVERSION.html">CURLOPT_SSLVERSION</a>, <a Class="manpage" href="./CURLOPT_SSL_OPTIONS.html">CURLOPT_SSL_OPTIONS</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_SSLVERSION.html">CURLOPT_SSLVERSION</a>, <a Class="manpage" href="./CURLOPT_SSL_OPTIONS.html">CURLOPT_SSL_OPTIONS</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

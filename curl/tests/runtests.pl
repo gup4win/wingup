@@ -10,7 +10,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://curl.haxx.se/docs/copyright.html.
+# are also available at https://curl.haxx.se/docs/copyright.html.
 #
 # You may opt to use, copy, modify, merge, publish, distribute and/or sell
 # copies of the Software, and permit persons to whom the Software is
@@ -104,6 +104,8 @@ use sshhelp qw(
     find_httptlssrv
     sshversioninfo
     );
+
+use pathhelp;
 
 require "getpart.pm"; # array functions
 require "valgrind.pm"; # valgrind report parser
@@ -199,8 +201,8 @@ my $valgrind_tool;
 my $gdb = checktestcmd("gdb");
 my $httptlssrv = find_httptlssrv();
 
-my $ssl_version;    # set if libcurl is built with SSL support
-my $large_file;     # set if libcurl is built with large file support
+my $has_ssl;        # set if libcurl is built with SSL support
+my $has_largefile;  # set if libcurl is built with large file support
 my $has_idn;        # set if libcurl is built with IDN support
 my $http_ipv6;      # set if HTTP server has IPv6 support
 my $http_unix;      # set if HTTP server has Unix sockets support
@@ -224,9 +226,10 @@ my $has_http2;      # set if libcurl is built with HTTP2 support
 my $has_crypto;     # set if libcurl is built with cryptographic support
 my $has_cares;      # set if built with c-ares
 my $has_threadedres;# set if built with threaded resolver
+my $has_psl;        # set if libcurl is built with PSL support
 
 # this version is decided by the particular nghttp2 library that is being used
-my $h2cver = "h2c-14";
+my $h2cver = "h2c";
 
 my $has_openssl;    # built with a lib using an OpenSSL-like API
 my $has_gnutls;     # built with GnuTLS
@@ -237,7 +240,8 @@ my $has_axtls;      # built with axTLS
 my $has_winssl;     # built with WinSSL    (Secure Channel aka Schannel)
 my $has_darwinssl;  # built with DarwinSSL (Secure Transport)
 my $has_boringssl;  # built with BoringSSL
-my $has_libressl;   # built with libressl 
+my $has_libressl;   # built with libressl
+my $has_mbedtls;    # built with mbedTLS
 
 my $has_sslpinning; # built with a TLS backend that supports pinning
 
@@ -397,7 +401,7 @@ sub init_serverpidfile_hash {
 sub checkdied {
     use POSIX ":sys_wait_h";
     my $pid = $_[0];
-    if(not defined $pid || $pid <= 0) {
+    if((not defined $pid) || $pid <= 0) {
         return 0;
     }
     my $rc = waitpid($pid, &WNOHANG);
@@ -2309,27 +2313,11 @@ sub checksystem {
             $curl =~ s/^(.*)(libcurl.*)/$1/g;
 
             $libcurl = $2;
-            if($curl =~ /mingw32/) {
-                # This is a windows minw32 build, we need to translate the
-                # given path to the "actual" windows path. The MSYS shell
-                # has a builtin 'pwd -W' command which converts the path.
-                $pwd = `sh -c "echo \$(pwd -W)"`;
-                chomp($pwd);
+            if($curl =~ /win32|mingw(32|64)/) {
+                # This is a Windows MinGW build or native build, we need to use
+                # Win32-style path.
+                $pwd = pathhelp::sys_native_current_path();
             }
-            elsif ($curl =~ /win32/) {
-               # Native Windows builds don't understand the
-               # output of cygwin's pwd.  It will be
-               # something like /cygdrive/c/<some path>.
-               #
-               # Use the cygpath utility to convert the
-               # working directory to a Windows friendly
-               # path.  The -m option converts to use drive
-               # letter:, but it uses / instead \.  Forward
-               # slashes (/) are easier for us.  We don't
-               # have to escape them to get them to curl
-               # through a shell.
-               chomp($pwd = `cygpath -m $pwd`);
-           }
            if ($libcurl =~ /winssl/i) {
                $has_winssl=1;
                $ssllib="WinSSL";
@@ -2346,14 +2334,17 @@ sub checksystem {
            }
            elsif ($libcurl =~ /nss/i) {
                $has_nss=1;
+               $has_sslpinning=1;
                $ssllib="NSS";
            }
            elsif ($libcurl =~ /(yassl|wolfssl)/i) {
                $has_yassl=1;
+               $has_sslpinning=1;
                $ssllib="yassl";
            }
            elsif ($libcurl =~ /polarssl/i) {
                $has_polarssl=1;
+               $has_sslpinning=1;
                $ssllib="polarssl";
            }
            elsif ($libcurl =~ /axtls/i) {
@@ -2366,11 +2357,18 @@ sub checksystem {
            }
            elsif ($libcurl =~ /BoringSSL/i) {
                $has_boringssl=1;
+               $has_sslpinning=1;
                $ssllib="BoringSSL";
            }
            elsif ($libcurl =~ /libressl/i) {
                $has_libressl=1;
+               $has_sslpinning=1;
                $ssllib="libressl";
+           }
+           elsif ($libcurl =~ /mbedTLS/i) {
+               $has_mbedtls=1;
+               $has_sslpinning=1;
+               $ssllib="mbedTLS";
            }
            if ($libcurl =~ /ares/i) {
                $has_cares=1;
@@ -2408,11 +2406,11 @@ sub checksystem {
             }
             if($feat =~ /SSL/i) {
                 # ssl enabled
-                $ssl_version=1;
+                $has_ssl=1;
             }
             if($feat =~ /Largefile/i) {
                 # large file support
-                $large_file=1;
+                $has_largefile=1;
             }
             if($feat =~ /IDN/i) {
                 # IDN support
@@ -2471,6 +2469,10 @@ sub checksystem {
             if($feat =~ /Metalink/i) {
                 # Metalink enabled
                 $has_metalink=1;
+            }
+            if($feat =~ /PSL/i) {
+                # PSL enabled
+                $has_psl=1;
             }
             if($feat =~ /AsynchDNS/i) {
                 if(!$has_cares) {
@@ -2588,72 +2590,67 @@ sub checksystem {
                "*\n");
     }
 
-    logmsg sprintf("* Server SSL:   %8s", $stunnel?"ON ":"OFF");
-    logmsg sprintf("  libcurl SSL:  %s\n", $ssl_version?"ON ":"OFF");
-    logmsg sprintf("* debug build:  %8s", $debug_build?"ON ":"OFF");
-    logmsg sprintf("  track memory: %s\n", $has_memory_tracking?"ON ":"OFF");
-    logmsg sprintf("* valgrind:     %8s", $valgrind?"ON ":"OFF");
-    logmsg sprintf("  HTTP IPv6     %s\n", $http_ipv6?"ON ":"OFF");
-    logmsg sprintf("* HTTP Unix     %s\n", $http_unix?"ON ":"OFF");
-    logmsg sprintf("* FTP IPv6      %8s", $ftp_ipv6?"ON ":"OFF");
-    logmsg sprintf("  Libtool lib:  %s\n", $libtool?"ON ":"OFF");
-    logmsg sprintf("* Shared build:      %-3s", $has_shared);
-    logmsg sprintf("  Resolver:     %s\n", $resolver);
-    if($ssl_version) {
-        logmsg sprintf("* SSL library: %13s\n", $ssllib);
-    }
+    logmsg sprintf("* Servers: %s", $stunnel?"SSL ":"");
+    logmsg sprintf("%s", $http_ipv6?"HTTP-IPv6 ":"");
+    logmsg sprintf("%s", $http_unix?"HTTP-unix ":"");
+    logmsg sprintf("%s\n", $ftp_ipv6?"FTP-IPv6 ":"OFF");
 
-    logmsg "* Ports:\n";
+    logmsg sprintf("* Env: %s%s", $valgrind?"Valgrind ":"",
+                   $run_event_based?"event-based ":"");
+    logmsg sprintf("%s\n", $libtool?"Libtool ":"");
 
-    logmsg sprintf("*   HTTP/%d ", $HTTPPORT);
-    logmsg sprintf("FTP/%d ", $FTPPORT);
-    logmsg sprintf("FTP2/%d ", $FTP2PORT);
-    logmsg sprintf("RTSP/%d ", $RTSPPORT);
-    if($stunnel) {
-        logmsg sprintf("FTPS/%d ", $FTPSPORT);
-        logmsg sprintf("HTTPS/%d ", $HTTPSPORT);
-    }
-    logmsg sprintf("\n*   TFTP/%d ", $TFTPPORT);
-    if($http_ipv6) {
-        logmsg sprintf("HTTP-IPv6/%d ", $HTTP6PORT);
-        logmsg sprintf("RTSP-IPv6/%d ", $RTSP6PORT);
-    }
-    if($ftp_ipv6) {
-        logmsg sprintf("FTP-IPv6/%d ", $FTP6PORT);
-    }
-    if($tftp_ipv6) {
-        logmsg sprintf("TFTP-IPv6/%d ", $TFTP6PORT);
-    }
-    logmsg sprintf("\n*   GOPHER/%d ", $GOPHERPORT);
-    if($gopher_ipv6) {
-        logmsg sprintf("GOPHER-IPv6/%d", $GOPHERPORT);
-    }
-    logmsg sprintf("\n*   SSH/%d ", $SSHPORT);
-    logmsg sprintf("SOCKS/%d ", $SOCKSPORT);
-    logmsg sprintf("POP3/%d ", $POP3PORT);
-    logmsg sprintf("IMAP/%d ", $IMAPPORT);
-    logmsg sprintf("SMTP/%d\n", $SMTPPORT);
-    if($ftp_ipv6) {
-        logmsg sprintf("*   POP3-IPv6/%d ", $POP36PORT);
-        logmsg sprintf("IMAP-IPv6/%d ", $IMAP6PORT);
-        logmsg sprintf("SMTP-IPv6/%d\n", $SMTP6PORT);
-    }
-    if($httptlssrv) {
-        logmsg sprintf("*   HTTPTLS/%d ", $HTTPTLSPORT);
-        if($has_ipv6) {
-            logmsg sprintf("HTTPTLS-IPv6/%d ", $HTTPTLS6PORT);
+    if($verbose) {
+        logmsg "* Ports:\n";
+
+        logmsg sprintf("*   HTTP/%d ", $HTTPPORT);
+        logmsg sprintf("FTP/%d ", $FTPPORT);
+        logmsg sprintf("FTP2/%d ", $FTP2PORT);
+        logmsg sprintf("RTSP/%d ", $RTSPPORT);
+        if($stunnel) {
+            logmsg sprintf("FTPS/%d ", $FTPSPORT);
+            logmsg sprintf("HTTPS/%d ", $HTTPSPORT);
         }
-        logmsg "\n";
-    }
-    logmsg sprintf("*   HTTP-PIPE/%d \n", $HTTPPIPEPORT);
+        logmsg sprintf("\n*   TFTP/%d ", $TFTPPORT);
+        if($http_ipv6) {
+            logmsg sprintf("HTTP-IPv6/%d ", $HTTP6PORT);
+            logmsg sprintf("RTSP-IPv6/%d ", $RTSP6PORT);
+        }
+        if($ftp_ipv6) {
+            logmsg sprintf("FTP-IPv6/%d ", $FTP6PORT);
+        }
+        if($tftp_ipv6) {
+            logmsg sprintf("TFTP-IPv6/%d ", $TFTP6PORT);
+        }
+        logmsg sprintf("\n*   GOPHER/%d ", $GOPHERPORT);
+        if($gopher_ipv6) {
+            logmsg sprintf("GOPHER-IPv6/%d", $GOPHERPORT);
+        }
+        logmsg sprintf("\n*   SSH/%d ", $SSHPORT);
+        logmsg sprintf("SOCKS/%d ", $SOCKSPORT);
+        logmsg sprintf("POP3/%d ", $POP3PORT);
+        logmsg sprintf("IMAP/%d ", $IMAPPORT);
+        logmsg sprintf("SMTP/%d\n", $SMTPPORT);
+        if($ftp_ipv6) {
+            logmsg sprintf("*   POP3-IPv6/%d ", $POP36PORT);
+            logmsg sprintf("IMAP-IPv6/%d ", $IMAP6PORT);
+            logmsg sprintf("SMTP-IPv6/%d\n", $SMTP6PORT);
+        }
+        if($httptlssrv) {
+            logmsg sprintf("*   HTTPTLS/%d ", $HTTPTLSPORT);
+            if($has_ipv6) {
+                logmsg sprintf("HTTPTLS-IPv6/%d ", $HTTPTLS6PORT);
+            }
+            logmsg "\n";
+        }
+        logmsg sprintf("*   HTTP-PIPE/%d \n", $HTTPPIPEPORT);
 
-    if($has_unix) {
-        logmsg "* Unix socket paths:\n";
-        if($http_unix) {
-            logmsg sprintf("*   HTTP-Unix:%s\n", $HTTPUNIXPATH);
+        if($has_unix) {
+            logmsg "* Unix socket paths:\n";
+            if($http_unix) {
+                logmsg sprintf("*   HTTP-Unix:%s\n", $HTTPUNIXPATH);
+            }
         }
     }
-
     $has_textaware = ($^O eq 'MSWin32') || ($^O eq 'msys');
 
     logmsg "***************************************** \n";
@@ -2850,7 +2847,7 @@ sub singletest {
             $feature{$1} = $1;
 
             if($1 eq "SSL") {
-                if($ssl_version) {
+                if($has_ssl) {
                     next;
                 }
             }
@@ -2905,7 +2902,7 @@ sub singletest {
                 }
             }
             elsif($1 eq "large_file") {
-                if($large_file) {
+                if($has_largefile) {
                     next;
                 }
             }
@@ -2979,6 +2976,11 @@ sub singletest {
                     next;
                 }
             }
+            elsif($1 eq "PSL") {
+                if($has_psl) {
+                    next;
+                }
+            }
             elsif($1 eq "socks") {
                 next;
             }
@@ -3003,7 +3005,7 @@ sub singletest {
 
             if($f =~ /^!(.*)$/) {
                 if($1 eq "SSL") {
-                    if(!$ssl_version) {
+                    if(!$has_ssl) {
                         next;
                     }
                 }
@@ -3043,7 +3045,7 @@ sub singletest {
                     }
                 }
                 elsif($1 eq "large_file") {
-                    if(!$large_file) {
+                    if(!$has_largefile) {
                         next;
                     }
                 }
@@ -3112,6 +3114,11 @@ sub singletest {
                 }
                 elsif($1 eq "Metalink") {
                     if(!$has_metalink) {
+                        next;
+                    }
+                }
+                elsif($1 eq "PSL") {
+                    if(!$has_psl) {
                         next;
                     }
                 }
@@ -3273,17 +3280,49 @@ sub singletest {
 
     if (@replycheck) {
         # we use this file instead to check the final output against
-
+        # get the mode attribute
+        my $filemode=$replycheckattr{'mode'};
+        if($filemode && ($filemode eq "text") && $has_textaware) {
+            # text mode when running on windows: fix line endings
+            map s/\r\n/\n/g, @replycheck;
+            map s/\n/\r\n/g, @replycheck;
+        }
         if($replycheckattr{'nonewline'}) {
             # Yes, we must cut off the final newline from the final line
             # of the datacheck
             chomp($replycheck[$#replycheck]);
         }
-        if($replycheckattr{'mode'}) {
-            $replyattr{'mode'} = $replycheckattr{'mode'};
+
+        for my $partsuffix (('1', '2', '3', '4')) {
+            my @replycheckpart = getpart("reply", "datacheck".$partsuffix);
+            if(@replycheckpart || partexists("reply", "datacheck".$partsuffix) ) {
+                my %replycheckpartattr = getpartattr("reply", "datacheck".$partsuffix);
+                # get the mode attribute
+                my $filemode=$replycheckpartattr{'mode'};
+                if($filemode && ($filemode eq "text") && $has_textaware) {
+                    # text mode when running on windows: fix line endings
+                    map s/\r\n/\n/g, @replycheckpart;
+                    map s/\n/\r\n/g, @replycheckpart;
+                }
+                if($replycheckpartattr{'nonewline'}) {
+                    # Yes, we must cut off the final newline from the final line
+                    # of the datacheck
+                    chomp($replycheckpart[$#replycheckpart]);
+                }
+                push(@replycheck, @replycheckpart);
+            }
         }
 
         @reply=@replycheck;
+    }
+    else {
+        # get the mode attribute
+        my $filemode=$replyattr{'mode'};
+        if($filemode && ($filemode eq "text") && $has_textaware) {
+            # text mode when running on windows: fix line endings
+            map s/\r\n/\n/g, @reply;
+            map s/\n/\r\n/g, @reply;
+        }
     }
 
     # this is the valid protocol blurb curl should generate
@@ -3820,14 +3859,6 @@ sub singletest {
     if(!$replyattr{'nocheck'} && (@reply || $replyattr{'sendzero'})) {
         # verify the received data
         my @out = loadarray($CURLOUT);
-        # get the mode attribute
-        my $filemode=$replyattr{'mode'};
-        if($filemode && ($filemode eq "text") && $has_textaware) {
-            # text mode when running on windows: fix line endings
-            map s/\r\n/\n/g, @reply;
-            map s/\n/\r\n/g, @reply;
-        }
-
         $res = compare($testnum, $testname, "data", \@out, \@reply);
         if ($res) {
             return 1;
@@ -4332,7 +4363,7 @@ sub startservers {
                 # we can't run ftps tests without stunnel
                 return "no stunnel";
             }
-            if(!$ssl_version) {
+            if(!$has_ssl) {
                 # we can't run ftps tests if libcurl is SSL-less
                 return "curl lacks SSL support";
             }
@@ -4370,7 +4401,7 @@ sub startservers {
                 # we can't run https tests without stunnel
                 return "no stunnel";
             }
-            if(!$ssl_version) {
+            if(!$has_ssl) {
                 # we can't run https tests if libcurl is SSL-less
                 return "curl lacks SSL support";
             }
@@ -4732,7 +4763,7 @@ while(@ARGV) {
     }
     elsif ($ARGV[0] eq "-c") {
         # use this path to curl instead of default
-        $DBGCURL=$CURL=$ARGV[1];
+        $DBGCURL=$CURL="\"$ARGV[1]\"";
         shift @ARGV;
     }
     elsif ($ARGV[0] eq "-vc") {
@@ -4742,7 +4773,7 @@ while(@ARGV) {
         # the development version as then it won't be able to run any tests
         # since it can't verify the servers!
 
-        $VCURL=$ARGV[1];
+        $VCURL="\"$ARGV[1]\"";
         shift @ARGV;
     }
     elsif ($ARGV[0] eq "-d") {
@@ -5000,18 +5031,28 @@ if(!$listonly) {
 # Fetch all disabled tests, if there are any
 #
 
-if(open(D, "<$TESTDIR/DISABLED")) {
-    while(<D>) {
-        if(/^ *\#/) {
-            # allow comments
-            next;
+sub disabledtests {
+    my ($file) = @_;
+
+    if(open(D, "<$file")) {
+        while(<D>) {
+            if(/^ *\#/) {
+                # allow comments
+                next;
+            }
+            if($_ =~ /(\d+)/) {
+                $disabled{$1}=$1; # disable this test number
+            }
         }
-        if($_ =~ /(\d+)/) {
-            $disabled{$1}=$1; # disable this test number
-        }
+        close(D);
     }
-    close(D);
 }
+
+# globally disabled tests
+disabledtests("$TESTDIR/DISABLED");
+
+# locally disabled tests, ignored by git etc
+disabledtests("$TESTDIR/DISABLED.local");
 
 #######################################################################
 # If 'all' tests are requested, find out all test numbers

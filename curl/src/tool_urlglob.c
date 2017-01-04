@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -24,6 +24,8 @@
 #define ENABLE_CURLX_PRINTF
 /* use our own printf() functions */
 #include "curlx.h"
+#include "tool_cfgable.h"
+#include "tool_doswin.h"
 #include "tool_urlglob.h"
 #include "tool_vms.h"
 
@@ -277,8 +279,7 @@ static CURLcode glob_range(URLGlob *glob, char **patternp,
 
     *posp += (pattern - *patternp);
 
-    if(!endp || (min_n > max_n) || (step_n > (max_n - min_n)) ||
-       (step_n <= 0) )
+    if(!endp || (min_n > max_n) || (step_n > (max_n - min_n)) || !step_n)
       /* the pattern is not well-formed */
       return GLOBERROR("bad range", *posp, CURLE_URL_MALFORMAT);
 
@@ -666,6 +667,20 @@ CURLcode glob_match_url(char **result, char *filename, URLGlob *glob)
     stringlen += appendlen;
   }
   target[stringlen]= '\0';
+
+#if defined(MSDOS) || defined(WIN32)
+  {
+    char *sanitized;
+    SANITIZEcode sc = sanitize_file_name(&sanitized, target,
+                                         (SANITIZE_ALLOW_PATH |
+                                          SANITIZE_ALLOW_RESERVED));
+    Curl_safefree(target);
+    if(sc)
+      return CURLE_URL_MALFORMAT;
+    target = sanitized;
+  }
+#endif /* MSDOS || WIN32 */
+
   *result = target;
   return CURLE_OK;
 }

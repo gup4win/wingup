@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -56,9 +56,9 @@
 #include "url.h"
 #include "inet_ntop.h"
 #include "warnless.h"
+/* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 #include "curl_memory.h"
-/* The last #include file should be: */
 #include "memdebug.h"
 
 #if defined(CURLRES_SYNCH) && \
@@ -137,7 +137,7 @@ struct curl_hash *Curl_global_host_cache_init(void)
 void Curl_global_host_cache_dtor(void)
 {
   if(host_cache_initialized) {
-    Curl_hash_clean(&hostname_cache);
+    Curl_hash_destroy(&hostname_cache);
     host_cache_initialized = 0;
   }
 }
@@ -353,7 +353,8 @@ Curl_fetch_addr(struct connectdata *conn,
 
   dns = fetch_addr(conn, hostname, port);
 
-  if(dns) dns->inuse++; /* we use it! */
+  if(dns)
+    dns->inuse++; /* we use it! */
 
   if(data->share)
     Curl_share_unlock(data, CURL_LOCK_DATA_DNS);
@@ -742,11 +743,12 @@ static void freednsentry(void *freethis)
 }
 
 /*
- * Curl_mk_dnscache() creates a new DNS cache and returns the handle for it.
+ * Curl_mk_dnscache() inits a new DNS cache and returns success/failure.
  */
-struct curl_hash *Curl_mk_dnscache(void)
+int Curl_mk_dnscache(struct curl_hash *hash)
 {
-  return Curl_hash_alloc(7, Curl_hash_str, Curl_str_key_compare, freednsentry);
+  return Curl_hash_init(hash, 7, Curl_hash_str, Curl_str_key_compare,
+                        freednsentry);
 }
 
 /*
@@ -776,7 +778,7 @@ CURLcode Curl_loadhostpairs(struct SessionHandle *data)
   char address[256];
   int port;
 
-  for(hostp = data->change.resolve; hostp; hostp = hostp->next ) {
+  for(hostp = data->change.resolve; hostp; hostp = hostp->next) {
     if(!hostp->data)
       continue;
     if(hostp->data[0] == '-') {

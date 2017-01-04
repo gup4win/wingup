@@ -9,7 +9,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -874,7 +874,7 @@ static CURLcode gskit_connect_step3(struct connectdata *conn, int sockindex)
       return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
     Curl_parseX509(&x509, cert, certend);
     p = &x509.subjectPublicKeyInfo;
-    result = Curl_pin_peer_pubkey(ptr, p->header, p->end - p->header);
+    result = Curl_pin_peer_pubkey(data, ptr, p->header, p->end - p->header);
     if(result) {
       failf(data, "SSL: public key does not match pinned public key!");
       return result;

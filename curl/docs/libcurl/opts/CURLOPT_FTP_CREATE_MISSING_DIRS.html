@@ -54,13 +54,13 @@ p.roffit {
 <p class="level0">CURLOPT_FTP_CREATE_MISSING_DIRS - create missing dirs for FTP and SFTP <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
 <p class="level0"><pre class="level0">
 &#35;include &lt;curl/curl.h&gt;
-
+&nbsp;
 typedef enum {
 &nbsp; CURLFTP_CREATE_DIR_NONE,
 &nbsp; CURLFTP_CREATE_DIR,
 &nbsp; CURLFTP_CREATE_DIR_RETRY
 } curl_ftpcreatedir;
-
+&nbsp;
 CURLcode curl_easy_setopt(CURL *handle, CURLOPT_FTP_CREATE_MISSING_DIRS,
 &nbsp;                         long create);
 </pre>
@@ -74,6 +74,6 @@ CURLcode curl_easy_setopt(CURL *handle, CURLOPT_FTP_CREATE_MISSING_DIRS,
 <p class="level0">TODO <a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">Added in 7.10.7. SFTP support added in 7.16.3. The retry option was added in 7.19.4. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if the create value is not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_FTP_FILEMETHOD.html">CURLOPT_FTP_FILEMETHOD</a>, <a Class="manpage" href="./CURLOPT_FTP_USE_EPSV.html">CURLOPT_FTP_USE_EPSV</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_FTP_FILEMETHOD.html">CURLOPT_FTP_FILEMETHOD</a>, <a Class="manpage" href="./CURLOPT_FTP_USE_EPSV.html">CURLOPT_FTP_USE_EPSV</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

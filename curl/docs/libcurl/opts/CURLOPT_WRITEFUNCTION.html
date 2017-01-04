@@ -54,9 +54,9 @@ p.roffit {
 <p class="level0">CURLOPT_WRITEFUNCTION - set callback for writing received data <a name="SYNOPSIS"></a><h2 class="nroffsh">SYNOPSIS</h2>
 <p class="level0"><pre class="level0">
 &#35;include &lt;curl/curl.h&gt;
-
+&nbsp;
 size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata);
-
+&nbsp;
 CURLcode curl_easy_setopt(CURL *handle, CURLOPT_WRITEFUNCTION, write_callback);
 </pre>
 <a name="DESCRIPTION"></a><h2 class="nroffsh">DESCRIPTION</h2>
@@ -73,7 +73,7 @@ CURLcode curl_easy_setopt(CURL *handle, CURLOPT_WRITEFUNCTION, write_callback);
 <p class="level0">For all protocols <a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">Support for the CURL_WRITEFUNC_PAUSE return code was added in version 7.18.0. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">This will return CURLE_OK. <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
-<p class="level0">A common technique is to use this callback to store the incoming data into a dynamically growing allocated buffer. Like in the getinmemory example: <a href="http://curl.haxx.se/libcurl/c/getinmemory.html">http://curl.haxx.se/libcurl/c/getinmemory.html</a> <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_WRITEDATA.html">CURLOPT_WRITEDATA</a>, <a Class="manpage" href="./CURLOPT_READFUNCTION.html">CURLOPT_READFUNCTION</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0">A common technique is to use this callback to store the incoming data into a dynamically growing allocated buffer. Like in the getinmemory example: <a href="https://curl.haxx.se/libcurl/c/getinmemory.html">https://curl.haxx.se/libcurl/c/getinmemory.html</a> <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
+<p class="level0"><a Class="manpage" href="./CURLOPT_WRITEDATA.html">CURLOPT_WRITEDATA</a>, <a Class="manpage" href="./CURLOPT_READFUNCTION.html">CURLOPT_READFUNCTION</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

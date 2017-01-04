@@ -7,11 +7,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -32,6 +32,7 @@
 #include "cyassl.h"         /* CyaSSL versions */
 #include "schannel.h"       /* Schannel SSPI version */
 #include "darwinssl.h"      /* SecureTransport (Darwin) version */
+#include "mbedtls.h"        /* mbedTLS versions */
 
 #ifndef MAX_PINNED_PUBKEY_SIZE
 #define MAX_PINNED_PUBKEY_SIZE 1048576 /* 1MB */
@@ -41,7 +42,11 @@
 #define MD5_DIGEST_LENGTH 16 /* fixed size */
 #endif
 
-/* see http://tools.ietf.org/html/draft-ietf-tls-applayerprotoneg-04 */
+#ifndef SHA256_DIGEST_LENGTH
+#define SHA256_DIGEST_LENGTH 32 /* fixed size */
+#endif
+
+/* see https://tools.ietf.org/html/draft-ietf-tls-applayerprotoneg-04 */
 #define ALPN_HTTP_1_1_LENGTH 8
 #define ALPN_HTTP_1_1 "http/1.1"
 
@@ -94,7 +99,7 @@ CURLcode Curl_ssl_push_certinfo(struct SessionHandle * data, int certnum,
 /* extract a session ID */
 bool Curl_ssl_getsessionid(struct connectdata *conn,
                            void **ssl_sessionid,
-                           size_t *idsize) /* set 0 if unknown */;
+                           size_t *idsize); /* set 0 if unknown */
 /* add a new session ID */
 CURLcode Curl_ssl_addsessionid(struct connectdata *conn,
                                void *ssl_sessionid,
@@ -113,7 +118,8 @@ CURLcode Curl_ssl_md5sum(unsigned char *tmp, /* input */
                          unsigned char *md5sum, /* output */
                          size_t md5len);
 /* Check pinned public key. */
-CURLcode Curl_pin_peer_pubkey(const char *pinnedpubkey,
+CURLcode Curl_pin_peer_pubkey(struct SessionHandle *data,
+                              const char *pinnedpubkey,
                               const unsigned char *pubkey, size_t pubkeylen);
 
 bool Curl_ssl_cert_status_request(void);

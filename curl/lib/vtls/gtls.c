@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -39,6 +39,7 @@
 #ifdef USE_GNUTLS_NETTLE
 #include <gnutls/crypto.h>
 #include <nettle/md5.h>
+#include <nettle/sha2.h>
 #else
 #include <gcrypt.h>
 #endif
@@ -61,7 +62,7 @@
 
 /*
  Some hackish cast macros based on:
- http://library.gnome.org/devel/glib/unstable/glib-Type-Conversion-Macros.html
+ https://developer.gnome.org/glib/unstable/glib-Type-Conversion-Macros.html
 */
 #ifndef GNUTLS_POINTER_TO_INT_CAST
 #define GNUTLS_POINTER_TO_INT_CAST(p) ((int) (long) (p))
@@ -231,7 +232,7 @@ static gnutls_datum_t load_file (const char *file)
   long filelen;
   void *ptr;
 
-  if(!(f = fopen(file, "r")))
+  if(!(f = fopen(file, "rb")))
     return loaded_file;
   if(fseek(f, 0, SEEK_END) != 0
      || (filelen = ftell(f)) < 0
@@ -327,7 +328,8 @@ static CURLcode handshake(struct connectdata *conn,
       if(strerr == NULL)
         strerr = gnutls_strerror(rc);
 
-      failf(data, "gnutls_handshake() warning: %s", strerr);
+      infof(data, "gnutls_handshake() warning: %s\n", strerr);
+      continue;
     }
     else if(rc < 0) {
       const char *strerr = NULL;
@@ -485,6 +487,14 @@ gtls_connect_step1(struct connectdata *conn,
   }
 #endif
 
+#ifdef CURL_CA_FALLBACK
+  /* use system ca certificate store as fallback */
+  if(data->set.ssl.verifypeer &&
+     !(data->set.ssl.CAfile || data->set.ssl.CApath)) {
+    gnutls_certificate_set_x509_system_trust(conn->ssl[sockindex].cred);
+  }
+#endif
+
   if(data->set.ssl.CRLfile) {
     /* set the CRL list file */
     rc = gnutls_certificate_set_x509_crl_file(conn->ssl[sockindex].cred,
@@ -631,12 +641,12 @@ gtls_connect_step1(struct connectdata *conn,
 #endif
 
 #ifdef HAS_ALPN
-  if(data->set.ssl_enable_alpn) {
+  if(conn->bits.tls_enable_alpn) {
     int cur = 0;
     gnutls_datum_t protocols[2];
 
 #ifdef USE_NGHTTP2
-    if(data->set.httpversion == CURL_HTTP_VERSION_2_0) {
+    if(data->set.httpversion >= CURL_HTTP_VERSION_2) {
       protocols[cur].data = (unsigned char *)NGHTTP2_PROTO_VERSION_ID;
       protocols[cur].size = NGHTTP2_PROTO_VERSION_ID_LEN;
       cur++;
@@ -654,15 +664,44 @@ gtls_connect_step1(struct connectdata *conn,
 #endif
 
   if(data->set.str[STRING_CERT]) {
-    if(gnutls_certificate_set_x509_key_file(
-         conn->ssl[sockindex].cred,
-         data->set.str[STRING_CERT],
-         data->set.str[STRING_KEY] ?
-         data->set.str[STRING_KEY] : data->set.str[STRING_CERT],
-         do_file_type(data->set.str[STRING_CERT_TYPE]) ) !=
-       GNUTLS_E_SUCCESS) {
-      failf(data, "error reading X.509 key or certificate file");
+    if(data->set.str[STRING_KEY_PASSWD]) {
+#if HAVE_GNUTLS_CERTIFICATE_SET_X509_KEY_FILE2
+      const unsigned int supported_key_encryption_algorithms =
+        GNUTLS_PKCS_USE_PKCS12_3DES | GNUTLS_PKCS_USE_PKCS12_ARCFOUR |
+        GNUTLS_PKCS_USE_PKCS12_RC2_40 | GNUTLS_PKCS_USE_PBES2_3DES |
+        GNUTLS_PKCS_USE_PBES2_AES_128 | GNUTLS_PKCS_USE_PBES2_AES_192 |
+        GNUTLS_PKCS_USE_PBES2_AES_256;
+      rc = gnutls_certificate_set_x509_key_file2(
+           conn->ssl[sockindex].cred,
+           data->set.str[STRING_CERT],
+           data->set.str[STRING_KEY] ?
+           data->set.str[STRING_KEY] : data->set.str[STRING_CERT],
+           do_file_type(data->set.str[STRING_CERT_TYPE]),
+           data->set.str[STRING_KEY_PASSWD],
+           supported_key_encryption_algorithms);
+      if(rc != GNUTLS_E_SUCCESS) {
+        failf(data,
+              "error reading X.509 potentially-encrypted key file: %s",
+              gnutls_strerror(rc));
+        return CURLE_SSL_CONNECT_ERROR;
+      }
+#else
+      failf(data, "gnutls lacks support for encrypted key files");
       return CURLE_SSL_CONNECT_ERROR;
+#endif
+    }
+    else {
+      rc = gnutls_certificate_set_x509_key_file(
+           conn->ssl[sockindex].cred,
+           data->set.str[STRING_CERT],
+           data->set.str[STRING_KEY] ?
+           data->set.str[STRING_KEY] : data->set.str[STRING_CERT],
+           do_file_type(data->set.str[STRING_CERT_TYPE]) );
+      if(rc != GNUTLS_E_SUCCESS) {
+        failf(data, "error reading X.509 key or certificate file: %s",
+              gnutls_strerror(rc));
+        return CURLE_SSL_CONNECT_ERROR;
+      }
     }
   }
 
@@ -722,7 +761,8 @@ gtls_connect_step1(struct connectdata *conn,
   return CURLE_OK;
 }
 
-static CURLcode pkp_pin_peer_pubkey(gnutls_x509_crt_t cert,
+static CURLcode pkp_pin_peer_pubkey(struct SessionHandle *data,
+                                    gnutls_x509_crt_t cert,
                                     const char *pinnedpubkey)
 {
   /* Scratch */
@@ -767,7 +807,7 @@ static CURLcode pkp_pin_peer_pubkey(gnutls_x509_crt_t cert,
     /* End Gyrations */
 
     /* The one good exit point */
-    result = Curl_pin_peer_pubkey(pinnedpubkey, buff1, len1);
+    result = Curl_pin_peer_pubkey(data, pinnedpubkey, buff1, len1);
   } while(0);
 
   if(NULL != key)
@@ -897,10 +937,98 @@ gtls_connect_step3(struct connectdata *conn,
 #ifdef HAS_OCSP
   if(data->set.ssl.verifystatus) {
     if(gnutls_ocsp_status_request_is_checked(session, 0) == 0) {
-      if(verify_status & GNUTLS_CERT_REVOKED)
-        infof(data, "\t server certificate was REVOKED\n");
-      else
-        infof(data, "\t server certificate status verification FAILED\n");
+      gnutls_datum_t status_request;
+      gnutls_ocsp_resp_t ocsp_resp;
+
+      gnutls_ocsp_cert_status_t status;
+      gnutls_x509_crl_reason_t reason;
+
+      rc = gnutls_ocsp_status_request_get(session, &status_request);
+
+      infof(data, "\t server certificate status verification FAILED\n");
+
+      if(rc == GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE) {
+        failf(data, "No OCSP response received");
+        return CURLE_SSL_INVALIDCERTSTATUS;
+      }
+
+      if(rc < 0) {
+        failf(data, "Invalid OCSP response received");
+        return CURLE_SSL_INVALIDCERTSTATUS;
+      }
+
+      gnutls_ocsp_resp_init(&ocsp_resp);
+
+      rc = gnutls_ocsp_resp_import(ocsp_resp, &status_request);
+      if(rc < 0) {
+        failf(data, "Invalid OCSP response received");
+        return CURLE_SSL_INVALIDCERTSTATUS;
+      }
+
+      rc = gnutls_ocsp_resp_get_single(ocsp_resp, 0, NULL, NULL, NULL, NULL,
+                                       &status, NULL, NULL, NULL, &reason);
+
+      switch(status) {
+      case GNUTLS_OCSP_CERT_GOOD:
+        break;
+
+      case GNUTLS_OCSP_CERT_REVOKED: {
+        const char *crl_reason;
+
+        switch(reason) {
+          default:
+          case GNUTLS_X509_CRLREASON_UNSPECIFIED:
+            crl_reason = "unspecified reason";
+            break;
+
+          case GNUTLS_X509_CRLREASON_KEYCOMPROMISE:
+            crl_reason = "private key compromised";
+            break;
+
+          case GNUTLS_X509_CRLREASON_CACOMPROMISE:
+            crl_reason = "CA compromised";
+            break;
+
+          case GNUTLS_X509_CRLREASON_AFFILIATIONCHANGED:
+            crl_reason = "affiliation has changed";
+            break;
+
+          case GNUTLS_X509_CRLREASON_SUPERSEDED:
+            crl_reason = "certificate superseded";
+            break;
+
+          case GNUTLS_X509_CRLREASON_CESSATIONOFOPERATION:
+            crl_reason = "operation has ceased";
+            break;
+
+          case GNUTLS_X509_CRLREASON_CERTIFICATEHOLD:
+            crl_reason = "certificate is on hold";
+            break;
+
+          case GNUTLS_X509_CRLREASON_REMOVEFROMCRL:
+            crl_reason = "will be removed from delta CRL";
+            break;
+
+          case GNUTLS_X509_CRLREASON_PRIVILEGEWITHDRAWN:
+            crl_reason = "privilege withdrawn";
+            break;
+
+          case GNUTLS_X509_CRLREASON_AACOMPROMISE:
+            crl_reason = "AA compromised";
+            break;
+        }
+
+        failf(data, "Server certificate was revoked: %s", crl_reason);
+        break;
+      }
+
+      default:
+      case GNUTLS_OCSP_CERT_UNKNOWN:
+        failf(data, "Server certificate status is unknown");
+        break;
+      }
+
+      gnutls_ocsp_resp_deinit(ocsp_resp);
 
       return CURLE_SSL_INVALIDCERTSTATUS;
     }
@@ -1062,7 +1190,7 @@ gtls_connect_step3(struct connectdata *conn,
 
   ptr = data->set.str[STRING_SSL_PINNEDPUBLICKEY];
   if(ptr) {
-    result = pkp_pin_peer_pubkey(x509_cert, ptr);
+    result = pkp_pin_peer_pubkey(data, x509_cert, ptr);
     if(result != CURLE_OK) {
       failf(data, "SSL: public key does not match pinned public key!");
       gnutls_x509_crt_deinit(x509_cert);
@@ -1112,7 +1240,7 @@ gtls_connect_step3(struct connectdata *conn,
   infof(data, "\t compression: %s\n", ptr);
 
 #ifdef HAS_ALPN
-  if(data->set.ssl_enable_alpn) {
+  if(conn->bits.tls_enable_alpn) {
     rc = gnutls_alpn_get_selected_protocol(session, &proto);
     if(rc == 0) {
       infof(data, "ALPN, server accepted to use %.*s\n", proto.size,
@@ -1122,7 +1250,7 @@ gtls_connect_step3(struct connectdata *conn,
       if(proto.size == NGHTTP2_PROTO_VERSION_ID_LEN &&
          !memcmp(NGHTTP2_PROTO_VERSION_ID, proto.data,
                  NGHTTP2_PROTO_VERSION_ID_LEN)) {
-        conn->negnpn = CURL_HTTP_VERSION_2_0;
+        conn->negnpn = CURL_HTTP_VERSION_2;
       }
       else
 #endif
@@ -1253,7 +1381,7 @@ static ssize_t gtls_send(struct connectdata *conn,
 {
   ssize_t rc = gnutls_record_send(conn->ssl[sockindex].session, mem, len);
 
-  if(rc < 0 ) {
+  if(rc < 0) {
     *curlcode = (rc == GNUTLS_E_AGAIN)
       ? CURLE_AGAIN
       : CURLE_SEND_ERROR;
@@ -1465,6 +1593,25 @@ void Curl_gtls_md5sum(unsigned char *tmp, /* input */
   gcry_md_write(MD5pw, tmp, tmplen);
   memcpy(md5sum, gcry_md_read (MD5pw, 0), md5len);
   gcry_md_close(MD5pw);
+#endif
+}
+
+void Curl_gtls_sha256sum(const unsigned char *tmp, /* input */
+                      size_t tmplen,
+                      unsigned char *sha256sum, /* output */
+                      size_t sha256len)
+{
+#if defined(USE_GNUTLS_NETTLE)
+  struct sha256_ctx SHA256pw;
+  sha256_init(&SHA256pw);
+  sha256_update(&SHA256pw, (unsigned int)tmplen, tmp);
+  sha256_digest(&SHA256pw, (unsigned int)sha256len, sha256sum);
+#elif defined(USE_GNUTLS)
+  gcry_md_hd_t SHA256pw;
+  gcry_md_open(&SHA256pw, GCRY_MD_SHA256, 0);
+  gcry_md_write(SHA256pw, tmp, tmplen);
+  memcpy(sha256sum, gcry_md_read (SHA256pw, 0), sha256len);
+  gcry_md_close(SHA256pw);
 #endif
 }
 

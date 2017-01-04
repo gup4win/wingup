@@ -102,7 +102,7 @@ p.roffit {
 <p class="level0">Many of the options you set in libcurl are "strings", pointers to data terminated with a zero byte. When you set strings with <a Class="emphasis" href="./curl_easy_setopt.html">curl_easy_setopt</a>, libcurl makes its own copy so that they don't need to be kept around in your application after being set[4]. 
 <p class="level0">One of the most basic properties to set in the handle is the URL. You set your preferred URL to transfer with <span Class="emphasis">CURLOPT_URL(3)</span> in a manner similar to: 
 <p class="level0"><pre class="level0">
-&nbsp;curl_easy_setopt(handle, CURLOPT_URL, "<a href="http://domain.com/">http://domain.com/</a>");
+&nbsp;curl_easy_setopt(handle, CURLOPT_URL, "http://domain.com/");
 </pre>
 
 <p class="level0">
@@ -124,25 +124,7 @@ p.roffit {
 <p class="level0">If you then want to transfer another file, the handle is ready to be used again. Mind you, it is even preferred that you re-use an existing handle if you intend to make another transfer. libcurl will then attempt to re-use the previous connection. 
 <p class="level0">For some protocols, downloading a file can involve a complicated process of logging in, setting the transfer mode, changing the current directory and finally transferring the file data. libcurl takes care of all that complication for you. Given simply the URL to a file, libcurl will take care of all the details needed to get the file moved from one machine to another. 
 <p class="level0"><a name="Multi-threading"></a><h2 class="nroffsh">Multi-threading Issues</h2>
-<p class="level0">The first basic rule is that you must <span Class="bold">never</span> simultaneously share a libcurl handle (be it easy or multi or whatever) between multiple threads. Only use one handle in one thread at any time. You can pass the handles around among threads, but you must never use a single handle from more than one thread at any given time. 
-<p class="level0">libcurl is completely thread safe, except for two issues: signals and SSL/TLS handlers. Signals are used for timing out name resolves (during DNS lookup) - when built without using either the c-ares or threaded resolver backends. 
-<p class="level0">If you are accessing HTTPS or FTPS URLs in a multi-threaded manner, you are then of course using the underlying SSL library multi-threaded and those libs might have their own requirements on this issue. Basically, you need to provide one or two functions to allow it to function properly. For all details, see this: 
-<p class="level0">OpenSSL 
-<p class="level0">&nbsp;<a href="http://www.openssl.org/docs/crypto/threads.html">http://www.openssl.org/docs/crypto/threads.html</a>&#35;DESCRIPTION 
-<p class="level0">GnuTLS 
-<p class="level0">&nbsp;<a href="http://gnutls.org/manual/html_node/Thread-safety.html">http://gnutls.org/manual/html_node/Thread-safety.html</a> 
-<p class="level0">NSS 
-<p class="level0">&nbsp;is claimed to be thread-safe already without anything required. 
-<p class="level0">PolarSSL 
-<p class="level0">&nbsp;Required actions unknown. 
-<p class="level0">yassl 
-<p class="level0">&nbsp;Required actions unknown. 
-<p class="level0">axTLS 
-<p class="level0">&nbsp;Required actions unknown. 
-<p class="level0">Secure Transport 
-<p class="level0">&nbsp;The engine is fully thread-safe, and no additional steps are required. 
-<p class="level0">When using multiple threads you should set the <span Class="emphasis">CURLOPT_NOSIGNAL(3)</span> option to 1 for all handles. Everything will or might work fine except that timeouts are not honored during the DNS lookup - which you can work around by building libcurl with c-ares support. c-ares is a library that provides asynchronous name resolves. On some platforms, libcurl simply will not function properly multi-threaded unless this option is set. 
-<p class="level0">Also, note that <span Class="emphasis">CURLOPT_DNS_USE_GLOBAL_CACHE(3)</span> is not thread-safe. 
+<p class="level0">libcurl is thread safe but there are a few exceptions. Refer to <a Class="emphasis" href="./libcurl-thread.html">libcurl-thread</a> for more information. 
 <p class="level0"><a name="When"></a><h2 class="nroffsh">When It Doesn't Work</h2>
 <p class="level0">There will always be times when the transfer fails for some reason. You might have set the wrong libcurl option or misunderstood what the libcurl option actually does, or the remote server might return non-standard replies that confuse the library which then confuses your program. 
 <p class="level0">There's one golden rule when these things occur: set the <span Class="emphasis">CURLOPT_VERBOSE(3)</span> option to 1. It'll cause the library to spew out the entire protocol details it sends, some internal info and some received protocol data as well (especially when using FTP). If you're using HTTP, adding the headers in the received output to study is also a clever way to get a better understanding why the server behaves the way it does. Include headers in the normal body output with <span Class="emphasis">CURLOPT_HEADER(3)</span> set 1. 
@@ -205,8 +187,8 @@ p.roffit {
 <p class="level0"><pre class="level0">
 &nbsp;   char *data="name=daniel&project=curl";
 &nbsp;   curl_easy_setopt(easyhandle, CURLOPT_POSTFIELDS, data);
-&nbsp;   curl_easy_setopt(easyhandle, CURLOPT_URL, "<a href="http://posthere.com/">http://posthere.com/</a>");
-
+&nbsp;   curl_easy_setopt(easyhandle, CURLOPT_URL, "http://posthere.com/");
+&nbsp;
 &nbsp;   curl_easy_perform(easyhandle); /* post away! */
 </pre>
 
@@ -216,23 +198,23 @@ p.roffit {
 <p class="level0"><pre class="level0">
 &nbsp;struct curl_slist *headers=NULL;
 &nbsp;headers = curl_slist_append(headers, "Content-Type: text/xml");
-
+&nbsp;
 &nbsp;/* post binary data */
 &nbsp;curl_easy_setopt(easyhandle, CURLOPT_POSTFIELDS, binaryptr);
-
+&nbsp;
 &nbsp;/* set the size of the postfields data */
 &nbsp;curl_easy_setopt(easyhandle, CURLOPT_POSTFIELDSIZE, 23L);
-
+&nbsp;
 &nbsp;/* pass our list of custom made headers */
 &nbsp;curl_easy_setopt(easyhandle, CURLOPT_HTTPHEADER, headers);
-
+&nbsp;
 &nbsp;curl_easy_perform(easyhandle); /* post away! */
-
+&nbsp;
 &nbsp;curl_slist_free_all(headers); /* free the header list */
 </pre>
 
 <p class="level0">
-<p class="level0">While the simple examples above cover the majority of all cases where HTTP POST operations are required, they don't do multi-part formposts. Multi-part formposts were introduced as a better way to post (possibly large) binary data and were first documented in the <a href="http://www.ietf.org/rfc/rfc1867.txt">RFC 1867</a> (updated in RFC2388). They're called multi-part because they're built by a chain of parts, each part being a single unit of data. Each part has its own name and contents. You can in fact create and post a multi-part formpost with the regular libcurl POST support described above, but that would require that you build a formpost yourself and provide to libcurl. To make that easier, libcurl provides <a Class="emphasis" href="./curl_formadd.html">curl_formadd</a>. Using this function, you add parts to the form. When you're done adding parts, you post the whole form. 
+<p class="level0">While the simple examples above cover the majority of all cases where HTTP POST operations are required, they don't do multi-part formposts. Multi-part formposts were introduced as a better way to post (possibly large) binary data and were first documented in the <a href="http://www.ietf.org/rfc/rfc1867.txt">RFC 1867</a> (updated in <a href="http://www.ietf.org/rfc/rfc2388.txt">RFC 2388</a>). They're called multi-part because they're built by a chain of parts, each part being a single unit of data. Each part has its own name and contents. You can in fact create and post a multi-part formpost with the regular libcurl POST support described above, but that would require that you build a formpost yourself and provide to libcurl. To make that easier, libcurl provides <a Class="emphasis" href="./curl_formadd.html">curl_formadd</a>. Using this function, you add parts to the form. When you're done adding parts, you post the whole form. 
 <p class="level0">The following example sets two simple text parts with plain textual contents, and then a file with binary contents and uploads the whole thing. 
 <p class="level0"><pre class="level0">
 &nbsp;struct curl_httppost *post=NULL;
@@ -246,12 +228,12 @@ p.roffit {
 &nbsp;curl_formadd(&post, &last,
 &nbsp;             CURLFORM_COPYNAME, "logotype-image",
 &nbsp;             CURLFORM_FILECONTENT, "curl.png", CURLFORM_END);
-
+&nbsp;
 &nbsp;/* Set the form info */
 &nbsp;curl_easy_setopt(easyhandle, CURLOPT_HTTPPOST, post);
-
+&nbsp;
 &nbsp;curl_easy_perform(easyhandle); /* post away! */
-
+&nbsp;
 &nbsp;/* free the post data again */
 &nbsp;curl_formfree(post);
 </pre>
@@ -261,15 +243,15 @@ p.roffit {
 <p class="level0"><pre class="level0">
 &nbsp;struct curl_slist *headers=NULL;
 &nbsp;headers = curl_slist_append(headers, "Content-Type: text/xml");
-
+&nbsp;
 &nbsp;curl_formadd(&post, &last,
 &nbsp;             CURLFORM_COPYNAME, "logotype-image",
 &nbsp;             CURLFORM_FILECONTENT, "curl.xml",
 &nbsp;             CURLFORM_CONTENTHEADER, headers,
 &nbsp;             CURLFORM_END);
-
+&nbsp;
 &nbsp;curl_easy_perform(easyhandle); /* post away! */
-
+&nbsp;
 &nbsp;curl_formfree(post); /* free post */
 &nbsp;curl_slist_free_all(headers); /* free custom header list */
 </pre>
@@ -392,15 +374,15 @@ class AClass {
 <p class="level1">HTTP-like protocols pass a series of headers to the server when doing the request, and you're free to pass any amount of extra headers that you think fit. Adding headers is this easy: 
 <p class="level1"><pre class="level1">
 &nbsp;struct curl_slist *headers=NULL; /* init to NULL is important */
-
+&nbsp;
 &nbsp;headers = curl_slist_append(headers, "Hey-server-hey: how are you?");
 &nbsp;headers = curl_slist_append(headers, "X-silly-content: yes");
-
+&nbsp;
 &nbsp;/* pass our list of custom made headers */
 &nbsp;curl_easy_setopt(easyhandle, CURLOPT_HTTPHEADER, headers);
-
+&nbsp;
 &nbsp;curl_easy_perform(easyhandle); /* transfer http */
-
+&nbsp;
 &nbsp;curl_slist_free_all(headers); /* free the header list */
 </pre>
 
@@ -430,16 +412,16 @@ class AClass {
 <p class="level0"><a name="FTP"></a><span class="nroffip">FTP Custom Commands</span> 
 <p class="level1">
 <p class="level1">Not all protocols are HTTP-like, and thus the above may not help you when you want to make, for example, your FTP transfers to behave differently. 
-<p class="level1">Sending custom commands to a FTP server means that you need to send the commands exactly as the FTP server expects them (<a href="http://www.ietf.org/rfc/rfc959.txt">RFC 959</a> is a good guide here), and you can only use commands that work on the control-connection alone. All kinds of commands that require data interchange and thus need a data-connection must be left to libcurl's own judgement. Also be aware that libcurl will do its very best to change directory to the target directory before doing any transfer, so if you change directory (with CWD or similar) you might confuse libcurl and then it might not attempt to transfer the file in the correct remote directory. 
+<p class="level1">Sending custom commands to a FTP server means that you need to send the commands exactly as the FTP server expects them (RFC959 is a good guide here), and you can only use commands that work on the control-connection alone. All kinds of commands that require data interchange and thus need a data-connection must be left to libcurl's own judgement. Also be aware that libcurl will do its very best to change directory to the target directory before doing any transfer, so if you change directory (with CWD or similar) you might confuse libcurl and then it might not attempt to transfer the file in the correct remote directory. 
 <p class="level1">A little example that deletes a given file before an operation: 
 <p class="level1"><pre class="level1">
 &nbsp;headers = curl_slist_append(headers, "DELE file-to-remove");
-
+&nbsp;
 &nbsp;/* pass the list of custom commands to the handle */
 &nbsp;curl_easy_setopt(easyhandle, CURLOPT_QUOTE, headers);
-
+&nbsp;
 &nbsp;curl_easy_perform(easyhandle); /* transfer ftp data! */
-
+&nbsp;
 &nbsp;curl_slist_free_all(headers); /* free the header list */
 </pre>
 
@@ -459,7 +441,7 @@ class AClass {
 <p class="level0">&nbsp;curl_easy_setopt(easyhandle, CURLOPT_COOKIE, "name1=var1; name2=var2;"); 
 <p class="level0">In many cases, that is not enough. You might want to dynamically save whatever cookies the remote server passes to you, and make sure those cookies are then used accordingly on later requests. 
 <p class="level0">One way to do this, is to save all headers you receive in a plain file and when you make a request, you tell libcurl to read the previous headers to figure out which cookies to use. Set the header file to read cookies from with <span Class="emphasis">CURLOPT_COOKIEFILE(3)</span>. 
-<p class="level0">The <span Class="emphasis">CURLOPT_COOKIEFILE(3)</span> option also automatically enables the cookie parser in libcurl. Until the cookie parser is enabled, libcurl will not parse or understand incoming cookies and they will just be ignored. However, when the parser is enabled the cookies will be understood and the cookies will be kept in memory and used properly in subsequent requests when the same handle is used. Many times this is enough, and you may not have to save the cookies to disk at all. Note that the file you specify to ICURLOPT_COOKIEFILE(3)</span> doesn't have to exist to enable the parser, so a common way to just enable the parser and not read any cookies is to use the name of a file you know doesn't exist. 
+<p class="level0">The <span Class="emphasis">CURLOPT_COOKIEFILE(3)</span> option also automatically enables the cookie parser in libcurl. Until the cookie parser is enabled, libcurl will not parse or understand incoming cookies and they will just be ignored. However, when the parser is enabled the cookies will be understood and the cookies will be kept in memory and used properly in subsequent requests when the same handle is used. Many times this is enough, and you may not have to save the cookies to disk at all. Note that the file you specify to <span Class="emphasis">CURLOPT_COOKIEFILE(3)</span> doesn't have to exist to enable the parser, so a common way to just enable the parser and not read any cookies is to use the name of a file you know doesn't exist. 
 <p class="level0">If you would rather use existing cookies that you've previously received with your Netscape or Mozilla browsers, you can make libcurl use that cookie file as input. The <span Class="emphasis">CURLOPT_COOKIEFILE(3)</span> is used for that too, as libcurl will automatically find out what kind of file it is and act accordingly. 
 <p class="level0">Perhaps the most advanced cookie operation libcurl offers, is saving the entire internal cookie state back into a Netscape/Mozilla formatted cookie file. We call that the cookie-jar. When you set a file name with <span Class="emphasis">CURLOPT_COOKIEJAR(3)</span>, that file name will be created and all received cookies will be stored in it when <a Class="emphasis" href="./curl_easy_cleanup.html">curl_easy_cleanup</a> is called. This enables cookies to get passed on properly between multiple handles without any information getting lost. 
 <p class="level0"><a name="FTP"></a><h2 class="nroffsh">FTP Peculiarities We Need</h2>
@@ -482,7 +464,7 @@ class AClass {
 <p class="level0"><a name="Security"></a><h2 class="nroffsh">Security Considerations</h2>
 <p class="level0">
 <p class="level0">The libcurl project takes security seriously.  The library is written with caution and precautions are taken to mitigate many kinds of risks encountered while operating with potentially malicious servers on the Internet.  It is a powerful library, however, which allows application writers to make trade offs between ease of writing and exposure to potential risky operations.  If used the right way, you can use libcurl to transfer data pretty safely. 
-<p class="level0">Many applications are used in closed networks where users and servers can be trusted, but many others are used on arbitrary servers and are fed input from potentially untrusted users.  Following is a discussion about some risks in the ways in which applications commonly use libcurl and potential mitigations of those risks. It is by no means comprehensive, but shows classes of attacks that robust applications should consider. The Common Weakness Enumeration project at <a href="http://cwe.mitre.org/">http://cwe.mitre.org/</a> is a good reference for many of these and similar types of weaknesses of which application writers should be aware. 
+<p class="level0">Many applications are used in closed networks where users and servers can be trusted, but many others are used on arbitrary servers and are fed input from potentially untrusted users.  Following is a discussion about some risks in the ways in which applications commonly use libcurl and potential mitigations of those risks. It is by no means comprehensive, but shows classes of attacks that robust applications should consider. The Common Weakness Enumeration project at <a href="https://cwe.mitre.org/">https://cwe.mitre.org/</a> is a good reference for many of these and similar types of weaknesses of which application writers should be aware. 
 <p class="level0">
 <p class="level0"><a name="Command"></a><span class="nroffip">Command Lines</span> 
 <p class="level1">If you use a command line tool (such as curl) that uses libcurl, and you give options to the tool on the command line those options can very likely get read by other users of your system when they use 'ps' or other tools to list currently running processes. 
@@ -497,11 +479,12 @@ class AClass {
 <p class="level1">To avoid this problem, use an authentication mechanism or other protocol that doesn't let snoopers see your password: Digest, CRAM-MD5, Kerberos, SPNEGO or NTLM authentication, HTTPS, FTPS, SCP and SFTP are a few examples. 
 <p class="level1">
 <p class="level0"><a name="Redirects"></a><span class="nroffip">Redirects</span> 
-<p class="level1">The <span Class="emphasis">CURLOPT_FOLLOWLOCATION(3)</span> option automatically follows HTTP redirects sent by a remote server.  These redirects can refer to any kind of URL, not just HTTP.  A redirect to a file: URL would cause the libcurl to read (or write) arbitrary files from the local filesystem.  If the application returns the data back to the user (as would happen in some kinds of CGI scripts), an attacker could leverage this to read otherwise forbidden data (e.g.  file://localhost/etc/passwd). 
+<p class="level1">The <span Class="emphasis">CURLOPT_FOLLOWLOCATION(3)</span> option automatically follows HTTP redirects sent by a remote server.  These redirects can refer to any kind of URL, not just HTTP. By default libcurl will allow all protocols on redirect except several disabled for security reasons: Since 7.19.4 FILE and SCP are disabled, and since 7.40.0 SMB and SMBS are also disabled. 
+<p class="level1">A redirect to a file: URL would cause the libcurl to read (or write) arbitrary files from the local filesystem.  If the application returns the data back to the user (as would happen in some kinds of CGI scripts), an attacker could leverage this to read otherwise forbidden data (e.g. file://localhost/etc/passwd). 
 <p class="level1">If authentication credentials are stored in the ~/.netrc file, or Kerberos is in use, any other URL type (not just file:) that requires authentication is also at risk.  A redirect such as <a href="ftp://some-internal-server/private-file">ftp://some-internal-server/private-file</a> would then return data even when the server is password protected. 
-<p class="level1">In the same way, if an unencrypted SSH private key has been configured for the user running the libcurl application, SCP: or SFTP: URLs could access password or private-key protected resources, e.g. s<a href="ftp://user">ftp://user</a>@some-internal-server/etc/passwd 
+<p class="level1">In the same way, if an unencrypted SSH private key has been configured for the user running the libcurl application, SCP: or SFTP: URLs could access password or private-key protected resources, e.g. sftp://user@some-internal-server/etc/passwd 
 <p class="level1">The <span Class="emphasis">CURLOPT_REDIR_PROTOCOLS(3)</span> and <span Class="emphasis">CURLOPT_NETRC(3)</span> options can be used to mitigate against this kind of attack. 
-<p class="level1">A redirect can also specify a location available only on the machine running libcurl, including servers hidden behind a firewall from the attacker. e.g. <a href="http://127.0.0.1/">http://127.0.0.1/</a> or <a href="http://intranet/delete-stuff.cgi">http://intranet/delete-stuff.cgi</a>?delete=all or t<a href="ftp://bootp-server/pc-config-data">ftp://bootp-server/pc-config-data</a> 
+<p class="level1">A redirect can also specify a location available only on the machine running libcurl, including servers hidden behind a firewall from the attacker. e.g. <a href="http://127.0.0.1/">http://127.0.0.1/</a> or <a href="http://intranet/delete-stuff.cgi?delete=all">http://intranet/delete-stuff.cgi?delete=all</a> or tftp://bootp-server/pc-config-data 
 <p class="level1">Apps can mitigate against this by disabling <span Class="emphasis">CURLOPT_FOLLOWLOCATION(3)</span> and handling redirects itself, sanitizing URLs as necessary. Alternately, an app could leave <span Class="emphasis">CURLOPT_FOLLOWLOCATION(3)</span> enabled but set <span Class="emphasis">CURLOPT_REDIR_PROTOCOLS(3)</span> and install a <span Class="emphasis">CURLOPT_OPENSOCKETFUNCTION(3)</span> callback function in which addresses are sanitized before use. 
 <p class="level1">
 <p class="level0"><a name="Private"></a><span class="nroffip">Private Resources</span> 
@@ -521,7 +504,7 @@ class AClass {
 <p class="level1">Use of the CURLUSESSL_TRY option to <span Class="emphasis">CURLOPT_USE_SSL(3)</span> could result in user name and password being sent in clear text to an FTP server.  Instead, use CURLUSESSL_CONTROL to ensure that an encrypted connection is used or else fail the request. 
 <p class="level1">
 <p class="level0"><a name="Cookies"></a><span class="nroffip">Cookies</span> 
-<p class="level1">If cookies are enabled and cached, then a user could craft a URL which performs some malicious action to a site whose authentication is already stored in a cookie. e.g. <a href="http://mail.example.com/delete-stuff.cgi">http://mail.example.com/delete-stuff.cgi</a>?delete=all Apps can mitigate against this by disabling cookies or clearing them between requests. 
+<p class="level1">If cookies are enabled and cached, then a user could craft a URL which performs some malicious action to a site whose authentication is already stored in a cookie. e.g. <a href="http://mail.example.com/delete-stuff.cgi?delete=all">http://mail.example.com/delete-stuff.cgi?delete=all</a> Apps can mitigate against this by disabling cookies or clearing them between requests. 
 <p class="level1">
 <p class="level0"><a name="Dangerous"></a><span class="nroffip">Dangerous URLs</span> 
 <p class="level1">SCP URLs can contain raw commands within the scp: URL, which is a side effect of how the SCP protocol is designed. e.g. scp://user:pass@host/a;date &gt;/tmp/test; Apps must not allow unsanitized SCP: URLs to be passed in for downloads. 
@@ -577,6 +560,6 @@ class AClass {
 <p class="level1">The curl-config tool is generated at build-time (on Unix-like systems) and should be installed with the 'make install' or similar instruction that installs the library, header files, man pages etc. 
 <p class="level0"><a name="4"></a><span class="nroffip">[4]</span> 
 <p class="level1">This behavior was different in versions before 7.17.0, where strings had to remain valid past the end of the <a Class="emphasis" href="./curl_easy_setopt.html">curl_easy_setopt</a> call. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./libcurl-errors.html">libcurl-errors</a>, <a Class="manpage" href="./libcurl-multi.html">libcurl-multi</a>, <a Class="manpage" href="./libcurl-easy.html">libcurl-easy</a>, <p class="roffit">
+<p class="level0"><a Class="manpage" href="./libcurl-errors.html">libcurl-errors</a>, <a Class="manpage" href="./libcurl-multi.html">libcurl-multi</a>, <a Class="manpage" href="./libcurl-easy.html">libcurl-easy</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>
