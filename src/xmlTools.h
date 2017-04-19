@@ -17,14 +17,14 @@
  along with GUP.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "tinyxml.h"
+#include "tinyxml2.h"
 #include <string>
 
 
 class XMLTool {
 
 protected:
-	TiXmlDocument _xmlDoc;
+	tinyxml2::XMLDocument _xmlDoc;
 };
 
 class GupParameters : public XMLTool {
@@ -100,10 +100,10 @@ class GupNativeLang : public XMLTool {
 public:
 	GupNativeLang(const char * xmlFileName) {
 		_xmlDoc.LoadFile(xmlFileName);
-		_nativeLangRoot = _xmlDoc.FirstChild("GUP_NativeLangue");
+		_nativeLangRoot = _xmlDoc.FirstChildElement("GUP_NativeLangue");
 	};
 	std::string getMessageString(std::string msgID);
 
 protected:
-	TiXmlNode *_nativeLangRoot;
+	const tinyxml2::XMLNode *_nativeLangRoot;
 };
