@@ -61,15 +61,15 @@ p.roffit {
 <p class="level0">Authenticating the certificate is not enough to be sure about the server. You typically also want to ensure that the server is the server you mean to be talking to.  Use <a Class="emphasis" href="./CURLOPT_SSL_VERIFYHOST.html">CURLOPT_SSL_VERIFYHOST</a> for that. The check that the host name in the certificate is valid for the host name you're connecting to is done independently of the <a Class="emphasis" href="./CURLOPT_SSL_VERIFYPEER.html">CURLOPT_SSL_VERIFYPEER</a> option. 
 <p class="level0">WARNING: disabling verification of the certificate allows bad guys to man-in-the-middle the communication without you knowing it. Disabling verification makes the communication insecure. Just having encryption on a transfer is not enough as you cannot be sure that you are communicating with the correct end-point. <a name="DEFAULT"></a><h2 class="nroffsh">DEFAULT</h2>
 <p class="level0">By default, curl assumes a value of 1. <a name="PROTOCOLS"></a><h2 class="nroffsh">PROTOCOLS</h2>
-<p class="level0">All TLS based protocols: HTTPS, FTPS, IMAPS, POP3, SMTPS etc. <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
+<p class="level0">All TLS based protocols: HTTPS, FTPS, IMAPS, POP3S, SMTPS etc. <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
 <p class="level0"><pre class="level0">
 CURL *curl = curl_easy_init();
 if(curl) {
 &nbsp; curl_easy_setopt(curl, CURLOPT_URL, "https://example.com");
-
+&nbsp;
 &nbsp; /* Set the default value: strict certificate check please */
 &nbsp; curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
-
+&nbsp;
 &nbsp; curl_easy_perform(curl);
 }
 </pre>
@@ -77,6 +77,6 @@ if(curl) {
 <p class="level0"><a name="AVAILABILITY"></a><h2 class="nroffsh">AVAILABILITY</h2>
 <p class="level0">If built TLS enabled. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_SSL_VERIFYHOST.html">CURLOPT_SSL_VERIFYHOST</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_SSL_VERIFYHOST.html">CURLOPT_SSL_VERIFYHOST</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

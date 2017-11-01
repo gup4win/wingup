@@ -73,15 +73,15 @@ p.roffit {
 <p class="level1">TLSv1.2 (Added in 7.34.0) 
 <p class="level0"><a name="DEFAULT"></a><h2 class="nroffsh">DEFAULT</h2>
 <p class="level0">CURL_SSLVERSION_DEFAULT <a name="PROTOCOLS"></a><h2 class="nroffsh">PROTOCOLS</h2>
-<p class="level0">All TLS based protocols: HTTPS, FTPS, IMAPS, POP3, SMTPS etc. <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
+<p class="level0">All TLS based protocols: HTTPS, FTPS, IMAPS, POP3S, SMTPS etc. <a name="EXAMPLE"></a><h2 class="nroffsh">EXAMPLE</h2>
 <p class="level0"><pre class="level0">
 CURL *curl = curl_easy_init();
 if(curl) {
 &nbsp; curl_easy_setopt(curl, CURLOPT_URL, "https://example.com");
-
+&nbsp;
 &nbsp; /* ask libcurl to use TLS version 1.0 or later */
 &nbsp; curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-
+&nbsp;
 &nbsp; /* Perform the request */
 &nbsp; curl_easy_perform(curl);
 }
@@ -91,6 +91,6 @@ if(curl) {
 <p class="level0">SSLv2 is disabled by default since 7.18.1. Other SSL versions availability may vary depending on which backend libcurl has been built to use. 
 <p class="level0">SSLv3 is disabled by default since 7.39.0. <a name="RETURN"></a><h2 class="nroffsh">RETURN VALUE</h2>
 <p class="level0">Returns CURLE_OK if the option is supported, and CURLE_UNKNOWN_OPTION if not. <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./CURLOPT_USE_SSL.html">CURLOPT_USE_SSL</a>, <a Class="manpage" href="./CURLOPT_HTTP_VERSION.html">CURLOPT_HTTP_VERSION</a>, <span Class="manpage"> </span> <a Class="manpage" href="./CURLOPT_IPRESOLVE.html">CURLOPT_IPRESOLVE</a>, <p class="roffit">
+<p class="level0"><a Class="manpage" href="./CURLOPT_USE_SSL.html">CURLOPT_USE_SSL</a>, <a Class="manpage" href="./CURLOPT_HTTP_VERSION.html">CURLOPT_HTTP_VERSION</a>, <a Class="manpage" href="./CURLOPT_IPRESOLVE.html">CURLOPT_IPRESOLVE</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

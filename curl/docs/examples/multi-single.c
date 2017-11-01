@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2014, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -19,7 +19,10 @@
  * KIND, either express or implied.
  *
  ***************************************************************************/
-/* This is a very simple example using the multi interface. */
+/* <DESC>
+ * using the multi interface to do a single download
+ * </DESC>
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -74,14 +77,13 @@ int main(void)
     /* wait for activity, timeout or "nothing" */
     mc = curl_multi_wait(multi_handle, NULL, 0, 1000, &numfds);
 
-    if(mc != CURLM_OK)
-    {
-      fprintf(stderr, "curl_multi_fdset() failed, code %d.\n", mc);
+    if(mc != CURLM_OK) {
+      fprintf(stderr, "curl_multi_wait() failed, code %d.\n", mc);
       break;
     }
 
     /* 'numfds' being zero means either a timeout or no file descriptors to
-       wait for. Try timeout on first occurance, then assume no file
+       wait for. Try timeout on first occurrence, then assume no file
        descriptors and no file descriptors to wait for means wait for 100
        milliseconds. */
 

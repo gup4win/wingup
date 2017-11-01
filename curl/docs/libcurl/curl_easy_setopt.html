@@ -57,6 +57,7 @@ p.roffit {
 <p class="level0"><a Class="emphasis" href="./curl_easy_setopt.html">curl_easy_setopt</a> is used to tell libcurl how to behave. By setting the appropriate options, the application can change libcurl's behavior.  All options are set with an <span Class="emphasis">option</span> followed by a <span Class="emphasis">parameter</span>. That parameter can be a <span Class="bold">long</span>, a <span Class="bold">function pointer</span>, an <span class="bold">object pointer</span> or a <span Class="bold">curl_off_t</span>, depending on what the specific option expects. Read this manual carefully as bad input values may cause libcurl to behave badly!  You can only set one option in each function call. A typical application uses many <a Class="emphasis" href="./curl_easy_setopt.html">curl_easy_setopt</a> calls in the setup phase. 
 <p class="level0">Options set with this function call are valid for all forthcoming transfers performed using this <span Class="emphasis">handle</span>.  The options are not in any way reset between transfers, so if you want subsequent transfers with different options, you must change them between the transfers. You can optionally reset all options back to internal default with <a Class="emphasis" href="./curl_easy_reset.html">curl_easy_reset</a>. 
 <p class="level0">Strings passed to libcurl as 'char *' arguments, are copied by the library; thus the string storage associated to the pointer argument may be overwritten after <a Class="emphasis" href="./curl_easy_setopt.html">curl_easy_setopt</a> returns. The only exception to this rule is really <span Class="emphasis">CURLOPT_POSTFIELDS(3)</span>, but the alternative that copies the string <span Class="emphasis">CURLOPT_COPYPOSTFIELDS(3)</span> has some usage characteristics you need to read up on. 
+<p class="level0">The order in which the options are set does not matter. 
 <p class="level0">Before version 7.17.0, strings were not copied. Instead the user was forced keep them available until libcurl no longer needed them. 
 <p class="level0">The <span Class="emphasis">handle</span> is the return code from a <a Class="emphasis" href="./curl_easy_init.html">curl_easy_init</a> or <a Class="emphasis" href="./curl_easy_duphandle.html">curl_easy_duphandle</a> call. <a name="BEHAVIOR"></a><h2 class="nroffsh">BEHAVIOR OPTIONS</h2>
 <p class="level0">
@@ -155,6 +156,8 @@ p.roffit {
 <p class="level1">Allowed protocols. See <span Class="emphasis">CURLOPT_PROTOCOLS(3)</span> 
 <p class="level0"><a name="CURLOPTREDIRPROTOCOLS"></a><span class="nroffip">CURLOPT_REDIR_PROTOCOLS</span> 
 <p class="level1">Protocols to allow redirects to. See <span Class="emphasis">CURLOPT_REDIR_PROTOCOLS(3)</span> 
+<p class="level0"><a name="CURLOPTDEFAULTPROTOCOL"></a><span class="nroffip">CURLOPT_DEFAULT_PROTOCOL</span> 
+<p class="level1">Default protocol. See <span Class="emphasis">CURLOPT_DEFAULT_PROTOCOL(3)</span> 
 <p class="level0"><a name="CURLOPTPROXY"></a><span class="nroffip">CURLOPT_PROXY</span> 
 <p class="level1">Proxy to use. See <span Class="emphasis">CURLOPT_PROXY(3)</span> 
 <p class="level0"><a name="CURLOPTPROXYPORT"></a><span class="nroffip">CURLOPT_PROXYPORT</span> 
@@ -165,10 +168,16 @@ p.roffit {
 <p class="level1">Filter out hosts from proxy use. <span Class="emphasis">CURLOPT_NOPROXY(3)</span> 
 <p class="level0"><a name="CURLOPTHTTPPROXYTUNNEL"></a><span class="nroffip">CURLOPT_HTTPPROXYTUNNEL</span> 
 <p class="level1">Tunnel through the HTTP proxy. <span Class="emphasis">CURLOPT_HTTPPROXYTUNNEL(3)</span> 
+<p class="level0"><a name="CURLOPTCONNECTTO"></a><span class="nroffip">CURLOPT_CONNECT_TO</span> 
+<p class="level1">Connect to a specific host and port. See <span Class="emphasis">CURLOPT_CONNECT_TO(3)</span> 
 <p class="level0"><a name="CURLOPTSOCKS5GSSAPISERVICE"></a><span class="nroffip">CURLOPT_SOCKS5_GSSAPI_SERVICE</span> 
 <p class="level1">Socks5 GSSAPI service name. <span Class="emphasis">CURLOPT_SOCKS5_GSSAPI_SERVICE(3)</span> 
 <p class="level0"><a name="CURLOPTSOCKS5GSSAPINEC"></a><span class="nroffip">CURLOPT_SOCKS5_GSSAPI_NEC</span> 
 <p class="level1">Socks5 GSSAPI NEC mode. See <span Class="emphasis">CURLOPT_SOCKS5_GSSAPI_NEC(3)</span> 
+<p class="level0"><a name="CURLOPTPROXYSERVICENAME"></a><span class="nroffip">CURLOPT_PROXY_SERVICE_NAME</span> 
+<p class="level1">Proxy authentication service name. <span Class="emphasis">CURLOPT_PROXY_SERVICE_NAME(3)</span> 
+<p class="level0"><a name="CURLOPTSERVICENAME"></a><span class="nroffip">CURLOPT_SERVICE_NAME</span> 
+<p class="level1">Authentication service name. <span Class="emphasis">CURLOPT_SERVICE_NAME(3)</span> 
 <p class="level0"><a name="CURLOPTINTERFACE"></a><span class="nroffip">CURLOPT_INTERFACE</span> 
 <p class="level1">Bind connection locally to this. See <span Class="emphasis">CURLOPT_INTERFACE(3)</span> 
 <p class="level0"><a name="CURLOPTLOCALPORT"></a><span class="nroffip">CURLOPT_LOCALPORT</span> 
@@ -183,6 +192,8 @@ p.roffit {
 <p class="level1">Ask for smaller buffer size. See <span Class="emphasis">CURLOPT_BUFFERSIZE(3)</span> 
 <p class="level0"><a name="CURLOPTPORT"></a><span class="nroffip">CURLOPT_PORT</span> 
 <p class="level1">Port number to connect to. See <span Class="emphasis">CURLOPT_PORT(3)</span> 
+<p class="level0"><a name="CURLOPTTCPFASTOPEN"></a><span class="nroffip">CURLOPT_TCP_FASTOPEN</span> 
+<p class="level1">Enable TFO, TCP Fast Open. See <span Class="emphasis">CURLOPT_TCP_FASTOPEN(3)</span> 
 <p class="level0"><a name="CURLOPTTCPNODELAY"></a><span class="nroffip">CURLOPT_TCP_NODELAY</span> 
 <p class="level1">Disable the Nagle algorithm. See <span Class="emphasis">CURLOPT_TCP_NODELAY(3)</span> 
 <p class="level0"><a name="CURLOPTADDRESSSCOPE"></a><span class="nroffip">CURLOPT_ADDRESS_SCOPE</span> 
@@ -290,7 +301,15 @@ p.roffit {
 <p class="level0"><a name="CURLOPTHTTPTRANSFERDECODING"></a><span class="nroffip">CURLOPT_HTTP_TRANSFER_DECODING</span> 
 <p class="level1">Disable Transfer decoding. See <span Class="emphasis">CURLOPT_HTTP_TRANSFER_DECODING(3)</span> 
 <p class="level0"><a name="CURLOPTEXPECT100TIMEOUTMS"></a><span class="nroffip">CURLOPT_EXPECT_100_TIMEOUT_MS</span> 
-<p class="level1">100-continue timeout. See <span Class="emphasis">CURLOPT_EXPECT_100_TIMEOUT_MS(3)</span> <a name="SMTP"></a><h2 class="nroffsh">SMTP OPTIONS</h2>
+<p class="level1">100-continue timeout. See <span Class="emphasis">CURLOPT_EXPECT_100_TIMEOUT_MS(3)</span> 
+<p class="level0"><a name="CURLOPTPIPEWAIT"></a><span class="nroffip">CURLOPT_PIPEWAIT</span> 
+<p class="level1">Wait on connection to pipeline on it. See <span Class="emphasis">CURLOPT_PIPEWAIT(3)</span> 
+<p class="level0"><a name="CURLOPTSTREAMDEPENDS"></a><span class="nroffip">CURLOPT_STREAM_DEPENDS</span> 
+<p class="level1">This HTTP/2 stream depends on another. See <span Class="emphasis">CURLOPT_STREAM_DEPENDS(3)</span> 
+<p class="level0"><a name="CURLOPTSTREAMDEPENDSE"></a><span class="nroffip">CURLOPT_STREAM_DEPENDS_E</span> 
+<p class="level1">This HTTP/2 stream depends on another exclusively. See <span Class="emphasis">CURLOPT_STREAM_DEPENDS_E(3)</span> 
+<p class="level0"><a name="CURLOPTSTREAMWEIGHT"></a><span class="nroffip">CURLOPT_STREAM_WEIGHT</span> 
+<p class="level1">Set this HTTP/2 stream's weight. See <span Class="emphasis">CURLOPT_STREAM_WEIGHT(3)</span> <a name="SMTP"></a><h2 class="nroffsh">SMTP OPTIONS</h2>
 <p class="level0">
 <p class="level0"><a name="CURLOPTMAILFROM"></a><span class="nroffip">CURLOPT_MAIL_FROM</span> 
 <p class="level1">Address of the sender. See <span Class="emphasis">CURLOPT_MAIL_FROM(3)</span> 
@@ -300,7 +319,9 @@ p.roffit {
 <p class="level1">Authentication address. See <span Class="emphasis">CURLOPT_MAIL_AUTH(3)</span> <a name="TFTP"></a><h2 class="nroffsh">TFTP OPTIONS</h2>
 <p class="level0">
 <p class="level0"><a name="CURLOPTTFTPBLKSIZE"></a><span class="nroffip">CURLOPT_TFTP_BLKSIZE</span> 
-<p class="level1">TFTP block size. See <span Class="emphasis">CURLOPT_TFTP_BLKSIZE(3)</span> <a name="FTP"></a><h2 class="nroffsh">FTP OPTIONS</h2>
+<p class="level1">TFTP block size. See <span Class="emphasis">CURLOPT_TFTP_BLKSIZE(3)</span> 
+<p class="level0"><a name="CURLOPTTFTPNOOPTIONS"></a><span class="nroffip">CURLOPT_TFTP_NO_OPTIONS</span> 
+<p class="level1">Do not send TFTP options requests. See <span Class="emphasis">CURLOPT_TFTP_NO_OPTIONS(3)</span> <a name="FTP"></a><h2 class="nroffsh">FTP OPTIONS</h2>
 <p class="level0">
 <p class="level0"><a name="CURLOPTFTPPORT"></a><span class="nroffip">CURLOPT_FTPPORT</span> 
 <p class="level1">Use active FTP. See <span Class="emphasis">CURLOPT_FTPPORT(3)</span> 
@@ -511,13 +532,13 @@ p.roffit {
 CURL *curl = curl_easy_init();
 if(curl) {
 &nbsp; CURLcode res;
-&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "<a href="http://example.com">http://example.com</a>");
+&nbsp; curl_easy_setopt(curl, CURLOPT_URL, "http://example.com");
 &nbsp; res = curl_easy_perform(curl);
 &nbsp; curl_easy_cleanup(curl);
-}}
+}
 </pre>
 
 <p class="level0"><a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./curl_easy_init.html">curl_easy_init</a>, <a Class="manpage" href="./curl_easy_cleanup.html">curl_easy_cleanup</a>, <a Class="manpage" href="./curl_easy_reset.html">curl_easy_reset</a>, <span Class="manpage"> </span> <a Class="manpage" href="./curl_multi_setopt.html">curl_multi_setopt</a>, <span Class="manpage"> </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./curl_easy_init.html">curl_easy_init</a>, <a Class="manpage" href="./curl_easy_cleanup.html">curl_easy_cleanup</a>, <a Class="manpage" href="./curl_easy_reset.html">curl_easy_reset</a>, <a Class="manpage" href="./curl_easy_getinfo.html">curl_easy_getinfo</a>, <a Class="manpage" href="./curl_multi_setopt.html">curl_multi_setopt</a><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

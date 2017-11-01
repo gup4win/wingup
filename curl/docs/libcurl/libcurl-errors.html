@@ -80,7 +80,7 @@ p.roffit {
 <p class="level0"><a name="CURLEFTPWEIRDPASSREPLY"></a><span class="nroffip">CURLE_FTP_WEIRD_PASS_REPLY (11)</span> 
 <p class="level1">After having sent the FTP password to the server, libcurl expects a proper reply. This error code indicates that an unexpected code was returned. 
 <p class="level0"><a name="CURLEFTPACCEPTTIMEOUT"></a><span class="nroffip">CURLE_FTP_ACCEPT_TIMEOUT (12)</span> 
-<p class="level1">During an active FTP session while waiting for the server to connect, the <span Class="emphasis">CURLOPT_ACCEPTTIMOUT_MS(3)</span> (or the internal default) timeout expired. 
+<p class="level1">During an active FTP session while waiting for the server to connect, the <span Class="emphasis">CURLOPT_ACCEPTTIMEOUT_MS(3)</span> (or the internal default) timeout expired. 
 <p class="level0"><a name="CURLEFTPWEIRDPASVREPLY"></a><span class="nroffip">CURLE_FTP_WEIRD_PASV_REPLY (13)</span> 
 <p class="level1">libcurl failed to get a sensible result back from the server as a response to either a PASV or a EPSV command. The server is flawed. 
 <p class="level0"><a name="CURLEFTPWEIRD227FORMAT"></a><span class="nroffip">CURLE_FTP_WEIRD_227_FORMAT (14)</span> 
@@ -217,6 +217,12 @@ p.roffit {
 <p class="level1">Chunk callback reported error. 
 <p class="level0"><a name="CURLENOCONNECTIONAVAILABLE"></a><span class="nroffip">CURLE_NO_CONNECTION_AVAILABLE (89)</span> 
 <p class="level1">(For internal use only, will never be returned by libcurl) No connection available, the session will be queued. (added in 7.30.0) 
+<p class="level0"><a name="CURLESSLPINNEDPUBKEYNOTMATCH"></a><span class="nroffip">CURLE_SSL_PINNEDPUBKEYNOTMATCH (90)</span> 
+<p class="level1">Failed to match the pinned key specified with <span Class="emphasis">CURLOPT_PINNEDPUBLICKEY(3)</span>. 
+<p class="level0"><a name="CURLESSLINVALIDCERTSTATUS"></a><span class="nroffip">CURLE_SSL_INVALIDCERTSTATUS (91)</span> 
+<p class="level1">Status returned failure when asked with <span Class="emphasis">CURLOPT_SSL_VERIFYSTATUS(3)</span>. 
+<p class="level0"><a name="CURLEHTTP2STREAM"></a><span class="nroffip">CURLE_HTTP2_STREAM (92)</span> 
+<p class="level1">Stream error in the HTTP/2 framing layer. 
 <p class="level0"><a name="CURLEOBSOLETE"></a><span class="nroffip">CURLE_OBSOLETE*</span> 
 <p class="level1">These error codes will never be returned. They were used in an old libcurl version and are currently unused. <a name="CURLMcode"></a><h2 class="nroffsh">CURLMcode</h2>
 <p class="level0">This is the generic return code used by functions in the libcurl multi interface. Also consider <a Class="emphasis" href="./curl_multi_strerror.html">curl_multi_strerror</a>. 
@@ -251,6 +257,6 @@ p.roffit {
 <p class="level1">Not enough memory was available. (Added in 7.12.0) 
 <p class="level0"><a name="CURLSHENOTBUILTIN"></a><span class="nroffip">CURLSHE_NOT_BUILT_IN (5)</span> 
 <p class="level1">The requested sharing could not be done because the library you use don't have that particular feature enabled. (Added in 7.23.0) <a name="SEE"></a><h2 class="nroffsh">SEE ALSO</h2>
-<p class="level0"><a Class="manpage" href="./curl_easy_strerror.html">curl_easy_strerror</a>, <a Class="manpage" href="./curl_multi_strerror.html">curl_multi_strerror</a>, <span Class="manpage"> </span> <a Class="manpage" href="./curl_share_strerror.html">curl_share_strerror</a>, <span Class="manpage">  CURLOPT_ERRORBUFFER (3)</span> <span Class="manpage"> </span> <span Class="manpage">CURLOPT_VERBOSE (3)</span> <span Class="manpage">  CURLOPT_DEBUGFUNCTION (3) </span> <p class="roffit">
+<p class="level0"><a Class="manpage" href="./curl_easy_strerror.html">curl_easy_strerror</a>, <a Class="manpage" href="./curl_multi_strerror.html">curl_multi_strerror</a>, <a Class="manpage" href="./curl_share_strerror.html">curl_share_strerror</a>, <span Class="manpage">CURLOPT_ERRORBUFFER (3)</span>, <span Class="manpage">CURLOPT_VERBOSE (3)</span>, <span Class="manpage">CURLOPT_DEBUGFUNCTION (3)</span><p class="roffit">
  This HTML page was made with <a href="http://daniel.haxx.se/projects/roffit/">roffit</a>.
 </body></html>

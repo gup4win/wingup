@@ -11,7 +11,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -21,6 +21,8 @@
  * KIND, either express or implied.
  *
  ***************************************************************************/
+
+#include "conncache.h"
 
 struct Curl_message {
   /* the 'CURLMsg' is the part that is visible to the external user */
@@ -60,6 +62,8 @@ typedef enum {
 #define GETSOCK_READABLE (0x00ff)
 #define GETSOCK_WRITABLE (0xff00)
 
+#define CURLPIPE_ANY (CURLPIPE_HTTP1 | CURLPIPE_MULTIPLEX)
+
 /* This is the struct known as CURLM on the outside */
 struct Curl_multi {
   /* First a simple identifier to easier detect if a user mix up
@@ -67,8 +71,8 @@ struct Curl_multi {
   long type;
 
   /* We have a doubly-linked circular list with easy handles */
-  struct SessionHandle *easyp;
-  struct SessionHandle *easylp; /* last node */
+  struct Curl_easy *easyp;
+  struct Curl_easy *easylp; /* last node */
 
   int num_easy; /* amount of entries in the linked list above. */
   int num_alive; /* amount of easy handles that are added but have not yet
@@ -76,15 +80,19 @@ struct Curl_multi {
 
   struct curl_llist *msglist; /* a list of messages from completed transfers */
 
-  struct curl_llist *pending; /* SessionHandles that are in the
+  struct curl_llist *pending; /* Curl_easys that are in the
                                  CURLM_STATE_CONNECT_PEND state */
 
   /* callback function and user data pointer for the *socket() API */
   curl_socket_callback socket_cb;
   void *socket_userp;
 
+  /* callback function and user data pointer for server push */
+  curl_push_callback push_cb;
+  void *push_userp;
+
   /* Hostname cache */
-  struct curl_hash *hostcache;
+  struct curl_hash hostcache;
 
   /* timetree points to the splay-tree of time nodes to figure out expire
      times of all currently set timers */
@@ -93,17 +101,19 @@ struct Curl_multi {
   /* 'sockhash' is the lookup hash for socket descriptor => easy handles (note
      the pluralis form, there can be more than one easy handle waiting on the
      same actual socket) */
-  struct curl_hash *sockhash;
+  struct curl_hash sockhash;
 
-  /* Whether pipelining is enabled for this multi handle */
-  bool pipelining_enabled;
+  /* pipelining wanted bits (CURLPIPE*) */
+  long pipelining;
+
+  bool recheckstate; /* see Curl_multi_connchanged */
 
   /* Shared connection cache (bundles)*/
-  struct conncache *conn_cache;
+  struct conncache conn_cache;
 
   /* This handle will be used for closing the cached connections in
      curl_multi_cleanup() */
-  struct SessionHandle *closure_handle;
+  struct Curl_easy *closure_handle;
 
   long maxconnects; /* if >0, a fixed limit of the maximum number of entries
                        we're allowed to grow the connection cache to */
@@ -140,4 +150,3 @@ struct Curl_multi {
 };
 
 #endif /* HEADER_CURL_MULTIHANDLE_H */
-
