@@ -579,7 +579,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 		if (res != CURLE_OK)
 		{
-			if (!isSilentMode)
+			if (!isSilentMode && doAbort == false)
 				::MessageBoxA(NULL, errorBuffer, "curl error", MB_OK);
 			if (doAbort)
 			{
