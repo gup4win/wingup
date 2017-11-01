@@ -90,6 +90,7 @@ vcproj/GUP.sln
 curl/winbuild/CURL_OBJS.inc
 curl/winbuild/LIBCURL_OBJS.inc
 curl/winbuild/vc120.idb
+curl/winbuild/vc140.idb
 bin/GUP.exe
 bin/libcurl.dll
 bin/gup.xml
