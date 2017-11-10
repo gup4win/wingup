@@ -1,7 +1,5 @@
 set(LIB_NAME libcurl)
 
-configure_file(${CURL_SOURCE_DIR}/include/curl/curlbuild.h.cmake
-  ${CURL_BINARY_DIR}/include/curl/curlbuild.h)
 configure_file(curl_config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/curl_config.h)
 
@@ -10,11 +8,11 @@ include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake)
 
 list(APPEND HHEADERS
   ${CMAKE_CURRENT_BINARY_DIR}/curl_config.h
-  ${CURL_BINARY_DIR}/include/curl/curlbuild.h
   )
 
 if(MSVC)
   list(APPEND CSOURCES libcurl.rc)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4127")
 endif()
 
 # SET(CSOURCES
@@ -87,6 +85,11 @@ endif()
 
 set_target_properties(${LIB_NAME} PROPERTIES COMPILE_DEFINITIONS BUILDING_LIBCURL)
 
+if(HIDES_CURL_PRIVATE_SYMBOLS)
+  set_property(TARGET ${LIB_NAME} APPEND PROPERTY COMPILE_DEFINITIONS "CURL_HIDDEN_SYMBOLS")
+  set_property(TARGET ${LIB_NAME} APPEND PROPERTY COMPILE_FLAGS ${CURL_CFLAG_SYMBOLS_HIDE})
+endif()
+
 # Remove the "lib" prefix since the library is already named "libcurl".
 set_target_properties(${LIB_NAME} PROPERTIES PREFIX "")
 set_target_properties(${LIB_NAME} PROPERTIES IMPORT_PREFIX "")
@@ -95,6 +98,13 @@ if(WIN32)
   if(NOT CURL_STATICLIB)
     # Add "_imp" as a suffix before the extension to avoid conflicting with the statically linked "libcurl.lib"
     set_target_properties(${LIB_NAME} PROPERTIES IMPORT_SUFFIX "_imp.lib")
+
+    set_target_properties (${LIB_NAME} PROPERTIES
+       DEBUG_POSTFIX "-d"
+       # Note: no postfix for release variants, let user choose what style of release he wants
+       # MINSIZEREL_POSTFIX "-z"
+       # RELWITHDEBINFO_POSTFIX "-g"
+       )
   endif()
 endif()
 

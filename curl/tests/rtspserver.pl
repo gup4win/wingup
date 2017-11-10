@@ -6,11 +6,11 @@
 #                            | (__| |_| |  _ <| |___
 #                             \___|\___/|_| \_\_____|
 #
-# Copyright (C) 1998 - 2010, Daniel Stenberg, <daniel@haxx.se>, et al.
+# Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://curl.haxx.se/docs/copyright.html.
+# are also available at https://curl.haxx.se/docs/copyright.html.
 #
 # You may opt to use, copy, modify, merge, publish, distribute and/or sell
 # copies of the Software, and permit persons to whom the Software is
@@ -37,7 +37,7 @@ use serverhelp qw(
 my $verbose = 0;     # set to 1 for debugging
 my $port = 8990;     # just a default
 my $ipvnum = 4;      # default IP version of rtsp server
-my $idnum = 1;       # dafault rtsp server instance number
+my $idnum = 1;       # default rtsp server instance number
 my $proto = 'rtsp';  # protocol the rtsp server speaks
 my $pidfile;         # rtsp server pid file
 my $logfile;         # rtsp server log file

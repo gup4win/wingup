@@ -5,11 +5,11 @@
 #                            | (__| |_| |  _ <| |___
 #                             \___|\___/|_| \_\_____|
 #
-# Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+# Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://curl.haxx.se/docs/copyright.html.
+# are also available at https://curl.haxx.se/docs/copyright.html.
 #
 # You may opt to use, copy, modify, merge, publish, distribute and/or sell
 # copies of the Software, and permit persons to whom the Software is
@@ -29,17 +29,13 @@ AUTOMAKE_OPTIONS = foreign nostdinc
 # being currently built and tested are searched before the library which
 # might possibly already be installed in the system.
 #
-# $(top_builddir)/include/curl for generated curlbuild.h included from curl.h
-# $(top_builddir)/include for generated curlbuild.h inc. from lib/curl_setup.h
 # $(top_srcdir)/include is for libcurl's external include files
 # $(top_builddir)/lib is for libcurl's generated lib/curl_config.h file
 # $(top_builddir)/src is for curl's generated src/curl_config.h file
 # $(top_srcdir)/lib for libcurl's lib/curl_setup.h and other "borrowed" files
 # $(top_srcdir)/src is for curl's src/tool_setup.h and "curl-private" files
 
-AM_CPPFLAGS = -I$(top_builddir)/include/curl \
-              -I$(top_builddir)/include      \
-              -I$(top_srcdir)/include        \
+AM_CPPFLAGS = -I$(top_srcdir)/include        \
               -I$(top_builddir)/lib          \
               -I$(top_builddir)/src          \
               -I$(top_srcdir)/lib            \
@@ -47,11 +43,16 @@ AM_CPPFLAGS = -I$(top_builddir)/include/curl \
 
 bin_PROGRAMS = curl
 
+SUBDIRS = ../docs
+
 if USE_CPPFLAG_CURL_STATICLIB
 AM_CPPFLAGS += -DCURL_STATICLIB
 endif
 
 include Makefile.inc
+
+# CURL_FILES comes from Makefile.inc
+curl_SOURCES = $(CURL_FILES)
 
 # This might hold -Werror
 CFLAGS += @CURL_CFLAG_EXTRAS@
@@ -67,30 +68,33 @@ endif
 
 curl_LDFLAGS = @LIBMETALINK_LDFLAGS@
 curl_CPPFLAGS = $(AM_CPPFLAGS) $(LIBMETALINK_CPPFLAGS)
-curl_DEPENDENCIES = $(top_builddir)/lib/libcurl.la
+
+@CODE_COVERAGE_RULES@
+curl_LDFLAGS += $(CODE_COVERAGE_LDFLAGS)
+CFLAGS += $(CODE_COVERAGE_CFLAGS)
 
 # if unit tests are enabled, build a static library to link them with
 if BUILD_UNITTESTS
 noinst_LTLIBRARIES = libcurltool.la
-libcurltool_la_CPPFLAGS = $(LIBMETALINK_CPPFLAGS) $(AM_CPPFLAGS)
-libcurltool_la_CFLAGS = -DUNITTESTS
+libcurltool_la_CPPFLAGS = $(LIBMETALINK_CPPFLAGS) $(AM_CPPFLAGS) \
+                          -DCURL_STATICLIB -DUNITTESTS
+libcurltool_la_CFLAGS =
 libcurltool_la_LDFLAGS = -static $(LINKFLAGS)
 libcurltool_la_SOURCES = $(curl_SOURCES)
 endif
 
-BUILT_SOURCES = tool_hugehelp.c
 CLEANFILES = tool_hugehelp.c
 # Use the C locale to ensure that only ASCII characters appear in the
 # embedded text.
 NROFF=env LC_ALL=C @NROFF@ @MANOPT@ # figured out by the configure script
 
-EXTRA_DIST = mkhelp.pl makefile.dj Makefile.vc6 Makefile.b32		\
+EXTRA_DIST = mkhelp.pl makefile.dj Makefile.b32		\
  Makefile.m32 macos/curl.mcp.xml.sit.hqx macos/MACINSTALL.TXT		\
  macos/src/curl_GUSIConfig.cpp macos/src/macos_main.cpp makefile.amiga	\
- curl.rc Makefile.netware Makefile.inc Makefile.Watcom CMakeLists.txt	\
- checksrc.whitelist
+ curl.rc Makefile.netware Makefile.inc Makefile.Watcom CMakeLists.txt
 
-MANPAGE=$(top_srcdir)/docs/curl.1
+# Use absolute directory to disable VPATH
+MANPAGE=$(abs_top_builddir)/docs/curl.1
 README=$(top_srcdir)/docs/MANUAL
 MKHELP=$(top_srcdir)/src/mkhelp.pl
 HUGE=tool_hugehelp.c
@@ -98,10 +102,13 @@ HUGE=tool_hugehelp.c
 if USE_MANUAL
 # Here are the stuff to create a built-in manual
 
+$(MANPAGE):
+	cd $(top_builddir)/docs && $(MAKE)
+
 if HAVE_LIBZ
 # This generates the tool_hugehelp.c file in both uncompressed and
-# compressed formats
-$(HUGE): $(README) $(MANPAGE)  mkhelp.pl
+# compressed formats.
+$(HUGE): $(MANPAGE) $(README) $(MKHELP)
 	echo '#include "tool_setup.h"' > $(HUGE)
 	echo '#ifndef HAVE_LIBZ' >> $(HUGE)
 	$(NROFF) $(MANPAGE) | $(PERL) $(MKHELP) $(README) >> $(HUGE)
@@ -110,7 +117,7 @@ $(HUGE): $(README) $(MANPAGE)  mkhelp.pl
 	echo '#endif /* HAVE_LIBZ */' >> $(HUGE)
 else # HAVE_LIBZ
 # This generates the tool_hugehelp.c file uncompressed only
-$(HUGE): $(README) $(MANPAGE)  mkhelp.pl
+$(HUGE): $(MANPAGE) $(README) $(MKHELP)
 	echo '#include "tool_setup.h"' > $(HUGE)
 	$(NROFF) $(MANPAGE) | $(PERL) $(MKHELP) $(README) >> $(HUGE)
 endif
@@ -126,7 +133,8 @@ endif
 # ignore tool_hugehelp.c since it is generated source code and it plays
 # by slightly different rules!
 checksrc:
-	@@PERL@ $(top_srcdir)/lib/checksrc.pl -D$(top_srcdir)/src -Wtool_hugehelp.c $(CURL_CFILES) $(CURL_HFILES)
+	@PERL@ $(top_srcdir)/lib/checksrc.pl -D$(srcdir)        \
+	-W$(srcdir)/tool_hugehelp.c $(srcdir)/*.[ch]
 
 if CURLDEBUG
 # for debug builds, we scan the sources on all regular make invokes

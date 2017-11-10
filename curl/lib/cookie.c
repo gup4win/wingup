@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -26,13 +26,13 @@
 RECEIVING COOKIE INFORMATION
 ============================
 
-struct CookieInfo *Curl_cookie_init(struct SessionHandle *data,
+struct CookieInfo *Curl_cookie_init(struct Curl_easy *data,
                     const char *file, struct CookieInfo *inc, bool newsession);
 
         Inits a cookie struct to store data in a local file. This is always
         called before any cookies are set.
 
-struct Cookie *Curl_cookie_add(struct SessionHandle *data,
+struct Cookie *Curl_cookie_add(struct Curl_easy *data,
                  struct CookieInfo *c, bool httpheader, char *lineptr,
                  const char *domain, const char *path);
 
@@ -84,20 +84,23 @@ Example set of cookies:
 
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
 
-#include "curl_printf.h"
+#ifdef USE_LIBPSL
+# include <libpsl.h>
+#endif
+
 #include "urldata.h"
 #include "cookie.h"
-#include "strequal.h"
 #include "strtok.h"
 #include "sendf.h"
 #include "slist.h"
 #include "share.h"
 #include "strtoofft.h"
-#include "rawstr.h"
+#include "strcase.h"
 #include "curl_memrchr.h"
 #include "inet_pton.h"
 
-/* The last #include files should be: */
+/* The last 3 #include files should be in this order */
+#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -122,7 +125,7 @@ static bool tailmatch(const char *cooke_domain, const char *hostname)
   if(hostname_len < cookie_domain_len)
     return FALSE;
 
-  if(!Curl_raw_equal(cooke_domain, hostname+hostname_len-cookie_domain_len))
+  if(!strcasecompare(cooke_domain, hostname + hostname_len-cookie_domain_len))
     return FALSE;
 
   /* A lead char of cookie_domain is not '.'.
@@ -143,12 +146,12 @@ static bool tailmatch(const char *cooke_domain, const char *hostname)
  * matching cookie path and url path
  * RFC6265 5.1.4 Paths and Path-Match
  */
-static bool pathmatch(const char* cookie_path, const char* request_uri)
+static bool pathmatch(const char *cookie_path, const char *request_uri)
 {
   size_t cookie_path_len;
   size_t uri_path_len;
-  char* uri_path = NULL;
-  char* pos;
+  char *uri_path = NULL;
+  char *pos;
   bool ret = FALSE;
 
   /* cookie_path must not have last '/' separator. ex: /sample */
@@ -256,7 +259,7 @@ static char *sanitize_cookie_path(const char *cookie_path)
  *
  * NOTE: OOM or cookie parsing failures are ignored.
  */
-void Curl_cookie_loadfiles(struct SessionHandle *data)
+void Curl_cookie_loadfiles(struct Curl_easy *data)
 {
   struct curl_slist *list = data->change.cookielist;
   if(list) {
@@ -305,7 +308,7 @@ static void remove_expired(struct CookieInfo *cookies)
   pv = NULL;
   while(co) {
     nx = co->next;
-    if((co->expirestr || co->maxage) && co->expires < now) {
+    if(co->expires && co->expires < now) {
       if(co == cookies->cookies) {
         cookies->cookies = co->next;
       }
@@ -358,7 +361,7 @@ static bool isip(const char *domain)
  ***************************************************************************/
 
 struct Cookie *
-Curl_cookie_add(struct SessionHandle *data,
+Curl_cookie_add(struct Curl_easy *data,
                 /* The 'data' pointer here may be NULL at times, and thus
                    must only be used very carefully for things that can deal
                    with data being NULL. Such as infof() and similar */
@@ -372,12 +375,15 @@ Curl_cookie_add(struct SessionHandle *data,
                                        unless set */
 {
   struct Cookie *clist;
-  char name[MAX_NAME];
   struct Cookie *co;
-  struct Cookie *lastc=NULL;
+  struct Cookie *lastc = NULL;
   time_t now = time(NULL);
   bool replace_old = FALSE;
   bool badcookie = FALSE; /* cookies are good by default. mmmmm yummy */
+
+#ifdef USE_LIBPSL
+  const psl_ctx_t *psl;
+#endif
 
 #ifdef CURL_DISABLE_VERBOSE_STRINGS
   (void)data;
@@ -390,17 +396,19 @@ Curl_cookie_add(struct SessionHandle *data,
 
   if(httpheader) {
     /* This line was read off a HTTP-header */
+    char name[MAX_NAME];
+    char what[MAX_NAME];
     const char *ptr;
     const char *semiptr;
-    char *what;
 
-    what = malloc(MAX_COOKIE_LINE);
-    if(!what) {
+    size_t linelength = strlen(lineptr);
+    if(linelength > MAX_COOKIE_LINE) {
+      /* discard overly long lines at once */
       free(co);
       return NULL;
     }
 
-    semiptr=strchr(lineptr, ';'); /* first, find a semicolon */
+    semiptr = strchr(lineptr, ';'); /* first, find a semicolon */
 
     while(*lineptr && ISBLANK(*lineptr))
       lineptr++;
@@ -408,9 +416,9 @@ Curl_cookie_add(struct SessionHandle *data,
     ptr = lineptr;
     do {
       /* we have a <what>=<this> pair or a stand-alone word here */
-      name[0]=what[0]=0; /* init the buffers */
-      if(1 <= sscanf(ptr, "%" MAX_NAME_TXT "[^;\r\n =] =%"
-                     MAX_COOKIE_LINE_TXT "[^;\r\n]",
+      name[0] = what[0] = 0; /* init the buffers */
+      if(1 <= sscanf(ptr, "%" MAX_NAME_TXT "[^;\r\n=] =%"
+                     MAX_NAME_TXT "[^;\r\n]",
                      name, what)) {
         /* Use strstore() below to properly deal with received cookie
            headers that have the same string property set more than once,
@@ -418,34 +426,66 @@ Curl_cookie_add(struct SessionHandle *data,
         const char *whatptr;
         bool done = FALSE;
         bool sep;
-        size_t len=strlen(what);
-        const char *endofn = &ptr[ strlen(name) ];
+        size_t len = strlen(what);
+        size_t nlen = strlen(name);
+        const char *endofn = &ptr[ nlen ];
 
-        /* skip trailing spaces in name */
-        while(*endofn && ISBLANK(*endofn))
-          endofn++;
+        infof(data, "cookie size: name/val %d + %d bytes\n",
+              nlen, len);
+
+        if(nlen >= (MAX_NAME-1) || len >= (MAX_NAME-1) ||
+           ((nlen + len) > MAX_NAME)) {
+          /* too long individual name or contents, or too long combination of
+             name + contents. Chrome and Firefox support 4095 or 4096 bytes
+             combo. */
+          freecookie(co);
+          infof(data, "oversized cookie dropped, name/val %d + %d bytes\n",
+                nlen, len);
+          return NULL;
+        }
 
         /* name ends with a '=' ? */
         sep = (*endofn == '=')?TRUE:FALSE;
 
+        if(nlen) {
+          endofn--; /* move to the last character */
+          if(ISBLANK(*endofn)) {
+            /* skip trailing spaces in name */
+            while(*endofn && ISBLANK(*endofn) && nlen) {
+              endofn--;
+              nlen--;
+            }
+            name[nlen] = 0; /* new end of name */
+          }
+        }
+
         /* Strip off trailing whitespace from the 'what' */
         while(len && ISBLANK(what[len-1])) {
-          what[len-1]=0;
+          what[len-1] = 0;
           len--;
         }
 
         /* Skip leading whitespace from the 'what' */
-        whatptr=what;
+        whatptr = what;
         while(*whatptr && ISBLANK(*whatptr))
           whatptr++;
 
-        if(!len) {
+        if(!co->name && sep) {
+          /* The very first name/value pair is the actual cookie name */
+          co->name = strdup(name);
+          co->value = strdup(whatptr);
+          if(!co->name || !co->value) {
+            badcookie = TRUE;
+            break;
+          }
+        }
+        else if(!len) {
           /* this was a "<name>=" with no content, and we must allow
              'secure' and 'httponly' specified this weirdly */
           done = TRUE;
-          if(Curl_raw_equal("secure", name))
+          if(strcasecompare("secure", name))
             co->secure = TRUE;
-          else if(Curl_raw_equal("httponly", name))
+          else if(strcasecompare("httponly", name))
             co->httponly = TRUE;
           else if(sep)
             /* there was a '=' so we're not done parsing this field */
@@ -453,21 +493,21 @@ Curl_cookie_add(struct SessionHandle *data,
         }
         if(done)
           ;
-        else if(Curl_raw_equal("path", name)) {
+        else if(strcasecompare("path", name)) {
           strstore(&co->path, whatptr);
           if(!co->path) {
             badcookie = TRUE; /* out of memory bad */
             break;
           }
+          free(co->spath); /* if this is set again */
           co->spath = sanitize_cookie_path(co->path);
           if(!co->spath) {
             badcookie = TRUE; /* out of memory bad */
             break;
           }
         }
-        else if(Curl_raw_equal("domain", name)) {
+        else if(strcasecompare("domain", name)) {
           bool is_ip;
-          const char *dotp;
 
           /* Now, we make sure that our host is within the given domain,
              or the given domain is not valid and thus cannot be set. */
@@ -475,12 +515,22 @@ Curl_cookie_add(struct SessionHandle *data,
           if('.' == whatptr[0])
             whatptr++; /* ignore preceding dot */
 
-          is_ip = isip(domain ? domain : whatptr);
+#ifndef USE_LIBPSL
+          /*
+           * Without PSL we don't know when the incoming cookie is set on a
+           * TLD or otherwise "protected" suffix. To reduce risk, we require a
+           * dot OR the exact host name being "localhost".
+           */
+          {
+            const char *dotp;
+            /* check for more dots */
+            dotp = strchr(whatptr, '.');
+            if(!dotp && !strcasecompare("localhost", whatptr))
+              domain = ":";
+          }
+#endif
 
-          /* check for more dots */
-          dotp = strchr(whatptr, '.');
-          if(!dotp)
-            domain=":";
+          is_ip = isip(domain ? domain : whatptr);
 
           if(!domain
              || (is_ip && !strcmp(whatptr, domain))
@@ -491,26 +541,26 @@ Curl_cookie_add(struct SessionHandle *data,
               break;
             }
             if(!is_ip)
-              co->tailmatch=TRUE; /* we always do that if the domain name was
-                                     given */
+              co->tailmatch = TRUE; /* we always do that if the domain name was
+                                       given */
           }
           else {
             /* we did not get a tailmatch and then the attempted set domain
                is not a domain to which the current host belongs. Mark as
                bad. */
-            badcookie=TRUE;
+            badcookie = TRUE;
             infof(data, "skipped cookie with bad tailmatch domain: %s\n",
                   whatptr);
           }
         }
-        else if(Curl_raw_equal("version", name)) {
+        else if(strcasecompare("version", name)) {
           strstore(&co->version, whatptr);
           if(!co->version) {
             badcookie = TRUE;
             break;
           }
         }
-        else if(Curl_raw_equal("max-age", name)) {
+        else if(strcasecompare("max-age", name)) {
           /* Defined in RFC2109:
 
              Optional.  The Max-Age attribute defines the lifetime of the
@@ -526,17 +576,9 @@ Curl_cookie_add(struct SessionHandle *data,
             break;
           }
         }
-        else if(Curl_raw_equal("expires", name)) {
+        else if(strcasecompare("expires", name)) {
           strstore(&co->expirestr, whatptr);
           if(!co->expirestr) {
-            badcookie = TRUE;
-            break;
-          }
-        }
-        else if(!co->name) {
-          co->name = strdup(name);
-          co->value = strdup(whatptr);
-          if(!co->name || !co->value) {
             badcookie = TRUE;
             break;
           }
@@ -555,26 +597,32 @@ Curl_cookie_add(struct SessionHandle *data,
         continue;
       }
 
-      ptr=semiptr+1;
+      ptr = semiptr + 1;
       while(*ptr && ISBLANK(*ptr))
         ptr++;
-      semiptr=strchr(ptr, ';'); /* now, find the next semicolon */
+      semiptr = strchr(ptr, ';'); /* now, find the next semicolon */
 
       if(!semiptr && *ptr)
         /* There are no more semicolons, but there's a final name=value pair
            coming up */
-        semiptr=strchr(ptr, '\0');
+        semiptr = strchr(ptr, '\0');
     } while(semiptr);
 
     if(co->maxage) {
-      co->expires =
-        curlx_strtoofft((*co->maxage=='\"')?
-                        &co->maxage[1]:&co->maxage[0], NULL, 10);
-      if(CURL_OFF_T_MAX - now < co->expires)
-        /* avoid overflow */
+      CURLofft offt;
+      offt = curlx_strtoofft((*co->maxage == '\"')?
+                             &co->maxage[1]:&co->maxage[0], NULL, 10,
+                             &co->expires);
+      if(offt == CURL_OFFT_FLOW)
+        /* overflow, used max value */
         co->expires = CURL_OFF_T_MAX;
-      else
-        co->expires += now;
+      else if(!offt) {
+        if(CURL_OFF_T_MAX - now < co->expires)
+          /* would overflow */
+          co->expires = CURL_OFF_T_MAX;
+        else
+          co->expires += now;
+      }
     }
     else if(co->expirestr) {
       /* Note that if the date couldn't get parsed for whatever reason,
@@ -593,7 +641,7 @@ Curl_cookie_add(struct SessionHandle *data,
     if(!badcookie && !co->domain) {
       if(domain) {
         /* no domain was given in the header line, set the default */
-        co->domain=strdup(domain);
+        co->domain = strdup(domain);
         if(!co->domain)
           badcookie = TRUE;
       }
@@ -613,11 +661,11 @@ Curl_cookie_add(struct SessionHandle *data,
       else
         endslash = memrchr(path, '/', (size_t)(queryp - path));
       if(endslash) {
-        size_t pathlen = (size_t)(endslash-path+1); /* include ending slash */
-        co->path=malloc(pathlen+1); /* one extra for the zero byte */
+        size_t pathlen = (size_t)(endslash-path + 1); /* include end slash */
+        co->path = malloc(pathlen + 1); /* one extra for the zero byte */
         if(co->path) {
           memcpy(co->path, path, pathlen);
-          co->path[pathlen]=0; /* zero terminate */
+          co->path[pathlen] = 0; /* zero terminate */
           co->spath = sanitize_cookie_path(co->path);
           if(!co->spath)
             badcookie = TRUE; /* out of memory bad */
@@ -626,8 +674,6 @@ Curl_cookie_add(struct SessionHandle *data,
           badcookie = TRUE;
       }
     }
-
-    free(what);
 
     if(badcookie || !co->name) {
       /* we didn't get a cookie name or a bad one,
@@ -642,7 +688,7 @@ Curl_cookie_add(struct SessionHandle *data,
        reading the odd netscape cookies-file format here */
     char *ptr;
     char *firstptr;
-    char *tok_buf=NULL;
+    char *tok_buf = NULL;
     int fields;
 
     /* IE introduced HTTP-only cookies to prevent XSS attacks. Cookies
@@ -663,19 +709,19 @@ Curl_cookie_add(struct SessionHandle *data,
       return NULL;
     }
     /* strip off the possible end-of-line characters */
-    ptr=strchr(lineptr, '\r');
+    ptr = strchr(lineptr, '\r');
     if(ptr)
-      *ptr=0; /* clear it */
-    ptr=strchr(lineptr, '\n');
+      *ptr = 0; /* clear it */
+    ptr = strchr(lineptr, '\n');
     if(ptr)
-      *ptr=0; /* clear it */
+      *ptr = 0; /* clear it */
 
-    firstptr=strtok_r(lineptr, "\t", &tok_buf); /* tokenize it on the TAB */
+    firstptr = strtok_r(lineptr, "\t", &tok_buf); /* tokenize it on the TAB */
 
     /* Now loop through the fields and init the struct we already have
        allocated */
-    for(ptr=firstptr, fields=0; ptr && !badcookie;
-        ptr=strtok_r(NULL, "\t", &tok_buf), fields++) {
+    for(ptr = firstptr, fields = 0; ptr && !badcookie;
+        ptr = strtok_r(NULL, "\t", &tok_buf), fields++) {
       switch(fields) {
       case 0:
         if(ptr[0]=='.') /* skip preceding dots */
@@ -695,7 +741,7 @@ Curl_cookie_add(struct SessionHandle *data,
            As far as I can see, it is set to true when the cookie says
            .domain.com and to false when the domain is complete www.domain.com
         */
-        co->tailmatch = Curl_raw_equal(ptr, "TRUE")?TRUE:FALSE;
+        co->tailmatch = strcasecompare(ptr, "TRUE")?TRUE:FALSE;
         break;
       case 2:
         /* It turns out, that sometimes the file format allows the path
@@ -724,10 +770,11 @@ Curl_cookie_add(struct SessionHandle *data,
         fields++; /* add a field and fall down to secure */
         /* FALLTHROUGH */
       case 3:
-        co->secure = Curl_raw_equal(ptr, "TRUE")?TRUE:FALSE;
+        co->secure = strcasecompare(ptr, "TRUE")?TRUE:FALSE;
         break;
       case 4:
-        co->expires = curlx_strtoofft(ptr, NULL, 10);
+        if(curlx_strtoofft(ptr, NULL, 10, &co->expires))
+          badcookie = TRUE;
         break;
       case 5:
         co->name = strdup(ptr);
@@ -777,16 +824,32 @@ Curl_cookie_add(struct SessionHandle *data,
   /* at first, remove expired cookies */
   remove_expired(c);
 
+#ifdef USE_LIBPSL
+  /* Check if the domain is a Public Suffix and if yes, ignore the cookie.
+     This needs a libpsl compiled with builtin data. */
+  if(domain && co->domain && !isip(co->domain)) {
+    psl = psl_builtin();
+    if(psl && !psl_is_cookie_domain_acceptable(psl, domain, co->domain)) {
+      infof(data,
+            "cookie '%s' dropped, domain '%s' must not set cookies for '%s'\n",
+            co->name, domain, co->domain);
+      freecookie(co);
+      return NULL;
+    }
+  }
+#endif
+
   clist = c->cookies;
   replace_old = FALSE;
   while(clist) {
-    if(Curl_raw_equal(clist->name, co->name)) {
+    if(strcasecompare(clist->name, co->name)) {
       /* the names are identical */
 
       if(clist->domain && co->domain) {
-        if(Curl_raw_equal(clist->domain, co->domain))
+        if(strcasecompare(clist->domain, co->domain) &&
+          (clist->tailmatch == co->tailmatch))
           /* The domains are identical */
-          replace_old=TRUE;
+          replace_old = TRUE;
       }
       else if(!clist->domain && !co->domain)
         replace_old = TRUE;
@@ -795,7 +858,7 @@ Curl_cookie_add(struct SessionHandle *data,
         /* the domains were identical */
 
         if(clist->spath && co->spath) {
-          if(Curl_raw_equal(clist->spath, co->spath)) {
+          if(strcasecompare(clist->spath, co->spath)) {
             replace_old = TRUE;
           }
           else
@@ -869,6 +932,34 @@ Curl_cookie_add(struct SessionHandle *data,
   return co;
 }
 
+/*
+ * get_line() makes sure to only return complete whole lines that fit in 'len'
+ * bytes and end with a newline.
+ */
+static char *get_line(char *buf, int len, FILE *input)
+{
+  bool partial = FALSE;
+  while(1) {
+    char *b = fgets(buf, len, input);
+    if(b) {
+      size_t rlen = strlen(b);
+      if(rlen && (b[rlen-1] == '\n')) {
+        if(partial) {
+          partial = FALSE;
+          continue;
+        }
+        return b;
+      }
+      /* read a partial, discard the next piece that ends with newline */
+      partial = TRUE;
+    }
+    else
+      break;
+  }
+  return NULL;
+}
+
+
 /*****************************************************************************
  *
  * Curl_cookie_init()
@@ -880,14 +971,14 @@ Curl_cookie_add(struct SessionHandle *data,
  *
  * Returns NULL on out of memory. Invalid cookies are ignored.
  ****************************************************************************/
-struct CookieInfo *Curl_cookie_init(struct SessionHandle *data,
+struct CookieInfo *Curl_cookie_init(struct Curl_easy *data,
                                     const char *file,
                                     struct CookieInfo *inc,
                                     bool newsession)
 {
   struct CookieInfo *c;
   FILE *fp = NULL;
-  bool fromfile=TRUE;
+  bool fromfile = TRUE;
   char *line = NULL;
 
   if(NULL == inc) {
@@ -905,16 +996,16 @@ struct CookieInfo *Curl_cookie_init(struct SessionHandle *data,
   }
   c->running = FALSE; /* this is not running, this is init */
 
-  if(file && strequal(file, "-")) {
+  if(file && !strcmp(file, "-")) {
     fp = stdin;
-    fromfile=FALSE;
+    fromfile = FALSE;
   }
   else if(file && !*file) {
     /* points to a "" string */
     fp = NULL;
   }
   else
-    fp = file?fopen(file, "r"):NULL;
+    fp = file?fopen(file, FOPEN_READTEXT):NULL;
 
   c->newsession = newsession; /* new session? */
 
@@ -925,15 +1016,15 @@ struct CookieInfo *Curl_cookie_init(struct SessionHandle *data,
     line = malloc(MAX_COOKIE_LINE);
     if(!line)
       goto fail;
-    while(fgets(line, MAX_COOKIE_LINE, fp)) {
+    while(get_line(line, MAX_COOKIE_LINE, fp)) {
       if(checkprefix("Set-Cookie:", line)) {
         /* This is a cookie line, get it! */
-        lineptr=&line[11];
-        headerline=TRUE;
+        lineptr = &line[11];
+        headerline = TRUE;
       }
       else {
-        lineptr=line;
-        headerline=FALSE;
+        lineptr = line;
+        headerline = FALSE;
       }
       while(*lineptr && ISBLANK(*lineptr))
         lineptr++;
@@ -990,6 +1081,40 @@ static int cookie_sort(const void *p1, const void *p2)
   return 0;
 }
 
+#define CLONE(field)                     \
+  do {                                   \
+    if(src->field) {                     \
+      d->field = strdup(src->field);     \
+      if(!d->field)                      \
+        goto fail;                       \
+    }                                    \
+  } while(0)
+
+static struct Cookie *dup_cookie(struct Cookie *src)
+{
+  struct Cookie *d = calloc(sizeof(struct Cookie), 1);
+  if(d) {
+    CLONE(expirestr);
+    CLONE(domain);
+    CLONE(path);
+    CLONE(spath);
+    CLONE(name);
+    CLONE(value);
+    CLONE(maxage);
+    CLONE(version);
+    d->expires = src->expires;
+    d->tailmatch = src->tailmatch;
+    d->secure = src->secure;
+    d->livecookie = src->livecookie;
+    d->httponly = src->httponly;
+  }
+  return d;
+
+  fail:
+  freecookie(d);
+  return NULL;
+}
+
 /*****************************************************************************
  *
  * Curl_cookie_getlist()
@@ -1009,7 +1134,7 @@ struct Cookie *Curl_cookie_getlist(struct CookieInfo *c,
   struct Cookie *newco;
   struct Cookie *co;
   time_t now = time(NULL);
-  struct Cookie *mainco=NULL;
+  struct Cookie *mainco = NULL;
   size_t matches = 0;
   bool is_ip;
 
@@ -1034,7 +1159,7 @@ struct Cookie *Curl_cookie_getlist(struct CookieInfo *c,
       /* now check if the domain is correct */
       if(!co->domain ||
          (co->tailmatch && !is_ip && tailmatch(co->domain, host)) ||
-         ((!co->tailmatch || is_ip) && Curl_raw_equal(host, co->domain)) ) {
+         ((!co->tailmatch || is_ip) && strcasecompare(host, co->domain)) ) {
         /* the right part of the host matches the domain stuff in the
            cookie data */
 
@@ -1045,11 +1170,8 @@ struct Cookie *Curl_cookie_getlist(struct CookieInfo *c,
           /* and now, we know this is a match and we should create an
              entry for the return-linked-list */
 
-          newco = malloc(sizeof(struct Cookie));
+          newco = dup_cookie(co);
           if(newco) {
-            /* first, copy the whole source cookie: */
-            memcpy(newco, co, sizeof(struct Cookie));
-
             /* then modify our next */
             newco->next = mainco;
 
@@ -1061,12 +1183,7 @@ struct Cookie *Curl_cookie_getlist(struct CookieInfo *c,
           else {
             fail:
             /* failure, clear up the allocated chain and return NULL */
-            while(mainco) {
-              co = mainco->next;
-              free(mainco);
-              mainco = co;
-            }
-
+            Curl_cookie_freelist(mainco);
             return NULL;
           }
         }
@@ -1089,7 +1206,7 @@ struct Cookie *Curl_cookie_getlist(struct CookieInfo *c,
 
     co = mainco;
 
-    for(i=0; co; co = co->next)
+    for(i = 0; co; co = co->next)
       array[i++] = co;
 
     /* now sort the cookie pointers in path length order */
@@ -1098,8 +1215,8 @@ struct Cookie *Curl_cookie_getlist(struct CookieInfo *c,
     /* remake the linked list order according to the new order */
 
     mainco = array[0]; /* start here */
-    for(i=0; i<matches-1; i++)
-      array[i]->next = array[i+1];
+    for(i = 0; i<matches-1; i++)
+      array[i]->next = array[i + 1];
     array[matches-1]->next = NULL; /* terminate the list */
 
     free(array); /* remove the temporary data again */
@@ -1118,7 +1235,7 @@ struct Cookie *Curl_cookie_getlist(struct CookieInfo *c,
 void Curl_cookie_clearall(struct CookieInfo *cookies)
 {
   if(cookies) {
-    Curl_cookie_freelist(cookies->cookies, TRUE);
+    Curl_cookie_freelist(cookies->cookies);
     cookies->cookies = NULL;
     cookies->numcookies = 0;
   }
@@ -1130,21 +1247,14 @@ void Curl_cookie_clearall(struct CookieInfo *cookies)
  *
  * Free a list of cookies previously returned by Curl_cookie_getlist();
  *
- * The 'cookiestoo' argument tells this function whether to just free the
- * list or actually also free all cookies within the list as well.
- *
  ****************************************************************************/
 
-void Curl_cookie_freelist(struct Cookie *co, bool cookiestoo)
+void Curl_cookie_freelist(struct Cookie *co)
 {
   struct Cookie *next;
   while(co) {
     next = co->next;
-    if(cookiestoo)
-      freecookie(co);
-    else
-      free(co); /* we only free the struct since the "members" are all just
-                   pointed out in the main cookie list! */
+    freecookie(co);
     co = next;
   }
 }
@@ -1199,7 +1309,7 @@ void Curl_cookie_cleanup(struct CookieInfo *c)
 {
   if(c) {
     free(c->filename);
-    Curl_cookie_freelist(c->cookies, TRUE);
+    Curl_cookie_freelist(c->cookies);
     free(c); /* free the base struct as well */
   }
 }
@@ -1246,7 +1356,8 @@ static int cookie_output(struct CookieInfo *c, const char *dumphere)
 {
   struct Cookie *co;
   FILE *out;
-  bool use_stdout=FALSE;
+  bool use_stdout = FALSE;
+  char *format_ptr;
 
   if((NULL == c) || (0 == c->numcookies))
     /* If there are no known cookies, we don't write or even create any
@@ -1256,38 +1367,34 @@ static int cookie_output(struct CookieInfo *c, const char *dumphere)
   /* at first, remove expired cookies */
   remove_expired(c);
 
-  if(strequal("-", dumphere)) {
+  if(!strcmp("-", dumphere)) {
     /* use stdout */
     out = stdout;
-    use_stdout=TRUE;
+    use_stdout = TRUE;
   }
   else {
-    out = fopen(dumphere, "w");
+    out = fopen(dumphere, FOPEN_WRITETEXT);
     if(!out)
       return 1; /* failure */
   }
 
-  if(c) {
-    char *format_ptr;
+  fputs("# Netscape HTTP Cookie File\n"
+        "# https://curl.haxx.se/docs/http-cookies.html\n"
+        "# This file was generated by libcurl! Edit at your own risk.\n\n",
+        out);
 
-    fputs("# Netscape HTTP Cookie File\n"
-          "# http://curl.haxx.se/docs/http-cookies.html\n"
-          "# This file was generated by libcurl! Edit at your own risk.\n\n",
-          out);
-    co = c->cookies;
-
-    while(co) {
-      format_ptr = get_netscape_format(co);
-      if(format_ptr == NULL) {
-        fprintf(out, "#\n# Fatal libcurl error\n");
-        if(!use_stdout)
-          fclose(out);
-        return 1;
-      }
-      fprintf(out, "%s\n", format_ptr);
-      free(format_ptr);
-      co=co->next;
+  for(co = c->cookies; co; co = co->next) {
+    if(!co->domain)
+      continue;
+    format_ptr = get_netscape_format(co);
+    if(format_ptr == NULL) {
+      fprintf(out, "#\n# Fatal libcurl error\n");
+      if(!use_stdout)
+        fclose(out);
+      return 1;
     }
+    fprintf(out, "%s\n", format_ptr);
+    free(format_ptr);
   }
 
   if(!use_stdout)
@@ -1296,7 +1403,7 @@ static int cookie_output(struct CookieInfo *c, const char *dumphere)
   return 0;
 }
 
-struct curl_slist *Curl_cookie_list(struct SessionHandle *data)
+static struct curl_slist *cookie_list(struct Curl_easy *data)
 {
   struct curl_slist *list = NULL;
   struct curl_slist *beg;
@@ -1307,10 +1414,9 @@ struct curl_slist *Curl_cookie_list(struct SessionHandle *data)
       (data->cookies->numcookies == 0))
     return NULL;
 
-  c = data->cookies->cookies;
-
-  while(c) {
-    /* fill the list with _all_ the cookies we know */
+  for(c = data->cookies->cookies; c; c = c->next) {
+    if(!c->domain)
+      continue;
     line = get_netscape_format(c);
     if(!line) {
       curl_slist_free_all(list);
@@ -1323,13 +1429,21 @@ struct curl_slist *Curl_cookie_list(struct SessionHandle *data)
       return NULL;
     }
     list = beg;
-    c = c->next;
   }
 
   return list;
 }
 
-void Curl_flush_cookies(struct SessionHandle *data, int cleanup)
+struct curl_slist *Curl_cookie_list(struct Curl_easy *data)
+{
+  struct curl_slist *list;
+  Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
+  list = cookie_list(data);
+  Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
+  return list;
+}
+
+void Curl_flush_cookies(struct Curl_easy *data, int cleanup)
 {
   if(data->set.str[STRING_COOKIEJAR]) {
     if(data->change.cookielist) {

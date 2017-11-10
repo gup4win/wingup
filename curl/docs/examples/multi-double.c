@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2011, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -19,6 +19,10 @@
  * KIND, either express or implied.
  *
  ***************************************************************************/
+/* <DESC>
+ * multi interface code doing two parallel HTTP transfers
+ * </DESC>
+ */
 #include <stdio.h>
 #include <string.h>
 
@@ -91,8 +95,7 @@ int main(void)
     /* get file descriptors from the transfers */
     mc = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
 
-    if(mc != CURLM_OK)
-    {
+    if(mc != CURLM_OK) {
       fprintf(stderr, "curl_multi_fdset() failed, code %d.\n", mc);
       break;
     }
@@ -116,7 +119,7 @@ int main(void)
     else {
       /* Note that on some platforms 'timeout' may be modified by select().
          If you need access to the original value save a copy beforehand. */
-      rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
+      rc = select(maxfd + 1, &fdread, &fdwrite, &fdexcep, &timeout);
     }
 
     switch(rc) {

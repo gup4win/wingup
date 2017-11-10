@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -40,6 +40,8 @@ void config_init(struct OperationConfig* config)
                         ~(CURLPROTO_FILE | CURLPROTO_SCP | CURLPROTO_SMB |
                           CURLPROTO_SMBS);
   config->proto_redir_present = FALSE;
+  config->proto_default = NULL;
+  config->tcp_nodelay = TRUE; /* enabled by default */
 }
 
 static void free_config_fields(struct OperationConfig *config)
@@ -66,6 +68,9 @@ static void free_config_fields(struct OperationConfig *config)
   Curl_safefree(config->tls_username);
   Curl_safefree(config->tls_password);
   Curl_safefree(config->tls_authtype);
+  Curl_safefree(config->proxy_tls_username);
+  Curl_safefree(config->proxy_tls_password);
+  Curl_safefree(config->proxy_tls_authtype);
   Curl_safefree(config->proxyuserpwd);
   Curl_safefree(config->proxy);
 
@@ -97,26 +102,36 @@ static void free_config_fields(struct OperationConfig *config)
   config->url_out = NULL;
 
   Curl_safefree(config->cipher_list);
+  Curl_safefree(config->proxy_cipher_list);
   Curl_safefree(config->cert);
+  Curl_safefree(config->proxy_cert);
   Curl_safefree(config->cert_type);
+  Curl_safefree(config->proxy_cert_type);
   Curl_safefree(config->cacert);
+  Curl_safefree(config->proxy_cacert);
   Curl_safefree(config->capath);
+  Curl_safefree(config->proxy_capath);
   Curl_safefree(config->crlfile);
   Curl_safefree(config->pinnedpubkey);
+  Curl_safefree(config->proxy_crlfile);
   Curl_safefree(config->key);
+  Curl_safefree(config->proxy_key);
   Curl_safefree(config->key_type);
+  Curl_safefree(config->proxy_key_type);
   Curl_safefree(config->key_passwd);
+  Curl_safefree(config->proxy_key_passwd);
   Curl_safefree(config->pubkey);
   Curl_safefree(config->hostpubmd5);
   Curl_safefree(config->engine);
-
+  Curl_safefree(config->request_target);
   Curl_safefree(config->customrequest);
   Curl_safefree(config->krblevel);
 
-  Curl_safefree(config->xoauth2_bearer);
+  Curl_safefree(config->oauth_bearer);
 
   Curl_safefree(config->unix_socket_path);
   Curl_safefree(config->writeout);
+  Curl_safefree(config->proto_default);
 
   curl_slist_free_all(config->quote);
   curl_slist_free_all(config->postquote);
@@ -125,17 +140,19 @@ static void free_config_fields(struct OperationConfig *config)
   curl_slist_free_all(config->headers);
   curl_slist_free_all(config->proxyheaders);
 
-  if(config->httppost) {
-    curl_formfree(config->httppost);
-    config->httppost = NULL;
+  if(config->mimepost) {
+    curl_mime_free(config->mimepost);
+    config->mimepost = NULL;
   }
-  config->last_post = NULL;
+  config->mimecurrent = NULL;
 
   curl_slist_free_all(config->telnet_options);
   curl_slist_free_all(config->resolve);
+  curl_slist_free_all(config->connect_to);
 
-  Curl_safefree(config->socksproxy);
-  Curl_safefree(config->socks5_gssapi_service);
+  Curl_safefree(config->preproxy);
+  Curl_safefree(config->proxy_service_name);
+  Curl_safefree(config->service_name);
 
   Curl_safefree(config->ftp_account);
   Curl_safefree(config->ftp_alternative_to_user);

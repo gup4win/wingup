@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2013, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -34,10 +34,13 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
-#ifdef HAVE_SYS_POLL_H
-#include <sys/poll.h>
-#elif defined(HAVE_POLL_H)
+#ifdef HAVE_POLL_H
 #include <poll.h>
+#elif defined(HAVE_SYS_POLL_H)
+#include <sys/poll.h>
+#endif
+#ifdef __MINGW32__
+#include <w32api.h>
 #endif
 
 #define ENABLE_CURLX_PRINTF
@@ -55,9 +58,14 @@
 #define EINVAL  22 /* errno.h value */
 #endif
 
+/* MinGW with w32api version < 3.6 declared in6addr_any as extern,
+   but lacked the definition */
 #if defined(ENABLE_IPV6) && defined(__MINGW32__)
+#if (__W32API_MAJOR_VERSION < 3) || \
+    ((__W32API_MAJOR_VERSION == 3) && (__W32API_MINOR_VERSION < 6))
 const struct in6_addr in6addr_any = {{ IN6ADDR_ANY_INIT }};
-#endif
+#endif /* w32api < 3.6 */
+#endif /* ENABLE_IPV6 && __MINGW32__*/
 
 /* This function returns a pointer to STATIC memory. It converts the given
  * binary lump to a hex formatted string usable for output in logs or
@@ -73,15 +81,15 @@ char *data_to_hex(char *data, size_t len)
   if(len > 255)
     len = 255;
 
-  for(i=0; i < len; i++) {
+  for(i = 0; i < len; i++) {
     if((data[i] >= 0x20) && (data[i] < 0x7f))
       *optr++ = *iptr++;
     else {
-      sprintf(optr, "%%%02x", *iptr++);
-      optr+=3;
+      snprintf(optr, 4, "%%%02x", *iptr++);
+      optr += 3;
     }
   }
-  *optr=0; /* in case no sprintf() was used */
+  *optr = 0; /* in case no sprintf was used */
 
   return buf;
 }
@@ -92,14 +100,14 @@ void logmsg(const char *msg, ...)
   char buffer[2048 + 1];
   FILE *logfp;
   int error;
-  struct timeval tv;
+  struct curltime tv;
   time_t sec;
   struct tm *now;
   char timebuf[20];
   static time_t epoch_offset;
   static int    known_offset;
 
-  if (!serverlogfile) {
+  if(!serverlogfile) {
     fprintf(stderr, "Error: serverlogfile not set\n");
     return;
   }
@@ -135,16 +143,16 @@ void logmsg(const char *msg, ...)
 
 #ifdef WIN32
 /* use instead of perror() on generic windows */
-void win32_perror (const char *msg)
+void win32_perror(const char *msg)
 {
   char buf[512];
   DWORD err = SOCKERRNO;
 
-  if (!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err,
-                     LANG_NEUTRAL, buf, sizeof(buf), NULL))
+  if(!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err,
+                    LANG_NEUTRAL, buf, sizeof(buf), NULL))
      snprintf(buf, sizeof(buf), "Unknown error %lu (%#lx)", err, err);
-  if (msg)
-     fprintf(stderr, "%s: ", msg);
+  if(msg)
+    fprintf(stderr, "%s: ", msg);
   fprintf(stderr, "%s\n", buf);
 }
 #endif  /* WIN32 */
@@ -159,15 +167,14 @@ void win32_init(void)
 
   err = WSAStartup(wVersionRequested, &wsaData);
 
-  if (err != 0) {
+  if(err != 0) {
     perror("Winsock init failed");
     logmsg("Error initialising winsock -- aborting");
     exit(1);
   }
 
-  if ( LOBYTE( wsaData.wVersion ) != USE_WINSOCK ||
-       HIBYTE( wsaData.wVersion ) != USE_WINSOCK ) {
-
+  if(LOBYTE(wsaData.wVersion) != USE_WINSOCK ||
+     HIBYTE(wsaData.wVersion) != USE_WINSOCK) {
     WSACleanup();
     perror("Winsock init failed");
     logmsg("No suitable winsock.dll found -- aborting");
@@ -182,7 +189,7 @@ void win32_cleanup(void)
 #endif  /* USE_WINSOCK */
 
 /* set by the main code to point to where the test dir is */
-const char *path=".";
+const char *path = ".";
 
 char *test2file(long testno)
 {
@@ -206,7 +213,7 @@ int wait_ms(int timeout_ms)
 #ifndef HAVE_POLL_FINE
   struct timeval pending_tv;
 #endif
-  struct timeval initial_tv;
+  struct curltime initial_tv;
   int pending_ms;
   int error;
 #endif
@@ -305,4 +312,88 @@ void clear_advisor_read_lock(const char *filename)
   if(res)
     logmsg("Error removing lock file %s error: %d %s",
            filename, error, strerror(error));
+}
+
+
+/* Portable, consistent toupper (remember EBCDIC). Do not use toupper() because
+   its behavior is altered by the current locale. */
+static char raw_toupper(char in)
+{
+#if !defined(CURL_DOES_CONVERSIONS)
+  if(in >= 'a' && in <= 'z')
+    return (char)('A' + in - 'a');
+#else
+  switch(in) {
+  case 'a':
+    return 'A';
+  case 'b':
+    return 'B';
+  case 'c':
+    return 'C';
+  case 'd':
+    return 'D';
+  case 'e':
+    return 'E';
+  case 'f':
+    return 'F';
+  case 'g':
+    return 'G';
+  case 'h':
+    return 'H';
+  case 'i':
+    return 'I';
+  case 'j':
+    return 'J';
+  case 'k':
+    return 'K';
+  case 'l':
+    return 'L';
+  case 'm':
+    return 'M';
+  case 'n':
+    return 'N';
+  case 'o':
+    return 'O';
+  case 'p':
+    return 'P';
+  case 'q':
+    return 'Q';
+  case 'r':
+    return 'R';
+  case 's':
+    return 'S';
+  case 't':
+    return 'T';
+  case 'u':
+    return 'U';
+  case 'v':
+    return 'V';
+  case 'w':
+    return 'W';
+  case 'x':
+    return 'X';
+  case 'y':
+    return 'Y';
+  case 'z':
+    return 'Z';
+  }
+#endif
+
+  return in;
+}
+
+int strncasecompare(const char *first, const char *second, size_t max)
+{
+  while(*first && *second && max) {
+    if(raw_toupper(*first) != raw_toupper(*second)) {
+      break;
+    }
+    max--;
+    first++;
+    second++;
+  }
+  if(0 == max)
+    return 1; /* they are equal this far */
+
+  return raw_toupper(*first) == raw_toupper(*second);
 }

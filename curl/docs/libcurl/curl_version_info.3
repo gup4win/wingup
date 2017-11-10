@@ -5,11 +5,11 @@
 .\" *                            | (__| |_| |  _ <| |___
 .\" *                             \___|\___/|_| \_\_____|
 .\" *
-.\" * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+.\" * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
 .\" *
 .\" * This software is licensed as described in the file COPYING, which
 .\" * you should have received as part of this distribution. The terms
-.\" * are also available at http://curl.haxx.se/docs/copyright.html.
+.\" * are also available at https://curl.haxx.se/docs/copyright.html.
 .\" *
 .\" * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 .\" * copies of the Software, and permit persons to whom the Software is
@@ -20,7 +20,8 @@
 .\" *
 .\" **************************************************************************
 .\"
-.TH curl_version_info 3 "2 Nov 2014" "libcurl 7.40.0" "libcurl Manual"
+.TH curl_version_info 3 "August 18, 2017" "libcurl 7.56.1" "libcurl Manual"
+
 .SH NAME
 curl_version_info - returns run-time libcurl version info
 .SH SYNOPSIS
@@ -76,9 +77,9 @@ typedef struct {
 .fi
 
 \fIage\fP describes what the age of this struct is. The number depends on how
-new the libcurl you're using is. You are however guaranteed to get a struct that you
-have a matching struct for in the header, as you tell libcurl your "age" with
-the input argument.
+new the libcurl you're using is. You are however guaranteed to get a struct
+that you have a matching struct for in the header, as you tell libcurl your
+"age" with the input argument.
 
 \fIversion\fP is just an ascii string for the libcurl version.
 
@@ -149,6 +150,17 @@ libcurl was built with support for HTTP2.
 .IP CURL_VERSION_UNIX_SOCKETS
 libcurl was built with support for Unix domain sockets.
 (Added in 7.40.0)
+.IP CURL_VERSION_PSL
+libcurl was built with support for Mozilla's Public Suffix List. This makes
+libcurl ignore cookies with a domain that's on the list.
+(Added in 7.47.0)
+.IP CURL_VERSION_HTTPS_PROXY
+libcurl was built with support for HTTPS-proxy.
+(Added in 7.52.0)
+.IP CURL_VERSION_MULTI_SSL
+libcurl was built with multiple SSL backends. For details, see
+\fIcurl_global_sslset(3)\fP.
+(Added in 7.56.0)
 .RE
 \fIssl_version\fP is an ASCII string for the OpenSSL version used. If libcurl
 has no SSL support, this is NULL.

@@ -5,11 +5,11 @@
 .\" *                            | (__| |_| |  _ <| |___
 .\" *                             \___|\___/|_| \_\_____|
 .\" *
-.\" * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+.\" * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
 .\" *
 .\" * This software is licensed as described in the file COPYING, which
 .\" * you should have received as part of this distribution. The terms
-.\" * are also available at http://curl.haxx.se/docs/copyright.html.
+.\" * are also available at https://curl.haxx.se/docs/copyright.html.
 .\" *
 .\" * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 .\" * copies of the Software, and permit persons to whom the Software is
@@ -20,7 +20,8 @@
 .\" *
 .\" **************************************************************************
 .\"
-.TH CURLOPT_URL 3 "17 Jun 2014" "libcurl 7.37.0" "curl_easy_setopt options"
+.TH CURLOPT_URL 3 "December 21, 2016" "libcurl 7.56.1" "curl_easy_setopt options"
+
 .SH NAME
 CURLOPT_URL \- provide the URL to use in the request
 .SH SYNOPSIS
@@ -40,9 +41,11 @@ libcurl doesn't validate the syntax or use this variable until the transfer is
 issued. Even if you set a crazy value here, \fIcurl_easy_setopt(3)\fP will
 still return \fICURLE_OK\fP.
 
-If the given URL lacks the scheme (such as "http://" or "ftp://" etc) then
-libcurl will attempt to resolve the protocol based on one of the following
-given host names: HTTP, FTP, DICT, LDAP, IMAP, POP3 or SMTP
+If the given URL is missing a scheme name (such as "http://" or "ftp://" etc)
+then libcurl will make a guess based on the host. If the outermost sub-domain
+name matches DICT, FTP, IMAP, LDAP, POP3 or SMTP then that protocol will be
+used, otherwise HTTP will be used. Since 7.45.0 guessing can be disabled by
+setting a default protocol, see \fICURLOPT_DEFAULT_PROTOCOL(3)\fP for details.
 
 Should the protocol, either that specified by the scheme or deduced by libcurl
 from the host name, not be supported by libcurl then
@@ -281,6 +284,9 @@ user wants to pass in a '#' (hash) character it will be treated as a fragment
 and get cut off by libcurl if provided literally. You will instead have to
 escape it by providing it as backslash and its ASCII value in hexadecimal:
 "\\23".
+
+The application does not have to keep the string around after setting this
+option.
 .SH DEFAULT
 There is no default URL. If this option isn't set, no transfer can be
 performed.
@@ -330,4 +336,5 @@ similar is called.
 .SH "SEE ALSO"
 .BR CURLOPT_VERBOSE "(3), " CURLOPT_PROTOCOLS "(3), "
 .BR CURLOPT_FORBID_REUSE "(3), " CURLOPT_FRESH_CONNECT "(3), "
-.BR curl_easy_perform "(3)"
+.BR curl_easy_perform "(3), "
+.BR CURLINFO_REDIRECT_URL "(3), " CURLOPT_PATH_AS_IS "(3), "

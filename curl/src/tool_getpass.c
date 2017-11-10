@@ -9,7 +9,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -207,18 +207,16 @@ static bool ttyecho(bool enable, int fd)
 #endif
     return TRUE; /* disabled */
   }
-  else {
-    /* re-enable echo, assumes we disabled it before (and set the structs we
-       now use to reset the terminal status) */
+  /* re-enable echo, assumes we disabled it before (and set the structs we
+     now use to reset the terminal status) */
 #ifdef HAVE_TERMIOS_H
-    tcsetattr(fd, TCSAFLUSH, &withecho);
+  tcsetattr(fd, TCSAFLUSH, &withecho);
 #elif defined(HAVE_TERMIO_H)
-    ioctl(fd, TCSETA, &withecho);
+  ioctl(fd, TCSETA, &withecho);
 #else
-    return FALSE; /* not enabled */
+  return FALSE; /* not enabled */
 #endif
-    return TRUE; /* enabled */
-  }
+  return TRUE; /* enabled */
 }
 
 char *getpass_r(const char *prompt, /* prompt to display */

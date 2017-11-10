@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2014, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2014, 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -44,7 +44,7 @@ int tool_progress_cb(void *clientp,
   /* The original progress-bar source code was written for curl by Lars Aas,
      and this new edition inherits some of his concepts. */
 
-  char line[MAX_BARLENGTH+1];
+  char line[MAX_BARLENGTH + 1];
   char format[40];
   double frac;
   double percent;
@@ -83,7 +83,7 @@ int tool_progress_cb(void *clientp,
   }
   else if(point != bar->prev) {
     frac = (double)point / (double)total;
-    percent = frac * 100.0f;
+    percent = frac * 100.0;
     barwidth = bar->width - 7;
     num = (int) (((double)barwidth) * frac);
     if(num > MAX_BARLENGTH)

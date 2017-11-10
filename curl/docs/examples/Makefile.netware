@@ -19,12 +19,12 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../../openssl-0.9.8zc
+OPENSSL_PATH = ../../../openssl-1.0.2a
 endif
 
 # Edit the path below to point to the base of your LibSSH2 package.
 ifndef LIBSSH2_PATH
-LIBSSH2_PATH = ../../../libssh2-1.4.3
+LIBSSH2_PATH = ../../../libssh2-1.5.0
 endif
 
 # Edit the path below to point to the base of your axTLS package.
@@ -34,12 +34,12 @@ endif
 
 # Edit the path below to point to the base of your libidn package.
 ifndef LIBIDN_PATH
-LIBIDN_PATH = ../../../libidn-1.18
+LIBIDN_PATH = ../../../libidn-1.32
 endif
 
 # Edit the path below to point to the base of your librtmp package.
 ifndef LIBRTMP_PATH
-LIBRTMP_PATH = ../../../librtmp-2.3
+LIBRTMP_PATH = ../../../librtmp-2.4
 endif
 
 # Edit the path below to point to the base of your fbopenssl package.
@@ -60,11 +60,11 @@ endif
 TARGET  = examples
 VERSION	= $(LIBCURL_VERSION)
 COPYR	= Copyright (C) $(LIBCURL_COPYRIGHT_STR)
-DESCR	= cURL ($(LIBARCH))
+DESCR	= curl ($(LIBARCH))
 MTSAFE	= YES
 STACK	= 8192
 SCREEN	= Example Program
-# Comment the line below if you dont want to load protected automatically.
+# Comment the line below if you don't want to load protected automatically.
 # LDRING = 3
 
 # Uncomment the next line to enable linking with POSIX semantics.
@@ -136,7 +136,7 @@ endif
 	CFLAGS += -align 4
 else
 	# PRELUDE = $(NDK_CLIB)/imports/clibpre.o
-	# to avoid the __init_* / __deinit_* whoes dont use prelude from NDK
+	# to avoid the __init_* / __deinit_* whoes don't use prelude from NDK
 	PRELUDE = "$(MWCW_PATH)/libraries/runtime/prelude.obj"
 	# CFLAGS += -include "$(MWCW_PATH)/headers/nlm_clib_prefix.h"
 	CFLAGS += -align 1
@@ -159,7 +159,7 @@ else
 endif
 else
 	# PRELUDE = $(NDK_CLIB)/imports/clibpre.gcc.o
-	# to avoid the __init_* / __deinit_* whoes dont use prelude from NDK
+	# to avoid the __init_* / __deinit_* whoes don't use prelude from NDK
 	# http://www.gknw.net/development/mk_nlm/gcc_pre.zip
 	PRELUDE = $(NDK_ROOT)/pre/prelude.o
 	CFLAGS += -include $(NDKBASE)/nlmconv/genlm.h

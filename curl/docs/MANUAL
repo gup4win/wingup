@@ -3,7 +3,7 @@ LATEST VERSION
   You always find news about what's going on as well as the latest versions
   from the curl web pages, located at:
 
-        http://curl.haxx.se
+        https://curl.haxx.se
 
 SIMPLE USAGE
 
@@ -470,8 +470,8 @@ COOKIES
   stored cookies which match the request as it follows the location.  The
   file "empty.txt" may be a nonexistent file.
 
-  Alas, to both read and write cookies from a netscape cookie file, you can
-  set both -b and -c to use the same file:
+  To read and write cookies from a netscape cookie file, you can set both -b
+  and -c to use the same file:
 
         curl -b cookies.txt -c cookies.txt www.example.com
 
@@ -815,16 +815,16 @@ LDAP
 
   If you have installed the OpenLDAP library, curl can take advantage of it
   and offer ldap:// support.
+  On Windows, curl will use WinLDAP from Platform SDK by default.
+
+  Default protocol version used by curl is LDAPv3. LDAPv2 will be used as
+  fallback mechanism in case if LDAPv3 will fail to connect.
 
   LDAP is a complex thing and writing an LDAP query is not an easy task. I do
-  advise you to dig up the syntax description for that elsewhere. Two places
-  that might suit you are:
+  advise you to dig up the syntax description for that elsewhere. One such
+  place might be:
 
-  Netscape's "Netscape Directory SDK 3.0 for C Programmer's Guide Chapter 10:
-  Working with LDAP URLs":
-  http://developer.netscape.com/docs/manuals/dirsdk/csdk30/url.htm
-
-  RFC 2255, "The LDAP URL Format" http://curl.haxx.se/rfc/rfc2255.txt
+  RFC 2255, "The LDAP URL Format" https://curl.haxx.se/rfc/rfc2255.txt
 
   To show you an example, this is how I can get all people from my local LDAP
   server that has a certain sub-domain in their email address:
@@ -833,6 +833,20 @@ LDAP
 
   If I want the same info in HTML format, I can get it by not using the -B
   (enforce ASCII) flag.
+
+  You also can use authentication when accessing LDAP catalog:
+
+      curl -u user:passwd "ldap://ldap.frontec.se/o=frontec??sub?mail=*"
+      curl "ldap://user:passwd@ldap.frontec.se/o=frontec??sub?mail=*"
+
+  By default, if user and password provided, OpenLDAP/WinLDAP will use basic
+  authentication. On Windows you can control this behavior by providing 
+  one of --basic, --ntlm or --digest option in curl command line
+
+      curl --ntlm "ldap://user:passwd@ldap.frontec.se/o=frontec??sub?mail=*"
+
+  On Windows, if no user/password specified, auto-negotiation mechanism will
+  be used with current logon credentials (SSPI/SPNEGO).
 
 ENVIRONMENT VARIABLES
 
@@ -852,8 +866,11 @@ ENVIRONMENT VARIABLES
 
   If the host name matches one of these strings, or the host is within the
   domain of one of these strings, transactions with that node will not be
-  proxied.
-
+  proxied. When a domain is used, it needs to start with a period. A user can
+  specify that both www.example.com and foo.example.com should not uses a
+  proxy by setting NO_PROXY to ".example.com". By including the full name you
+  can exclude specific host names, so to make www.example.com not use a proxy
+  but still have foo.example.com do it, set NO_PROXY to "www.example.com"
 
   The usage of the -x/--proxy flag overrides the environment variables.
 
@@ -1011,7 +1028,7 @@ MAILING LISTS
 
   For your convenience, we have several open mailing lists to discuss curl,
   its development and things relevant to this. Get all info at
-  http://curl.haxx.se/mail/. Some of the lists available are:
+  https://curl.haxx.se/mail/. Some of the lists available are:
 
   curl-users
 

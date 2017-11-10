@@ -6,11 +6,11 @@
 #                            | (__| |_| |  _ <| |___
 #                             \___|\___/|_| \_\_____|
 #
-# Copyright (C) 1998 - 2014, Daniel Stenberg, <daniel@haxx.se>, et al.
+# Copyright (C) 1998 - 2014, 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://curl.haxx.se/docs/copyright.html.
+# are also available at https://curl.haxx.se/docs/copyright.html.
 #
 # You may opt to use, copy, modify, merge, publish, distribute and/or sell
 # copies of the Software, and permit persons to whom the Software is
@@ -174,7 +174,6 @@ my $exit_signal;         # first signal handled in exit_signal_handler
 #**********************************************************************
 # Mail related definitions
 #
-my $TEXT_USERNAME = "user";
 my $TEXT_PASSWORD = "secret";
 my $POP3_TIMESTAMP = "<1972.987654321\@curl>";
 
@@ -609,7 +608,7 @@ sub protocolsetup {
             '   / __| | | | |_) | |    '."\r\n",
             '  | (__| |_| |  _ {| |___ '."\r\n",
             '   \___|\___/|_| \_\_____|'."\r\n",
-            '+OK cURL POP3 server ready to serve '."\r\n")
+            '+OK curl POP3 server ready to serve '."\r\n")
         );
     }
     elsif($proto eq 'imap') {
@@ -643,7 +642,7 @@ sub protocolsetup {
             '   / __| | | | |_) | |    '."\r\n",
             '  | (__| |_| |  _ {| |___ '."\r\n",
             '   \___|\___/|_| \_\_____|'."\r\n",
-            '* OK cURL IMAP server ready to serve'."\r\n")
+            '* OK curl IMAP server ready to serve'."\r\n")
         );
     }
     elsif($proto eq 'smtp') {
@@ -1057,7 +1056,7 @@ sub EXPN_smtp {
 }
 
 sub QUIT_smtp {
-    sendcontrol "221 cURL $smtp_type server signing off\r\n";
+    sendcontrol "221 curl $smtp_type server signing off\r\n";
 
     return 0;
 }
@@ -1120,9 +1119,6 @@ sub LOGIN_imap {
 
     if ($user eq "") {
         sendcontrol "$cmdid BAD Command Argument\r\n";
-    }
-    elsif (($user ne $TEXT_USERNAME) || ($password ne $TEXT_PASSWORD)) {
-        sendcontrol "$cmdid NO LOGIN failed\r\n";
     }
     else {
         sendcontrol "$cmdid OK LOGIN completed\r\n";
@@ -1605,7 +1601,7 @@ sub NOOP_imap {
 }
 
 sub LOGOUT_imap {
-    sendcontrol "* BYE cURL IMAP server signing off\r\n";
+    sendcontrol "* BYE curl IMAP server signing off\r\n";
     sendcontrol "$cmdid OK LOGOUT completed\r\n";
 
     return 0;
@@ -1681,7 +1677,7 @@ sub APOP_pop3 {
     else {
         my $digest = Digest::MD5::md5_hex($POP3_TIMESTAMP, $TEXT_PASSWORD);
 
-        if (($user ne $TEXT_USERNAME) || ($secret ne $digest)) {
+        if ($secret ne $digest) {
             sendcontrol "-ERR Login failure\r\n";
         }
         else {
@@ -1740,12 +1736,7 @@ sub PASS_pop3 {
 
     logmsg "PASS_pop3 got $password\n";
 
-    if (($username ne $TEXT_USERNAME) || ($password ne $TEXT_PASSWORD)) {
-        sendcontrol "-ERR Login failure\r\n";
-    }
-    else {
-        sendcontrol "+OK Login successful\r\n";
-    }
+    sendcontrol "+OK Login successful\r\n";
 
     return 0;
 }
@@ -1941,7 +1932,7 @@ sub QUIT_pop3 {
         @deleted = ();
     }
 
-    sendcontrol "+OK cURL POP3 server signing off\r\n";
+    sendcontrol "+OK curl POP3 server signing off\r\n";
 
     return 0;
 }
@@ -3032,7 +3023,7 @@ while(1) {
       undef $ftplistparserstate;
     }
     if($ftptargetdir) {
-      undef $ftptargetdir;
+      $ftptargetdir = "";
     }
 
     if($verbose) {
@@ -3202,7 +3193,7 @@ while(1) {
                 }
 
                 # only perform this if we're not faking a reply
-                my $func = $commandfunc{$FTPCMD};
+                my $func = $commandfunc{uc($FTPCMD)};
                 if($func) {
                     &$func($FTPARG, $FTPCMD);
                     $check = 0;

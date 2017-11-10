@@ -6,11 +6,11 @@
 #                            | (__| |_| |  _ <| |___
 #                             \___|\___/|_| \_\_____|
 #
-# Copyright (C) 1998 - 2014, Daniel Stenberg, <daniel@haxx.se>, et al.
+# Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://curl.haxx.se/docs/copyright.html.
+# are also available at https://curl.haxx.se/docs/copyright.html.
 #
 # You may opt to use, copy, modify, merge, publish, distribute and/or sell
 # copies of the Software, and permit persons to whom the Software is
@@ -255,7 +255,7 @@ echo "buildconf: libtoolize version $lt_version (ok)"
 #--------------------------------------------------------------------------
 # m4 check
 #
-m4=`(${M4:-m4} --version || ${M4:-gm4} --version) 2>/dev/null | head -n 1`;
+m4=`(${M4:-m4} --version 0<&- || ${M4:-gm4} --version) 2>/dev/null 0<&- | head -n 1`;
 m4_version=`echo $m4 | sed -e 's/^.* \([0-9]\)/\1/' -e 's/[a-z]* *$//'`
 
 if { echo $m4 | grep "GNU" >/dev/null 2>&1; } then
@@ -306,7 +306,6 @@ for fname in .deps \
     configure \
     configurehelp.pm \
     curl-config \
-    curlbuild.h \
     depcomp \
     libcares.pc \
     libcurl.pc \
@@ -318,6 +317,8 @@ for fname in .deps \
     ltsugar.m4 \
     ltversion.m4 \
     lt~obsolete.m4 \
+    missing \
+    install-sh \
     stamp-h1 \
     stamp-h2 \
     stamp-h3 ; do
@@ -329,7 +330,7 @@ done
 #
 
 echo "buildconf: running libtoolize"
-${libtoolize} --copy --automake --force || die "libtoolize command failed"
+${libtoolize} --copy --force || die "libtoolize command failed"
 
 # When using libtool 1.5.X (X < 26) we copy libtool.m4 to our local m4
 # subdirectory and this local copy is patched to fix some warnings that

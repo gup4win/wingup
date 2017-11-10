@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2012, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -60,16 +60,13 @@ int test(char *URL)
 
   start_test_timing();
 
-  res_global_init(CURL_GLOBAL_ALL);
-  if(res) {
-    return res;
-  }
+  global_init(CURL_GLOBAL_ALL);
 
   easy_init(easy);
 
   multi_init(multi);
 
-  for (phase = CONNECT_ONLY_PHASE; phase < LAST_PHASE; ++phase) {
+  for(phase = CONNECT_ONLY_PHASE; phase < LAST_PHASE; ++phase) {
     /* go verbose */
     easy_setopt(easy, CURLOPT_VERBOSE, 1L);
 
@@ -77,11 +74,11 @@ int test(char *URL)
     easy_setopt(easy, CURLOPT_URL, URL);
 
     /* enable 'CONNECT_ONLY' option when in connect phase */
-    if (phase == CONNECT_ONLY_PHASE)
+    if(phase == CONNECT_ONLY_PHASE)
       easy_setopt(easy, CURLOPT_CONNECT_ONLY, 1L);
 
     /* enable 'NOBODY' option to send 'QUIT' command in quit phase */
-    if (phase == QUIT_PHASE) {
+    if(phase == QUIT_PHASE) {
       easy_setopt(easy, CURLOPT_CONNECT_ONLY, 0L);
       easy_setopt(easy, CURLOPT_NOBODY, 1L);
       easy_setopt(easy, CURLOPT_FORBID_REUSE, 1L);
@@ -114,7 +111,8 @@ int test(char *URL)
 
       multi_timeout(multi, &timeout);
 
-      /* At this point, timeout is guaranteed to be greater or equal than -1. */
+      /* At this point, timeout is guaranteed to be greater or equal than
+         -1. */
 
       if(timeout != -1L) {
         int itimeout = (timeout > (long)INT_MAX) ? INT_MAX : (int)timeout;
@@ -122,11 +120,11 @@ int test(char *URL)
         interval.tv_usec = (itimeout%1000)*1000;
       }
       else {
-        interval.tv_sec = TEST_HANG_TIMEOUT/1000+1;
+        interval.tv_sec = TEST_HANG_TIMEOUT/1000 + 1;
         interval.tv_usec = 0;
       }
 
-      select_test(maxfd+1, &fdread, &fdwrite, &fdexcep, &interval);
+      select_test(maxfd + 1, &fdread, &fdwrite, &fdexcep, &interval);
 
       abort_on_test_timeout();
     }

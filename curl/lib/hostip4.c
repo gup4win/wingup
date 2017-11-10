@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -48,9 +48,9 @@
 #include "strerror.h"
 #include "url.h"
 #include "inet_pton.h"
+/* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 #include "curl_memory.h"
-/* The last #include file should be: */
 #include "memdebug.h"
 
 /***********************************************************************
@@ -249,7 +249,7 @@ Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname,
      */
 
     if(CURL_HOSTENT_SIZE >=
-       (sizeof(struct hostent)+sizeof(struct hostent_data))) {
+       (sizeof(struct hostent) + sizeof(struct hostent_data))) {
 
       /* August 22nd, 2000: Albert Chin-A-Young brought an updated version
        * that should work! September 20: Richard Prescott worked on the buffer
@@ -291,7 +291,7 @@ Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname,
      * gethostbyname() is the preferred one.
      */
   else {
-    h = gethostbyname((void*)hostname);
+    h = gethostbyname((void *)hostname);
 #endif /* HAVE_GETADDRINFO_THREADSAFE || HAVE_GETHOSTBYNAME_R */
   }
 

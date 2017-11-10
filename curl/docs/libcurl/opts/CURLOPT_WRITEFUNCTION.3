@@ -9,7 +9,7 @@
 .\" *
 .\" * This software is licensed as described in the file COPYING, which
 .\" * you should have received as part of this distribution. The terms
-.\" * are also available at http://curl.haxx.se/docs/copyright.html.
+.\" * are also available at https://curl.haxx.se/docs/copyright.html.
 .\" *
 .\" * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 .\" * copies of the Software, and permit persons to whom the Software is
@@ -20,7 +20,8 @@
 .\" *
 .\" **************************************************************************
 .\"
-.TH CURLOPT_WRITEFUNCTION 3 "16 Jun 2014" "libcurl 7.37.0" "curl_easy_setopt options"
+.TH CURLOPT_WRITEFUNCTION 3 "February 03, 2016" "libcurl 7.56.1" "curl_easy_setopt options"
+
 .SH NAME
 CURLOPT_WRITEFUNCTION \- set callback for writing received data
 .SH SYNOPSIS
@@ -76,6 +77,6 @@ This will return CURLE_OK.
 .SH EXAMPLE
 A common technique is to use this callback to store the incoming data into a
 dynamically growing allocated buffer. Like in the getinmemory example:
-http://curl.haxx.se/libcurl/c/getinmemory.html
+https://curl.haxx.se/libcurl/c/getinmemory.html
 .SH "SEE ALSO"
 .BR CURLOPT_WRITEDATA "(3), " CURLOPT_READFUNCTION "(3), "

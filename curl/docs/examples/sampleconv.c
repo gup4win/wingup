@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2011, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -19,10 +19,13 @@
  * KIND, either express or implied.
  *
  ***************************************************************************/
+/* <DESC>
+ * This is a simple example showing how a program on a non-ASCII platform
+ * would invoke callbacks to do its own codeset conversions instead of
+ * using the built-in iconv functions in libcurl.
+ * </DESC>
+ */
 /*
-   This is a simple example showing how a program on a non-ASCII platform
-   would invoke callbacks to do its own codeset conversions instead of
-   using the built-in iconv functions in libcurl.
 
    The IBM-1047 EBCDIC codeset is used for this example but the code
    would be similar for other non-ASCII codesets.
@@ -39,46 +42,49 @@
 #include <stdio.h>
 #include <curl/curl.h>
 
-CURLcode my_conv_from_ascii_to_ebcdic(char *buffer, size_t length)
+static CURLcode my_conv_from_ascii_to_ebcdic(char *buffer, size_t length)
 {
-    char *tempptrin, *tempptrout;
-    size_t bytes = length;
-    int rc;
-    tempptrin = tempptrout = buffer;
-    rc = platform_a2e(&tempptrin, &bytes, &tempptrout, &bytes);
-    if (rc == PLATFORM_CONV_OK) {
-      return(CURLE_OK);
-    } else {
-      return(CURLE_CONV_FAILED);
-    }
+  char *tempptrin, *tempptrout;
+  size_t bytes = length;
+  int rc;
+  tempptrin = tempptrout = buffer;
+  rc = platform_a2e(&tempptrin, &bytes, &tempptrout, &bytes);
+  if(rc == PLATFORM_CONV_OK) {
+    return CURLE_OK;
+  }
+  else {
+    return CURLE_CONV_FAILED;
+  }
 }
 
-CURLcode my_conv_from_ebcdic_to_ascii(char *buffer, size_t length)
+static CURLcode my_conv_from_ebcdic_to_ascii(char *buffer, size_t length)
 {
-    char *tempptrin, *tempptrout;
-    size_t bytes = length;
-    int rc;
-    tempptrin = tempptrout = buffer;
-    rc = platform_e2a(&tempptrin, &bytes, &tempptrout, &bytes);
-    if (rc == PLATFORM_CONV_OK) {
-      return(CURLE_OK);
-    } else {
-      return(CURLE_CONV_FAILED);
-    }
+  char *tempptrin, *tempptrout;
+  size_t bytes = length;
+  int rc;
+  tempptrin = tempptrout = buffer;
+  rc = platform_e2a(&tempptrin, &bytes, &tempptrout, &bytes);
+  if(rc == PLATFORM_CONV_OK) {
+    return CURLE_OK;
+  }
+  else {
+    return CURLE_CONV_FAILED;
+  }
 }
 
-CURLcode my_conv_from_utf8_to_ebcdic(char *buffer, size_t length)
+static CURLcode my_conv_from_utf8_to_ebcdic(char *buffer, size_t length)
 {
-    char *tempptrin, *tempptrout;
-    size_t bytes = length;
-    int rc;
-    tempptrin = tempptrout = buffer;
-    rc = platform_u2e(&tempptrin, &bytes, &tempptrout, &bytes);
-    if (rc == PLATFORM_CONV_OK) {
-      return(CURLE_OK);
-    } else {
-      return(CURLE_CONV_FAILED);
-    }
+  char *tempptrin, *tempptrout;
+  size_t bytes = length;
+  int rc;
+  tempptrin = tempptrout = buffer;
+  rc = platform_u2e(&tempptrin, &bytes, &tempptrout, &bytes);
+  if(rc == PLATFORM_CONV_OK) {
+    return CURLE_OK;
+  }
+  else {
+    return CURLE_CONV_FAILED;
+  }
 }
 
 int main(void)

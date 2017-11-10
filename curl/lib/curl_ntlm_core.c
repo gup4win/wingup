@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -27,8 +27,27 @@
 /*
  * NTLM details:
  *
- * http://davenport.sourceforge.net/ntlm.html
- * http://www.innovation.ch/java/ntlm.html
+ * https://davenport.sourceforge.io/ntlm.html
+ * https://www.innovation.ch/java/ntlm.html
+ */
+
+/* Please keep the SSL backend-specific #if branches in this order:
+
+   1. USE_OPENSSL
+   2. USE_GNUTLS_NETTLE
+   3. USE_GNUTLS
+   4. USE_NSS
+   5. USE_MBEDTLS
+   6. USE_DARWINSSL
+   7. USE_OS400CRYPTO
+   8. USE_WIN32_CRYPTO
+
+   This ensures that:
+   - the same SSL branch gets activated throughout this source
+     file even if multiple backends are enabled at the same time.
+   - OpenSSL and NSS have higher priority than Windows Crypt, due
+     to issues with the latter supporting NTLM2Session responses
+     in NTLM type-3 messages.
  */
 
 #if !defined(USE_WINDOWS_SSPI) || defined(USE_WIN32_CRYPTO)
@@ -84,6 +103,14 @@
 #  include "curl_md4.h"
 #  define MD5_DIGEST_LENGTH MD5_LENGTH
 
+#elif defined(USE_MBEDTLS)
+
+#  include <mbedtls/des.h>
+#  include <mbedtls/md4.h>
+#  if !defined(MBEDTLS_MD4_C)
+#    include "curl_md4.h"
+#  endif
+
 #elif defined(USE_DARWINSSL)
 
 #  include <CommonCrypto/CommonCryptor.h>
@@ -100,16 +127,15 @@
 
 #include "urldata.h"
 #include "non-ascii.h"
-#include "rawstr.h"
+#include "strcase.h"
 #include "curl_ntlm_core.h"
 #include "curl_md5.h"
 #include "curl_hmac.h"
 #include "warnless.h"
 #include "curl_endian.h"
 #include "curl_des.h"
+/* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-
-/* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -143,14 +169,10 @@ static void setup_des_key(const unsigned char *key_56,
   DES_cblock key;
 
   /* Expand the 56-bit key to 64-bits */
-  extend_key_56_to_64(key_56, (char *) key);
+  extend_key_56_to_64(key_56, (char *) &key);
 
   /* Set the key parity to odd */
-#if defined(HAVE_BORINGSSL)
-  Curl_des_set_odd_parity((unsigned char *) &key, sizeof(key));
-#else
   DES_set_odd_parity(&key);
-#endif
 
   /* Set the key */
   DES_set_key(&key, ks);
@@ -256,6 +278,26 @@ fail:
     SECITEM_FreeItem(param, PR_TRUE);
   PK11_FreeSlot(slot);
   return rv;
+}
+
+#elif defined(USE_MBEDTLS)
+
+static bool encrypt_des(const unsigned char *in, unsigned char *out,
+                        const unsigned char *key_56)
+{
+  mbedtls_des_context ctx;
+  char key[8];
+
+  /* Expand the 56-bit key to 64-bits */
+  extend_key_56_to_64(key_56, key);
+
+  /* Set the key parity to odd */
+  mbedtls_des_key_set_parity((unsigned char *) key);
+
+  /* Perform the encryption */
+  mbedtls_des_init(&ctx);
+  mbedtls_des_setkey_enc(&ctx, (unsigned char *) key);
+  return mbedtls_des_crypt_ecb(&ctx, in, out) == 0;
 }
 
 #elif defined(USE_DARWINSSL)
@@ -405,8 +447,8 @@ void Curl_ntlm_core_lm_resp(const unsigned char *keys,
   setup_des_key(keys + 14, &des);
   gcry_cipher_encrypt(des, results + 16, 8, plaintext, 8);
   gcry_cipher_close(des);
-#elif defined(USE_NSS) || defined(USE_DARWINSSL) || defined(USE_OS400CRYPTO) \
-  || defined(USE_WIN32_CRYPTO)
+#elif defined(USE_NSS) || defined(USE_MBEDTLS) || defined(USE_DARWINSSL) \
+  || defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO)
   encrypt_des(plaintext, results, keys);
   encrypt_des(plaintext, results + 8, keys + 7);
   encrypt_des(plaintext, results + 16, keys + 14);
@@ -416,7 +458,7 @@ void Curl_ntlm_core_lm_resp(const unsigned char *keys,
 /*
  * Set up lanmanager hashed password
  */
-CURLcode Curl_ntlm_core_mk_lm_hash(struct SessionHandle *data,
+CURLcode Curl_ntlm_core_mk_lm_hash(struct Curl_easy *data,
                                    const char *password,
                                    unsigned char *lmbuffer /* 21 bytes */)
 {
@@ -469,8 +511,8 @@ CURLcode Curl_ntlm_core_mk_lm_hash(struct SessionHandle *data,
     setup_des_key(pw + 7, &des);
     gcry_cipher_encrypt(des, lmbuffer + 8, 8, magic, 8);
     gcry_cipher_close(des);
-#elif defined(USE_NSS) || defined(USE_DARWINSSL) || defined(USE_OS400CRYPTO) \
-  || defined(USE_WIN32_CRYPTO)
+#elif defined(USE_NSS) || defined(USE_MBEDTLS) || defined(USE_DARWINSSL) \
+  || defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO)
     encrypt_des(magic, lmbuffer, pw);
     encrypt_des(magic, lmbuffer + 8, pw + 7);
 #endif
@@ -481,7 +523,7 @@ CURLcode Curl_ntlm_core_mk_lm_hash(struct SessionHandle *data,
   return CURLE_OK;
 }
 
-#if USE_NTRESPONSES
+#ifdef USE_NTRESPONSES
 static void ascii_to_unicode_le(unsigned char *dest, const char *src,
                                 size_t srclen)
 {
@@ -492,14 +534,14 @@ static void ascii_to_unicode_le(unsigned char *dest, const char *src,
   }
 }
 
-#if USE_NTLM_V2 && !defined(USE_WINDOWS_SSPI)
+#if defined(USE_NTLM_V2) && !defined(USE_WINDOWS_SSPI)
 
 static void ascii_uppercase_to_unicode_le(unsigned char *dest,
                                           const char *src, size_t srclen)
 {
   size_t i;
   for(i = 0; i < srclen; i++) {
-    dest[2 * i] = (unsigned char)(toupper(src[i]));
+    dest[2 * i] = (unsigned char)(Curl_raw_toupper(src[i]));
     dest[2 * i + 1] = '\0';
   }
 }
@@ -510,7 +552,7 @@ static void ascii_uppercase_to_unicode_le(unsigned char *dest,
  * Set up nt hashed passwords
  * @unittest: 1600
  */
-CURLcode Curl_ntlm_core_mk_nt_hash(struct SessionHandle *data,
+CURLcode Curl_ntlm_core_mk_nt_hash(struct Curl_easy *data,
                                    const char *password,
                                    unsigned char *ntbuffer /* 21 bytes */)
 {
@@ -546,12 +588,20 @@ CURLcode Curl_ntlm_core_mk_nt_hash(struct SessionHandle *data,
     gcry_md_hd_t MD4pw;
     gcry_md_open(&MD4pw, GCRY_MD_MD4, 0);
     gcry_md_write(MD4pw, pw, 2 * len);
-    memcpy (ntbuffer, gcry_md_read (MD4pw, 0), MD4_DIGEST_LENGTH);
+    memcpy(ntbuffer, gcry_md_read(MD4pw, 0), MD4_DIGEST_LENGTH);
     gcry_md_close(MD4pw);
-#elif defined(USE_NSS) || defined(USE_OS400CRYPTO)
+#elif defined(USE_NSS)
     Curl_md4it(ntbuffer, pw, 2 * len);
+#elif defined(USE_MBEDTLS)
+#if defined(MBEDTLS_MD4_C)
+    mbedtls_md4(pw, 2 * len, ntbuffer);
+#else
+    Curl_md4it(ntbuffer, pw, 2 * len);
+#endif
 #elif defined(USE_DARWINSSL)
     (void)CC_MD4(pw, (CC_LONG)(2 * len), ntbuffer);
+#elif defined(USE_OS400CRYPTO)
+    Curl_md4it(ntbuffer, pw, 2 * len);
 #elif defined(USE_WIN32_CRYPTO)
     HCRYPTPROV hprov;
     if(CryptAcquireContext(&hprov, NULL, NULL, PROV_RSA_FULL,
@@ -575,7 +625,7 @@ CURLcode Curl_ntlm_core_mk_nt_hash(struct SessionHandle *data,
   return CURLE_OK;
 }
 
-#if USE_NTLM_V2 && !defined(USE_WINDOWS_SSPI)
+#if defined(USE_NTLM_V2) && !defined(USE_WINDOWS_SSPI)
 
 /* This returns the HMAC MD5 digest */
 CURLcode Curl_hmac_md5(const unsigned char *key, unsigned int keylen,
@@ -664,21 +714,22 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(unsigned char *ntlmv2hash,
   unsigned int len = 0;
   unsigned char *ptr = NULL;
   unsigned char hmac_output[NTLM_HMAC_MD5_LEN];
-#if defined(HAVE_LONGLONG)
-  long long tw;
-#else
-  __int64 tw;
-#endif
+  curl_off_t tw;
+
   CURLcode result = CURLE_OK;
+
+#if CURL_SIZEOF_CURL_OFF_T < 8
+#error "this section needs 64bit support to work"
+#endif
 
   /* Calculate the timestamp */
 #ifdef DEBUGBUILD
   char *force_timestamp = getenv("CURL_FORCETIME");
   if(force_timestamp)
-    tw = 11644473600ULL * 10000000ULL;
+    tw = CURL_OFF_T_C(11644473600) * 10000000;
   else
 #endif
-  tw = ((long long)time(NULL) + 11644473600ULL) * 10000000ULL;
+    tw = ((curl_off_t)time(NULL) + CURL_OFF_T_C(11644473600)) * 10000000;
 
   /* Calculate the response len */
   len = NTLM_HMAC_MD5_LEN + NTLMv2_BLOB_LEN;
@@ -692,8 +743,10 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(unsigned char *ntlmv2hash,
 
   /* Create the BLOB structure */
   snprintf((char *)ptr + NTLM_HMAC_MD5_LEN, NTLMv2_BLOB_LEN,
-           NTLMv2_BLOB_SIGNATURE
+           "%c%c%c%c"   /* NTLMv2_BLOB_SIGNATURE */
            "%c%c%c%c",  /* Reserved = 0 */
+           NTLMv2_BLOB_SIGNATURE[0], NTLMv2_BLOB_SIGNATURE[1],
+           NTLMv2_BLOB_SIGNATURE[2], NTLMv2_BLOB_SIGNATURE[3],
            0, 0, 0, 0);
 
   Curl_write64_le(tw, ptr + 24);
@@ -751,7 +804,7 @@ CURLcode  Curl_ntlm_core_mk_lmv2_resp(unsigned char *ntlmv2hash,
 
   /* Concatenate the HMAC MD5 output  with the client nonce */
   memcpy(lmresp, hmac_output, 16);
-  memcpy(lmresp+16, challenge_client, 8);
+  memcpy(lmresp + 16, challenge_client, 8);
 
   return result;
 }

@@ -11,7 +11,7 @@
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at http://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -39,8 +39,6 @@ long tutil_tvdiff(struct timeval t1, struct timeval t2);
  * Returns: the time difference in seconds with subsecond resolution.
  */
 double tutil_tvdiff_secs(struct timeval t1, struct timeval t2);
-
-long tutil_tvlong(struct timeval t1);
 
 
 #endif  /* HEADER_CURL_LIBTEST_TESTUTIL_H */
