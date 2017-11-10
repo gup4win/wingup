@@ -55,8 +55,19 @@ to make sure it responds to your WinGup with the correct xml data.
 How to build it?
 ----------------
 
+ 0. You have to build cURL before building WinGup:
+    a. Open VS2015 Native Tool Command for 32/64 bits
+    b. go to curl winbuild directory:
+       cd <your wingup source path>\curl\winbuild
+	c. compile cURL by using one of the following commands, according the mode and archetecture of wingup you want to build.
+       x64 release: nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static MACHINE=x64
+       x64 debug: nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static DEBUG=yes MACHINE=x64
+       x86 release: nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static MACHINE=x86
+       x86 debug: nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static DEBUG=yes MACHINE=x86
+
  1. Open [`vcproj\GUP.vcxproj`](https://github.com/gup4win/wingup/blob/master/vcproj/GUP.vcxproj)
- 2. Build WinGup [like a normal Visual Studio project](https://msdn.microsoft.com/en-us/library/7s88b19e.aspx) with VS2013 or newer
+ 
+ 2. Build WinGup [like a normal Visual Studio project](https://msdn.microsoft.com/en-us/library/7s88b19e.aspx) with VS2015
 
 
 
