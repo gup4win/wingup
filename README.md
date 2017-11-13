@@ -7,6 +7,14 @@ which downloads a update package then installs it. By using cURL library
 and TinyXml module, WinGup is capable to deal with http protocol and process XML data.
 
 
+
+Build Status
+------------
+
+AppVeyor `VS2013` and `VS2015`  [![Build status](https://ci.appveyor.com/api/projects/status/lvpvctpyfc6bfo9l?svg=true)](https://ci.appveyor.com/project/chcg/wingup)
+
+
+
 Why WinGup?
 -----------
 
@@ -46,7 +54,7 @@ to store your update package, that's it!
 How is WinGup easy to use?
 --------------------------
 
-All you have to do is point WinGup to your url update page (by modifying gup.xml), 
+All you have to do is point WinGup to your url update page (by modifying gup.xml),
 then work on your pointed url update page (see getDownLoadUrl.php comes with the release)
 to make sure it responds to your WinGup with the correct xml data.
 
