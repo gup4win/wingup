@@ -1,8 +1,7 @@
-GUP v4.1 new feature:
+GUP v4.2 bug-fix & new enhancement:
 
-1. Add option -pVALUE for custom parameter. The VALUE can be retieved from "param" via GET method on the server side. 
-
-
-GUP v4 new feature:
-
-1. 64-bit build.
+1.  Update cURL from 7.42.1 to 7.56.1
+2.  Enable CURLSSLOPT_NO_REVOKE option in cURL to fix the problem that updating requires certificate support:
+    https://github.com/notepad-plus-plus/notepad-plus-plus/issues/1237
+3.  Fixed unwanted message displaying issue.
+4.  Add more tanslations.
