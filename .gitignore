@@ -14,6 +14,7 @@ x86/
 #[Bb]in/
 [Oo]bj/
 *.pdb
+vcproj/GUP.VC.db
 
 #-- Visual C++ cache files
 .vs/

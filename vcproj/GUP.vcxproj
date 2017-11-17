@@ -162,10 +162,11 @@
 copy ..\src\ConfigFiles\gup.xml ..\bin\gup.xml
 copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin\getDownLoadUrl.php
 copy ..\LICENSE ..\bin\LICENSE
-copy ..\gpl.txt ..\bin\gpl.txt
 copy ..\README.md ..\bin\README.md
 copy ..\curl\builds\libcurl-vc14-x86-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin\libcurl.dll
-xcopy ..\src\translations ..\bin\translations\ /S /Y /E</Command>
+xcopy ..\src\translations ..\bin\translations\ /S /Y /E
+del ..\bin\GUP.iobj
+del ..\bin\GUP.ipdb</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>
@@ -200,10 +201,11 @@ xcopy ..\src\translations ..\bin\translations\ /S /Y /E</Command>
 copy ..\src\ConfigFiles\gup.xml ..\bin64\gup.xml
 copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin64\getDownLoadUrl.php
 copy ..\LICENSE ..\bin64\LICENSE
-copy ..\gpl.txt ..\bin64\gpl.txt
 copy ..\README.md ..\bin64\README.md
 copy ..\curl\builds\libcurl-vc14-x64-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin64\libcurl.dll
-xcopy ..\src\translations ..\bin64\translations\  /S /Y /E</Command>
+xcopy ..\src\translations ..\bin64\translations\  /S /Y /E
+del ..\bin64\GUP.iobj
+del ..\bin64\GUP.ipdb</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>
