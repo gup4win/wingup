@@ -51,6 +51,7 @@ UpgradeLog*.htm
 *.tmp_proj
 .builds
 *.pidb
+*.bak
 bin/
 bin64/
 curl/build
