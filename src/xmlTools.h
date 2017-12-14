@@ -72,7 +72,7 @@ public:
 	GupExtraOptions(const char * xmlFileName);
 	const std::string & getProxyServer() const { return _proxyServer;};
 	long getPort() const { return _port;};
-	bool hasProxySettings(){return ((_proxyServer != "") && (_port != -1));};
+	bool hasProxySettings() const {return ((!_proxyServer.empty()) && (_port != -1));};
 	void writeProxyInfo(const char *fn, const char *proxySrv, long port);
 
 private:
