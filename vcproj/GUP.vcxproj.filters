@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Manifest Include="..\src\gup.exe.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\winmain.cpp" />
+    <ClCompile Include="..\src\xmlTools.cpp" />
+    <ClCompile Include="..\src\TinyXml\tinystr.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TinyXml\tinyxml.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TinyXml\tinyxmlerror.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TinyXml\tinyxmlparser.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\resource.h" />
+    <ClInclude Include="..\src\xmlTools.h" />
+    <ClInclude Include="..\src\TinyXml\tinystr.h">
+      <Filter>tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TinyXml\tinyxml.h">
+      <Filter>tinyxml</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\src\gup.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="tinyxml">
+      <UniqueIdentifier>{a37be0f3-2a3a-4108-a6c0-2e9d01318887}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
