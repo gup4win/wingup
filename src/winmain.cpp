@@ -42,7 +42,6 @@ static string winGupUserAgent = "WinGup/";
 static string dlFileName = "";
 
 const char FLAG_OPTIONS[] = "-options";
-//const char FLAG_VERSION[] = "-v";
 const char FLAG_VERBOSE[] = "-verbose";
 const char FLAG_HELP[] = "--help";
 
@@ -576,8 +575,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		// Get your software's current version.
 		// If you pass the version number as the argument
 		// then the version set in the gup.xml will be overrided
-		if (lpszCmdLine && lpszCmdLine[0])
-			gupParams.setCurrentVersion(lpszCmdLine);
+		if (!version.empty())
+			gupParams.setCurrentVersion(version.c_str());
 
 		// override silent mode if "-isVerbose" is passed as argument
 		if (isVerbose)
