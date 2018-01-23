@@ -17,17 +17,24 @@
  along with GUP.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../ZipLib/ZipFile.h"
+#include "../ZipLib/utils/stream_utils.h"
+
 #include <stdint.h>
 #include <windows.h>
+#include <fstream>
 #include <string>
 #include <commctrl.h>
 #include "resource.h"
 #include <shlwapi.h>
 #include "xmlTools.h"
+
 #define CURL_STATICLIB
 #include "../curl/include/curl/curl.h"
 
 using namespace std;
+
+typedef vector<string> ParamVector;
 
 HINSTANCE hInst;
 static HWND hProgressDlg;
@@ -42,9 +49,10 @@ static string winGupUserAgent = "WinGup/";
 static string dlFileName = "";
 
 const char FLAG_OPTIONS[] = "-options";
-//const char FLAG_VERSION[] = "-v";
 const char FLAG_VERBOSE[] = "-verbose";
 const char FLAG_HELP[] = "--help";
+const char FLAG_UUZIP[] = "-unzipTo";
+const char FLAG_CLEANUP[] = "-clean";
 
 const char MSGID_NOUPDATE[] = "No update is available.";
 const char MSGID_UPDATEAVAILABLE[] = "An update package is available, do you want to download it?";
@@ -56,6 +64,8 @@ const char MSGID_HELP[] = "Usage :\r\
 gup --help\r\
 gup -options\r\
 gup [-verbose] [-vVERSION_VALUE] [-pCUSTOM_PARAM]\r\
+gup -clean FOLDER_TO_ACTION\r\
+gup -unzipTo [-clean] FOLDER_TO_ACTION ZIP_URL\r\
 \r\
     --help : Show this help message (and quit program).\r\
     -options : Show the proxy configuration dialog (and quit program).\r\
@@ -66,108 +76,242 @@ gup [-verbose] [-vVERSION_VALUE] [-pCUSTOM_PARAM]\r\
 	-p : Launch GUP with CUSTOM_PARAM.\r\
 	     CUSTOM_PARAM will pass to destination by using GET method\r\
          with argument name \"param\"\r\
-    -verbose : Show error/warning message if any.";
-
+    -verbose : Show error/warning message if any.\r\
+    -clean: Delete all files in FOLDER_TO_ACTION.\r\
+    -unzipTo: Download zip file from ZIP_URL then unzip it into FOLDER_TO_ACTION.\r\
+    ZIP_URL: The URL to download zip file.\r\
+    FOLDER_TO_ACTION: The folder where we clean or/and unzip to.\r\
+	";
 std::string thirdDoUpdateDlgButtonLabel;
 
-static bool isInList(const char *token2Find, char *list2Clean) {
-	char word[1024];
-	bool isFileNamePart = false;
 
-	for (int i = 0, j = 0 ;  i <= int(strlen(list2Clean)) ; i++)
+//commandLine should contain path to n++ executable running
+void parseCommandLine(const char* commandLine, ParamVector& paramVector)
+{
+	if (!commandLine)
+		return;
+
+	char* cmdLine = new char[lstrlenA(commandLine) + 1];
+	lstrcpyA(cmdLine, commandLine);
+
+	char* cmdLinePtr = cmdLine;
+
+	bool isInFile = false;
+	bool isInWhiteSpace = true;
+	size_t commandLength = lstrlenA(cmdLinePtr);
+	std::vector<char *> args;
+	for (size_t i = 0; i < commandLength; ++i)
 	{
-		if ((list2Clean[i] == ' ') || (list2Clean[i] == '\0'))
+		switch (cmdLinePtr[i])
 		{
-			if ((j) && (!isFileNamePart))
+			case '\"': //quoted filename, ignore any following whitespace
 			{
-				word[j] = '\0';
-				j = 0;
-				bool bingo = !strcmp(token2Find, word);
-
-				if (bingo)
+				if (!isInFile)	//" will always be treated as start or end of param, in case the user forgot to add an space
 				{
-					int wordLen = int(strlen(word));
-					int prevPos = i - wordLen;
+					args.push_back(cmdLinePtr + i + 1);	//add next param(since zero terminated original, no overflow of +1)
+				}
+				isInFile = !isInFile;
+				isInWhiteSpace = false;
+				//because we dont want to leave in any quotes in the filename, remove them now (with zero terminator)
+				cmdLinePtr[i] = 0;
+			}
+			break;
 
-					for (i = i + 1 ;  i <= int(strlen(list2Clean)) ; i++, prevPos++)
-						list2Clean[prevPos] = list2Clean[i];
+			case '\t': //also treat tab as whitespace
+			case ' ':
+			{
+				isInWhiteSpace = true;
+				if (!isInFile)
+					cmdLinePtr[i] = 0;		//zap spaces into zero terminators, unless its part of a filename	
+			}
+			break;
 
-					list2Clean[prevPos] = '\0';
-					
-					return true;
+			default: //default char, if beginning of word, add it
+			{
+				if (!isInFile && isInWhiteSpace)
+				{
+					args.push_back(cmdLinePtr + i);	//add next param
+					isInWhiteSpace = false;
 				}
 			}
 		}
-		else if (list2Clean[i] == '"')
+	}
+	paramVector.assign(args.begin(), args.end());
+	delete[] cmdLine;
+};
+
+bool isInList(const char* token2Find, ParamVector & params)
+{
+	size_t nbItems = params.size();
+
+	for (size_t i = 0; i < nbItems; ++i)
+	{
+		if (!strcmp(token2Find, params.at(i).c_str()))
 		{
-			isFileNamePart = !isFileNamePart;
-		}
-		else
-		{
-			word[j++] = list2Clean[i];
+			params.erase(params.begin() + i);
+			return true;
 		}
 	}
 	return false;
 };
 
-static string getParamVal(char c, char *list2Clean) {
-	char word[1024];
-	bool checkDash = true;
-	bool checkCh = false;
-	bool action = false;
-	bool isFileNamePart = false;
-	int pos2Erase = 0;
+bool getParamVal(char c, ParamVector & params, string & value)
+{
+	value = "";
+	size_t nbItems = params.size();
 
-	for (int i = 0, j = 0 ;  i <= int(strlen(list2Clean)) ; i++)
+	for (size_t i = 0; i < nbItems; ++i)
 	{
-		if ((list2Clean[i] == ' ') || (list2Clean[i] == '\0'))
-		{
-			if (action)
-			{
-				word[j] = '\0';
-				j = 0;
-				action = false;
-
-				for (i = i + 1 ;  i <= int(strlen(list2Clean)) ; i++, pos2Erase++)
-					list2Clean[pos2Erase] = list2Clean[i];
-						
-				list2Clean[pos2Erase] = '\0';
-
-				return word;
-			}
-			checkDash = true;
-		}
-		else if (list2Clean[i] == '"')
-		{
-			isFileNamePart = !isFileNamePart;
-		}
-
-		if (!isFileNamePart)
-		{
-			if (action)
-			{
-				word[j++] =  list2Clean[i];
-			}
-			else if (checkDash)
-			{
-				if (list2Clean[i] == '-')
-					checkCh = true;
-			            
-				if (list2Clean[i] != ' ')
-					checkDash = false;
-			}
-			else if (checkCh)
-			{
-				if (list2Clean[i] == c)
-				{
-					action = true;
-					pos2Erase = i-1;
-				}
-				checkCh = false;
-			}
+		const char* token = params.at(i).c_str();
+		if (token[0] == '-' && strlen(token) >= 2 && token[1] == c) {	//dash, and enough chars
+			value = (token + 2);
+			params.erase(params.begin() + i);
+			return true;
 		}
 	}
-	return "";
+	return false;
+}
+
+class ZipOperation
+{
+public:
+	void setUnzipOp(bool isUnzip) {
+		if (isUnzip) _op |= unzipOp;
+		else _op ^= unzipOp;	
+	};
+	
+	void setCleanupOp(bool isClean) {
+		if (isClean) _op |= cleanOp;
+		else _op ^= cleanOp;
+	};
+
+	void setDestFolder(const string& destFolder) {
+		_destFolder = destFolder;
+	}
+	string getDestFolder() const { return _destFolder; }
+
+	void setDownloadZipUrl(const string& downloadZipUrl) {
+		_downloadZipUrl = downloadZipUrl;
+	}
+	string getDownloadZipUrl() const { return _downloadZipUrl; }
+
+	bool isUnzipReady() const {
+		return (_op & unzipOp) && !_downloadZipUrl.empty() && !_destFolder.empty();
+	};
+
+	bool isCleanupReady() const {
+		return (_op & cleanOp) && !_destFolder.empty();
+	};
+
+	bool isReady2Go() const {
+		return isUnzipReady() || isCleanupReady();
+	}
+
+private:
+	const unsigned char unzipOp = 1;
+	const unsigned char cleanOp = 2;
+	unsigned char _op = 0;
+
+	string _destFolder;
+	string _downloadZipUrl;
+};
+
+
+string PathAppend(string& strDest, const string& str2append)
+{
+	if (strDest.empty() && str2append.empty()) // "" + ""
+	{
+		strDest = "\\";
+		return strDest;
+	}
+
+	if (strDest.empty() && !str2append.empty()) // "" + titi
+	{
+		strDest = str2append;
+		return strDest;
+	}
+
+	if (strDest[strDest.length() - 1] == '\\' && (!str2append.empty() && str2append[0] == '\\')) // toto\ + \titi
+	{
+		strDest.erase(strDest.length() - 1, 1);
+		strDest += str2append;
+		return strDest;
+	}
+
+	if ((strDest[strDest.length() - 1] == '\\' && (!str2append.empty() && str2append[0] != '\\')) // toto\ + titi
+		|| (strDest[strDest.length() - 1] != '\\' && (!str2append.empty() && str2append[0] == '\\'))) // toto + \titi
+	{
+		strDest += str2append;
+		return strDest;
+	}
+
+	// toto + titi
+	strDest += "\\";
+	strDest += str2append;
+
+	return strDest;
+};
+
+bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
+{
+	// if destination folder doesn't exist, create it.
+	if (!::PathFileExistsA(unzipDestTo.c_str()))
+	{
+		if (!::CreateDirectoryA(unzipDestTo.c_str(), NULL))
+			return false;
+	}
+
+	ZipArchive::Ptr archive = ZipFile::Open(zipFullFilePath.c_str());
+
+	std::istream* decompressStream = nullptr;
+	auto count = archive->GetEntriesCount();
+
+	if (!count) // wrong archive format
+		return false;
+
+	for (size_t i = 0; i < count; ++i)
+	{
+		ZipArchiveEntry::Ptr entry = archive->GetEntry(static_cast<int>(i));
+		assert(entry != nullptr);
+
+		//("[+] Trying no pass...\n");
+		decompressStream = entry->GetDecompressionStream();
+		assert(decompressStream != nullptr);
+
+		string file2extrait = entry->GetFullName();
+		printf("[+] Extracting file '%s'\n", file2extrait.c_str());
+
+		string extraitFullFilePath = unzipDestTo;
+		PathAppend(extraitFullFilePath, file2extrait);
+
+		auto pos = extraitFullFilePath.find_last_of('/');
+		if (pos == extraitFullFilePath.length() - 1) // it's a folder to created
+		{
+			// if folder doesn't exist, create it.
+			if (!::PathFileExistsA(extraitFullFilePath.c_str()))
+			{
+				if (!::CreateDirectoryA(extraitFullFilePath.c_str(), NULL))
+					return false;
+			}
+		}
+		else
+		{
+			std::ofstream destFile;
+			destFile.open(extraitFullFilePath, std::ios::binary | std::ios::trunc);
+
+			if (!destFile.is_open())
+			{
+				throw std::runtime_error("cannot create destination file");
+			}
+
+			utils::stream::copy(*decompressStream, destFile);
+
+			destFile.flush();
+			destFile.close();
+		}
+	}
+
+	return true;
 };
 
 static void goToScreenCenter(HWND hwnd)
@@ -214,20 +358,20 @@ static size_t getDownloadData(unsigned char *data, size_t size, size_t nmemb, FI
 	return len;
 };
 
-static size_t ratio = 0;
+static size_t downloadRatio = 0;
 
 static size_t setProgress(HWND, double t, double d, double, double)
 {
 	while (stopDL)
 		::Sleep(1000);
-	size_t step = size_t(d * 100.0 / t - ratio);
-	ratio = size_t(d * 100.0 / t);
+	size_t step = size_t(d * 100.0 / t - downloadRatio);
+	downloadRatio = size_t(d * 100.0 / t);
 
 	SendMessage(hProgressBar, PBM_SETSTEP, (WPARAM)step, 0);
 	SendMessage(hProgressBar, PBM_STEPIT, 0, 0);
 
 	char percentage[128];
-	sprintf(percentage, "Downloading %s: %Iu %%", dlFileName.c_str(), ratio);
+	sprintf(percentage, "Downloading %s: %Iu %%", dlFileName.c_str(), downloadRatio);
 	::SetWindowTextA(hProgressDlg, percentage);
 	return 0;
 };
@@ -353,7 +497,7 @@ static DWORD WINAPI launchProgressBar(void *)
 	return 0;
 }
 
-bool downloadBinary(string urlFrom, string destTo, pair<string, int> proxyServerInfo, bool isSilentMode, pair<string, string> stoppedMessage)
+bool downloadBinary(const string& urlFrom, const string& destTo, pair<string, int> proxyServerInfo, bool isSilentMode, const pair<string, string>& stoppedMessage)
 {
 	FILE* pFile = fopen(destTo.c_str(), "wb");
 
@@ -406,7 +550,7 @@ bool downloadBinary(string urlFrom, string destTo, pair<string, int> proxyServer
 	return true;
 }
 
-bool getUpdateInfo(string &info2get, const GupParameters& gupParams, const GupExtraOptions& proxyServer, const string& customParam, const string& version)
+bool getUpdateInfo(const string& info2get, const GupParameters& gupParams, const GupExtraOptions& proxyServer, const string& customParam, const string& version)
 {
 	char errorBuffer[CURL_ERROR_SIZE] = { 0 };
 
@@ -525,19 +669,58 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	bool isSilentMode = false;
 	FILE *pFile = NULL;
 
-	bool launchSettingsDlg = false;
-	bool isVerbose = false;
-	bool isHelp = false;
-	string version = "";
-	string customParam = "";
+	string version;
+	string customParam;
+	ZipOperation zipOp;
 
-	if (lpszCmdLine && lpszCmdLine[0])
+	ParamVector params;
+	parseCommandLine(lpszCmdLine, params);
+
+	bool launchSettingsDlg = isInList(FLAG_OPTIONS, params);
+	bool isVerbose = isInList(FLAG_VERBOSE, params);
+	bool isHelp = isInList(FLAG_HELP, params);
+	bool isCleanUp = isInList(FLAG_CLEANUP, params);
+	bool isUnzip = isInList(FLAG_UUZIP, params);
+	
+	getParamVal('v', params, version);
+	getParamVal('p', params, customParam);
+
+	if (isCleanUp || isUnzip)
 	{
-		launchSettingsDlg = isInList(FLAG_OPTIONS, lpszCmdLine);
-		isVerbose = isInList(FLAG_VERBOSE, lpszCmdLine);
-		isHelp = isInList(FLAG_HELP, lpszCmdLine);
-		version = getParamVal('v', lpszCmdLine);
-		customParam = getParamVal('p', lpszCmdLine);
+		// retrieve the dir to clean up and url to download
+
+		/*
+		for (auto& i : params)
+		{
+		MessageBoxA(NULL, i.c_str(), "", MB_OK);
+		}
+		*/
+
+		size_t nbParam = params.size();
+
+		if (nbParam == 1) // only clean
+		{
+			if (isUnzip)
+				return -1;
+
+			zipOp.setDestFolder(params[0]);
+		}
+		else if (nbParam == 2) // must be unzipTo
+		{
+			if (!isUnzip)
+				return -1;
+
+			zipOp.setDestFolder(params[0]);
+			zipOp.setDownloadZipUrl(params[1]);
+		}
+		else
+		{
+			return -1;
+		}
+		zipOp.setCleanupOp(isCleanUp);
+		zipOp.setUnzipOp(isUnzip);
+
+		//decompress(params[0], params[1]);
 	}
 
 	if (isHelp)
@@ -549,7 +732,70 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	GupExtraOptions extraOptions("gupOptions.xml");
 	GupNativeLang nativeLang("nativeLang.xml");
 	GupParameters gupParams("gup.xml");
-	
+
+	if (zipOp.isReady2Go())
+	{
+		// Clean up firstly
+		if (zipOp.isCleanupReady())
+		{
+			//::DeleteFile(fileNamePath);
+
+			auto len = zipOp.getDestFolder().length();
+			LPSTR actionFolder = new char[len + 2];
+			strcpy(actionFolder, zipOp.getDestFolder().c_str());
+			actionFolder[len] = 0;
+			actionFolder[len+1] = 0;
+
+			SHFILEOPSTRUCTA fileOpStruct = { 0 };
+			fileOpStruct.hwnd = NULL;
+			fileOpStruct.pFrom = actionFolder;
+			fileOpStruct.pTo = NULL;
+			fileOpStruct.wFunc = FO_DELETE;
+			fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT;
+			fileOpStruct.fAnyOperationsAborted = false;
+			fileOpStruct.hNameMappings = NULL;
+			fileOpStruct.lpszProgressTitle = NULL;
+
+			int res = SHFileOperationA(&fileOpStruct);
+			if (res != 0)
+			{
+				// problem
+			}
+		}
+
+		if (zipOp.isUnzipReady())
+		{
+			std::string dlDest = std::getenv("TEMP");
+			dlDest += "\\";
+			dlDest += ::PathFindFileNameA(zipOp.getDownloadZipUrl().c_str());
+
+			char *ext = ::PathFindExtensionA(zipOp.getDownloadZipUrl().c_str());
+			if (strcmp(ext, ".zip") != 0)
+				dlDest += ".zip";
+
+			dlFileName = ::PathFindFileNameA(zipOp.getDownloadZipUrl().c_str());
+
+
+			string dlStopped = nativeLang.getMessageString("MSGID_DOWNLOADSTOPPED");
+			if (dlStopped == "")
+				dlStopped = MSGID_DOWNLOADSTOPPED;
+
+			bool isSuccessful = downloadBinary(zipOp.getDownloadZipUrl(), dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
+			if (!isSuccessful)
+			{
+				return -1;
+			}
+
+			isSuccessful = decompress(dlDest, zipOp.getDestFolder());
+			if (!isSuccessful)
+			{
+				return -1;
+			}
+		}
+
+		return 0;
+	}
+
 	hInst = hInstance;
 	try {
 		if (launchSettingsDlg)
@@ -576,8 +822,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		// Get your software's current version.
 		// If you pass the version number as the argument
 		// then the version set in the gup.xml will be overrided
-		if (lpszCmdLine && lpszCmdLine[0])
-			gupParams.setCurrentVersion(lpszCmdLine);
+		if (!version.empty())
+			gupParams.setCurrentVersion(version.c_str());
 
 		// override silent mode if "-isVerbose" is passed as argument
 		if (isVerbose)
