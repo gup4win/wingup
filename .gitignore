@@ -89,7 +89,6 @@ $RECYCLE.BIN/
 *.d
 *.o
 
-vcproj/GUP.sln
 curl/winbuild/CURL_OBJS.inc
 curl/winbuild/LIBCURL_OBJS.inc
 curl/winbuild/vc120.idb

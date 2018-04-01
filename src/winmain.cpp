@@ -685,17 +685,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	getParamVal('v', params, version);
 	getParamVal('p', params, customParam);
 
+	if (isHelp)
+	{
+		::MessageBoxA(NULL, MSGID_HELP, "GUP Command Argument Help", MB_OK);
+		return 0;
+	}
+
 	if (isCleanUp || isUnzip)
 	{
 		// retrieve the dir to clean up and url to download
-
-		/*
-		for (auto& i : params)
-		{
-		MessageBoxA(NULL, i.c_str(), "", MB_OK);
-		}
-		*/
-
 		size_t nbParam = params.size();
 
 		if (nbParam == 1) // only clean
@@ -723,12 +721,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		//decompress(params[0], params[1]);
 	}
 
-	if (isHelp)
-	{
-		::MessageBoxA(NULL, MSGID_HELP, "GUP Command Argument Help", MB_OK);
-		return 0;
-	}
-
 	GupExtraOptions extraOptions("gupOptions.xml");
 	GupNativeLang nativeLang("nativeLang.xml");
 	GupParameters gupParams("gup.xml");
@@ -738,8 +730,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		// Clean up firstly
 		if (zipOp.isCleanupReady())
 		{
-			//::DeleteFile(fileNamePath);
-
+			// else delete directly
 			auto len = zipOp.getDestFolder().length();
 			LPSTR actionFolder = new char[len + 2];
 			strcpy(actionFolder, zipOp.getDestFolder().c_str());
@@ -751,7 +742,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 			fileOpStruct.pFrom = actionFolder;
 			fileOpStruct.pTo = NULL;
 			fileOpStruct.wFunc = FO_DELETE;
-			fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT;
+			fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT | FOF_ALLOWUNDO;
 			fileOpStruct.fAnyOperationsAborted = false;
 			fileOpStruct.hNameMappings = NULL;
 			fileOpStruct.lpszProgressTitle = NULL;
@@ -783,12 +774,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 			bool isSuccessful = downloadBinary(zipOp.getDownloadZipUrl(), dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
 			if (!isSuccessful)
 			{
+				if (zipOp.isCleanupReady())
+				{
+					//TODO move back the folder from temp
+				}
 				return -1;
 			}
 
 			isSuccessful = decompress(dlDest, zipOp.getDestFolder());
 			if (!isSuccessful)
 			{
+				if (zipOp.isCleanupReady())
+				{
+					//TODO move back the folder from temp
+				}
 				return -1;
 			}
 		}
