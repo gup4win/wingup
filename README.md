@@ -66,7 +66,7 @@ How to build it?
        x86 release: nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static MACHINE=x86
        x86 debug: nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static DEBUG=yes MACHINE=x86
 ```
- 1. Open [`vcproj\GUP.vcxproj`](https://github.com/gup4win/wingup/blob/master/vcproj/GUP.vcxproj)
+ 1. Open [`vcproj\GUP.sln`](https://github.com/gup4win/wingup/blob/master/vcproj/GUP.sln)
  
  2. Build WinGup [like a normal Visual Studio project](https://msdn.microsoft.com/en-us/library/7s88b19e.aspx) with VS2015
 
