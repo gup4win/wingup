@@ -21,6 +21,7 @@
 #include "../ZipLib/utils/stream_utils.h"
 
 #include <stdint.h>
+#include <sys/stat.h>
 #include <windows.h>
 #include <fstream>
 #include <string>
@@ -59,6 +60,7 @@ const char MSGID_UPDATEAVAILABLE[] = "An update package is available, do you wan
 const char MSGID_DOWNLOADSTOPPED[] = "Download is stopped by user. Update is aborted.";
 const char MSGID_CLOSEAPP[] = " is opened.\rUpdater will close it in order to process the installation.\rContinue?";
 const char MSGID_ABORTORNOT[] = "Do you want to abort update download?";
+const char MSGID_UNZIPFAILED[] = "Unzip operation failed. It could be zip file is invalid.\nOld files are about to be restored.";
 const char MSGID_HELP[] = "Usage :\r\
 \r\
 gup --help\r\
@@ -252,6 +254,52 @@ string PathAppend(string& strDest, const string& str2append)
 	return strDest;
 };
 
+vector<string> tokenizeString(const string & tokenString, const char delim)
+{
+	//Vector is created on stack and copied on return
+	std::vector<string> tokens;
+
+	// Skip delimiters at beginning.
+	string::size_type lastPos = tokenString.find_first_not_of(delim, 0);
+	// Find first "non-delimiter".
+	string::size_type pos = tokenString.find_first_of(delim, lastPos);
+
+	while (pos != std::string::npos || lastPos != std::string::npos)
+	{
+		// Found a token, add it to the vector.
+		tokens.push_back(tokenString.substr(lastPos, pos - lastPos));
+		// Skip delimiters.  Note the "not_of"
+		lastPos = tokenString.find_first_not_of(delim, pos);
+		// Find next "non-delimiter"
+		pos = tokenString.find_first_of(delim, lastPos);
+	}
+	return tokens;
+};
+
+bool deleteFileOrFolder(const string& f2delete)
+{
+	auto len = f2delete.length();
+	LPSTR actionFolder = new char[len + 2];
+	strcpy(actionFolder, f2delete.c_str());
+	actionFolder[len] = 0;
+	actionFolder[len + 1] = 0;
+
+	SHFILEOPSTRUCTA fileOpStruct = { 0 };
+	fileOpStruct.hwnd = NULL;
+	fileOpStruct.pFrom = actionFolder;
+	fileOpStruct.pTo = NULL;
+	fileOpStruct.wFunc = FO_DELETE;
+	fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT | FOF_ALLOWUNDO;
+	fileOpStruct.fAnyOperationsAborted = false;
+	fileOpStruct.hNameMappings = NULL;
+	fileOpStruct.lpszProgressTitle = NULL;
+
+	int res = SHFileOperationA(&fileOpStruct);
+
+	delete[] actionFolder;
+	return (res == 0);
+};
+
 bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 {
 	// if destination folder doesn't exist, create it.
@@ -279,29 +327,91 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 		assert(decompressStream != nullptr);
 
 		string file2extrait = entry->GetFullName();
-		printf("[+] Extracting file '%s'\n", file2extrait.c_str());
-
 		string extraitFullFilePath = unzipDestTo;
 		PathAppend(extraitFullFilePath, file2extrait);
 
-		auto pos = extraitFullFilePath.find_last_of('/');
-		if (pos == extraitFullFilePath.length() - 1) // it's a folder to created
+		ZipArchiveEntry::Attributes attr = entry->GetAttributes();
+
+		//auto pos = extraitFullFilePath.find_last_of('/');
+		//if (pos == extraitFullFilePath.length() - 1) // it's a folder to created
+		if (attr == ZipArchiveEntry::Attributes::Directory)
 		{
 			// if folder doesn't exist, create it.
 			if (!::PathFileExistsA(extraitFullFilePath.c_str()))
 			{
+				char msg[1024];
+				sprintf(msg, "[+] Create folder '%s'\n", file2extrait.c_str());
+				OutputDebugStringA(msg);
+
 				if (!::CreateDirectoryA(extraitFullFilePath.c_str(), NULL))
 					return false;
 			}
 		}
 		else
 		{
+			char msg[1024];
+			sprintf(msg, "[+] Extracting file '%s'\n", file2extrait.c_str());
+			OutputDebugStringA(msg);
+
 			std::ofstream destFile;
 			destFile.open(extraitFullFilePath, std::ios::binary | std::ios::trunc);
 
+			//
+			// We try to catch the wrong detection of folder entry from ZipLib here
+			//
 			if (!destFile.is_open())
 			{
-				throw std::runtime_error("cannot create destination file");
+				// file2extrait be separated into an array
+				vector<string> strArray = tokenizeString(file2extrait, '/');
+
+				// loop unzipDestTo + file2extraitVector[i] to create directory (by checking existing file length is 0, and removing existing file)
+				if (strArray.size() > 1)
+				{
+					for (size_t j = 0; j < strArray.size() - 1; ++j)
+					{
+						string folderFullFilePath = unzipDestTo;
+						PathAppend(folderFullFilePath, strArray[j]);
+
+						BOOL isCreateFolderOK = FALSE;
+						if (::PathFileExistsA(folderFullFilePath.c_str()))
+						{
+							// check if it is 0 length
+							struct _stat64 buf;
+							_stat64(folderFullFilePath.c_str(), &buf);
+
+							if (buf.st_size == 0)
+							{
+								// if 0 length remove it
+								deleteFileOrFolder(folderFullFilePath);
+							}
+							else
+							{
+								return false;
+							}
+
+							// create it
+							isCreateFolderOK = ::CreateDirectoryA(folderFullFilePath.c_str(), NULL);
+						}
+						else
+						{
+							// create it
+							isCreateFolderOK = ::CreateDirectoryA(folderFullFilePath.c_str(), NULL);
+						}
+
+						// check if directory creation failed
+						if (!isCreateFolderOK)
+							return false;
+
+					}
+					// copy again
+					std::ofstream destFile2;
+					destFile2.open(extraitFullFilePath, std::ios::binary | std::ios::trunc);
+
+					if (!destFile2.is_open())
+					{
+						return false;
+					}
+				}
 			}
 
 			utils::stream::copy(*decompressStream, destFile);
@@ -664,6 +774,7 @@ bool runInstaller(const string& app2runPath, const string& binWindowsClassName, 
 	return true;
 }
 
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 {
 	bool isSilentMode = false;
@@ -717,8 +828,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		}
 		zipOp.setCleanupOp(isCleanUp);
 		zipOp.setUnzipOp(isUnzip);
-
-		//decompress(params[0], params[1]);
 	}
 
 	GupExtraOptions extraOptions("gupOptions.xml");
@@ -727,40 +836,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 	if (zipOp.isReady2Go())
 	{
-		// Clean up firstly
-		if (zipOp.isCleanupReady())
+		// if -unzip is present, -clean will be ignored
+		if (!zipOp.isUnzipReady() && zipOp.isCleanupReady())
 		{
-			// else delete directly
-			auto len = zipOp.getDestFolder().length();
-			LPSTR actionFolder = new char[len + 2];
-			strcpy(actionFolder, zipOp.getDestFolder().c_str());
-			actionFolder[len] = 0;
-			actionFolder[len+1] = 0;
-
-			SHFILEOPSTRUCTA fileOpStruct = { 0 };
-			fileOpStruct.hwnd = NULL;
-			fileOpStruct.pFrom = actionFolder;
-			fileOpStruct.pTo = NULL;
-			fileOpStruct.wFunc = FO_DELETE;
-			fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT | FOF_ALLOWUNDO;
-			fileOpStruct.fAnyOperationsAborted = false;
-			fileOpStruct.hNameMappings = NULL;
-			fileOpStruct.lpszProgressTitle = NULL;
-
-			int res = SHFileOperationA(&fileOpStruct);
-			if (res != 0)
-			{
-				// problem
-			}
+			deleteFileOrFolder(zipOp.getDestFolder());
 		}
-
+		
 		if (zipOp.isUnzipReady())
 		{
 			std::string dlDest = std::getenv("TEMP");
 			dlDest += "\\";
 			dlDest += ::PathFindFileNameA(zipOp.getDownloadZipUrl().c_str());
 
-			char *ext = ::PathFindExtensionA(zipOp.getDownloadZipUrl().c_str());
+			char *ext = ::PathFindExtensionA(dlDest.c_str());
 			if (strcmp(ext, ".zip") != 0)
 				dlDest += ".zip";
 
@@ -771,25 +859,42 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 			if (dlStopped == "")
 				dlStopped = MSGID_DOWNLOADSTOPPED;
 
+
 			bool isSuccessful = downloadBinary(zipOp.getDownloadZipUrl(), dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
 			if (!isSuccessful)
 			{
-				if (zipOp.isCleanupReady())
-				{
-					//TODO move back the folder from temp
-				}
 				return -1;
 			}
+
+			// check if renamed folder exist, if it does, delete it
+			string backup4RestoreInCaseOfFailedPath = zipOp.getDestFolder() + ".backup4RestoreInCaseOfFailed";
+			if (::PathFileExistsA(backup4RestoreInCaseOfFailedPath.c_str()))
+				deleteFileOrFolder(backup4RestoreInCaseOfFailedPath);
+
+			// rename the folder with suffix ".backup4RestoreInCaseOfFailed"
+			::MoveFileA(zipOp.getDestFolder().c_str(), backup4RestoreInCaseOfFailedPath.c_str());
 
 			isSuccessful = decompress(dlDest, zipOp.getDestFolder());
 			if (!isSuccessful)
 			{
-				if (zipOp.isCleanupReady())
-				{
-					//TODO move back the folder from temp
-				}
+				string unzipFailed = nativeLang.getMessageString("MSGID_UNZIPFAILED");
+				if (unzipFailed == "")
+					unzipFailed = MSGID_UNZIPFAILED;
+
+				::MessageBoxA(NULL, unzipFailed.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_OK);
+
+				// Delete incomplete unzipped folder
+				deleteFileOrFolder(zipOp.getDestFolder());
+
+				// rename back the folder
+				::MoveFileA(backup4RestoreInCaseOfFailedPath.c_str(), zipOp.getDestFolder().c_str());
+
 				return -1;
 			}
+
+			// delete the folder with suffix ".backup4RestoreInCaseOfFailed"
+			deleteFileOrFolder(backup4RestoreInCaseOfFailedPath);
+
 		}
 
 		return 0;
