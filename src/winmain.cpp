@@ -60,7 +60,7 @@ const char MSGID_UPDATEAVAILABLE[] = "An update package is available, do you wan
 const char MSGID_DOWNLOADSTOPPED[] = "Download is stopped by user. Update is aborted.";
 const char MSGID_CLOSEAPP[] = " is opened.\rUpdater will close it in order to process the installation.\rContinue?";
 const char MSGID_ABORTORNOT[] = "Do you want to abort update download?";
-const char MSGID_UNZIPFAILED[] = "Unzip operation failed. It could be zip file is invalid.\nOld files are about to be restored.";
+const char MSGID_UNZIPFAILED[] = "Can't unzip:\nOperation not permitted or decompression failed";
 const char MSGID_HELP[] = "Usage :\r\
 \r\
 gup --help\r\

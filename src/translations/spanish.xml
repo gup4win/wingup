@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="Windows-1252" ?>
 <!--
     Copyright 2015 Adolfo Jayme Barrientos <fitojb@ubuntu.com>
 	
@@ -19,7 +20,6 @@
 <!-- This file is optional.
 Use this file to set your proxy settings if need.
 -->
-<?xml version="1.0" encoding="Windows-1252" ?>
 <GUP_NativeLangue name = "Español">
 	<PopupMessages>
 		<MSGID_NOUPDATE>No hay ninguna actualización disponible.</MSGID_NOUPDATE>

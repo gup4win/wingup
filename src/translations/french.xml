@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="Windows-1252" ?>
 <!--
     Copyright 2007 Don HO <don.h@free.fr>
 	
@@ -19,7 +20,6 @@
 <!-- This file is optional.
 Use this file to set your proxy settings if need.
 -->
-<?xml version="1.0" encoding="Windows-1252" ?>
 <GUP_NativeLangue name = "Français">
 	<PopupMessages>
 		<MSGID_NOUPDATE>La mise à jour n'est pas disponible.</MSGID_NOUPDATE>
@@ -27,5 +27,6 @@ Use this file to set your proxy settings if need.
 		<MSGID_DOWNLOADSTOPPED>Le téléchargement est interrompu. La mise à jour ne sera pas poursuivie.</MSGID_DOWNLOADSTOPPED>
 		<MSGID_CLOSEAPP> est ouvert. Il sera fermé afin de pouvoir poursuivre l'installation. Continue?</MSGID_CLOSEAPP>
 		<MSGID_ABORTORNOT>Etes-vous sûr d'interrompre le téléchargement?</MSGID_ABORTORNOT>
+		<MSGID_UNZIPFAILED>"Impossible de dézipper: l'opération n'est pas permise ou la décompression a échoué."</MSGID_UNZIPFAILED>
 	</PopupMessages>
 </GUP_NativeLangue>
