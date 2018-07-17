@@ -1,3 +1,8 @@
+WinGup (for Notepad++) v5.0.2 change:
+
+1. Turn on the silent mode as default (no binary change, only on gup.xml).
+
+
 WinGup (for Notepad++) v5.0.1 bug-fix:
 
 1. Fix unzip bug.
