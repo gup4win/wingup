@@ -217,17 +217,35 @@ static size_t ratio = 0;
 
 static size_t setProgress(HWND, double t, double d, double, double)
 {
-	while (stopDL)
-		::Sleep(1000);
-	size_t step = size_t(d * 100.0 / t - ratio);
-	ratio = size_t(d * 100.0 / t);
+	// Once downloading is finish (100%) close the progress bar dialog
+	// as there is no need to keep it opened because
+	// new dailog asking to close the app will appear (if specified classname in configuration)
+	static bool IsDialogClosed = false;
+	if (!IsDialogClosed)
+	{
+		while (stopDL)
+			::Sleep(1000);
+		size_t step = size_t(d * 100.0 / t - ratio);
 
-	SendMessage(hProgressBar, PBM_SETSTEP, (WPARAM)step, 0);
-	SendMessage(hProgressBar, PBM_STEPIT, 0, 0);
+		// Looks like sometime curl is not giving proper data, so workaround
+		// Issue has been reported for Notepad++ (#4666 and #4069)
+		size_t ratioTemp = size_t(d * 100.0 / t);
+		if (ratioTemp <= 100)
+			ratio = ratioTemp;
 
-	char percentage[128];
-	sprintf(percentage, "Downloading %s: %Iu %%", dlFileName.c_str(), ratio);
-	::SetWindowTextA(hProgressDlg, percentage);
+		SendMessage(hProgressBar, PBM_SETSTEP, (WPARAM)step, 0);
+		SendMessage(hProgressBar, PBM_STEPIT, 0, 0);
+
+		char percentage[128];
+		sprintf(percentage, "Downloading %s: %Iu %%", dlFileName.c_str(), ratio);
+		::SetWindowTextA(hProgressDlg, percentage);
+
+		if (ratio == 100)
+		{
+			SendMessage(hProgressDlg, WM_COMMAND, IDOK, 0);
+			IsDialogClosed = true;
+		}
+	}
 	return 0;
 };
 
