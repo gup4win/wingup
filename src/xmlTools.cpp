@@ -171,6 +171,36 @@ GupParameters::GupParameters(const char * xmlFileName)
 				_softwareName = uaVal;
 		}
 	}
+
+	TiXmlNode *softwareIconNode = root->FirstChildElement("SoftwareIcon");
+	if (softwareIconNode)
+	{
+		TiXmlNode *un = softwareIconNode->FirstChild();
+		if (un)
+		{
+			const char *uaVal = un->Value();
+			if (uaVal)
+				_softwareIcon = uaVal;
+		}
+	}
+
+	TiXmlNode *installerParam = root->FirstChildElement("InstallerParam");
+	if (installerParam)
+	{
+		const char *valStr = NULL;
+
+		valStr = (installerParam->ToElement())->Attribute("normalInstall");
+		if (valStr)
+		{
+			_normalInstallParam = valStr;
+		}
+
+		valStr = (installerParam->ToElement())->Attribute("silentInstall");
+		if (valStr)
+		{
+			_silentInstallParam = valStr;
+		}
+	}
 }
 
 GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _updateLocation("")
