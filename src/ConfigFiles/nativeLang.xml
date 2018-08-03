@@ -27,5 +27,6 @@
 		<MSGID_DOWNLOADSTOPPED>Download is stopped by user. Update is aborted.</MSGID_DOWNLOADSTOPPED>
 		<MSGID_CLOSEAPP> is opened.\rUpdater will close it in order to process the installation.\rContinue?</MSGID_CLOSEAPP>
 		<MSGID_ABORTORNOT>Do you want to abort update download?</MSGID_ABORTORNOT>
+		<MSGID_UPDATEINBACKGROUND>"Update in background. (Updater will be running silently.)"</MSGID_UPDATEINBACKGROUND>
 	</PopupMessages>
 </GUP_NativeLangue>

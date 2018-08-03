@@ -38,6 +38,9 @@ public:
 	const std::string & getClassName() const {return _className2Close;};
 	const std::string & getMessageBoxTitle() const {return _messageBoxTitle;};
 	const std::string & getSoftwareName() const {return _softwareName;};
+	const std::string & getSoftwareIcon() const { return _softwareIcon; };
+	const std::string & getNormalInstallerParam() const { return _normalInstallParam; };
+	const std::string & getSilentInstallerParam() const { return _silentInstallParam; };
 	int get3rdButtonCmd() const {return _3rdButton_wm_cmd;};
 	int get3rdButtonWparam() const {return _3rdButton_wParam;};
 	int get3rdButtonLparam() const {return _3rdButton_lParam;};
@@ -59,6 +62,9 @@ private:
 	std::string _className2Close;
 	std::string _messageBoxTitle;
 	std::string _softwareName;
+	std::string _softwareIcon;
+	std::string _normalInstallParam;
+	std::string _silentInstallParam;
 	bool _isMessageBoxModal = false;
 	int _3rdButton_wm_cmd = 0;
 	int _3rdButton_wParam = 0;
