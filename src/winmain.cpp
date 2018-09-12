@@ -174,51 +174,6 @@ bool getParamVal(char c, ParamVector & params, string & value)
 	return false;
 }
 
-class ZipOperation
-{
-public:
-	void setUnzipOp(bool isUnzip) {
-		if (isUnzip) _op |= unzipOp;
-		else _op ^= unzipOp;	
-	};
-	
-	void setCleanupOp(bool isClean) {
-		if (isClean) _op |= cleanOp;
-		else _op ^= cleanOp;
-	};
-
-	void setDestFolder(const string& destFolder) {
-		_destFolder = destFolder;
-	}
-	string getDestFolder() const { return _destFolder; }
-
-	void setDownloadZipUrl(const string& downloadZipUrl) {
-		_downloadZipUrl = downloadZipUrl;
-	}
-	string getDownloadZipUrl() const { return _downloadZipUrl; }
-
-	bool isUnzipReady() const {
-		return (_op & unzipOp) && !_downloadZipUrl.empty() && !_destFolder.empty();
-	};
-
-	bool isCleanupReady() const {
-		return (_op & cleanOp) && !_destFolder.empty();
-	};
-
-	bool isReady2Go() const {
-		return isUnzipReady() || isCleanupReady();
-	}
-
-private:
-	const unsigned char unzipOp = 1;
-	const unsigned char cleanOp = 2;
-	unsigned char _op = 0;
-
-	string _destFolder;
-	string _downloadZipUrl;
-};
-
-
 string PathAppend(string& strDest, const string& str2append)
 {
 	if (strDest.empty() && str2append.empty()) // "" + ""
@@ -774,7 +729,18 @@ bool runInstaller(const string& app2runPath, const string& binWindowsClassName, 
 	return true;
 }
 
+/*
+uninstall: tell user to restart Notepad++ - Gup.exe remove all - clean in batch - relaunch Notepad++
+gup.exe -clean "appPath2Launch" "dest_folder" "fold1" "a fold2" "fold3"
+gup.exe -clean "c:\npp\notepad++.exe" "c:\temp\" "toto" "ti ti" "tata"
 
+update:    tell user to restart Notepad++ - Gup.exe download - remove all in directory - unzip/clean in batch - relaunch Notepad++
+gup.exe -unzip -clean  "appPath2Launch" "dest_folder" "toto http://toto" "titi http://titi" "tata http://tata"
+gup.exe -unzip -clean "c:\npp\notepad++.exe" c:\temp\ "toto http://toto" "ti et ti http://titi" "tata http://tata"
+
+Install:   GUp.exe download - create directory - unzip: one by one, no relaunch
+gup.exe -unzipTo c:\donho\notepad++\plugins "https://github.com/npp-plugins/mimetools/releases/download/v2.1/mimetools.v2.1.zip"
+*/
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 {
 	bool isSilentMode = false;
@@ -782,7 +748,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 	string version;
 	string customParam;
-	ZipOperation zipOp;
 
 	ParamVector params;
 	parseCommandLine(lpszCmdLine, params);
@@ -802,104 +767,151 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		return 0;
 	}
 
-	if (isCleanUp || isUnzip)
-	{
-		// retrieve the dir to clean up and url to download
-		size_t nbParam = params.size();
-
-		if (nbParam == 1) // only clean
-		{
-			if (isUnzip)
-				return -1;
-
-			zipOp.setDestFolder(params[0]);
-		}
-		else if (nbParam == 2) // must be unzipTo
-		{
-			if (!isUnzip)
-				return -1;
-
-			zipOp.setDestFolder(params[0]);
-			zipOp.setDownloadZipUrl(params[1]);
-		}
-		else
-		{
-			return -1;
-		}
-		zipOp.setCleanupOp(isCleanUp);
-		zipOp.setUnzipOp(isUnzip);
-	}
-
 	GupExtraOptions extraOptions("gupOptions.xml");
 	GupNativeLang nativeLang("nativeLang.xml");
 	GupParameters gupParams("gup.xml");
 
-	if (zipOp.isReady2Go())
+	//
+	// Plugins Updater
+	//
+	size_t nbParam = params.size();
+	if (isCleanUp && !isUnzip) // remove only
 	{
-		// if -unzip is present, -clean will be ignored
-		if (!zipOp.isUnzipReady() && zipOp.isCleanupReady())
+		if (nbParam < 3)
+			return -1;
+
+		string prog2Launch = params[0];
+		char prog2LaunchDir[MAX_PATH];
+		strcpy(prog2LaunchDir, prog2Launch.c_str());
+		::PathRemoveFileSpecA(prog2LaunchDir);
+		string destPathRoot = params[1];
+
+		// clean
+		for (size_t i = 2; i < nbParam; ++i)
 		{
-			deleteFileOrFolder(zipOp.getDestFolder());
-		}
-		
-		if (zipOp.isUnzipReady())
-		{
-			std::string dlDest = std::getenv("TEMP");
-			dlDest += "\\";
-			dlDest += ::PathFindFileNameA(zipOp.getDownloadZipUrl().c_str());
-
-			char *ext = ::PathFindExtensionA(dlDest.c_str());
-			if (strcmp(ext, ".zip") != 0)
-				dlDest += ".zip";
-
-			dlFileName = ::PathFindFileNameA(zipOp.getDownloadZipUrl().c_str());
-
-
-			string dlStopped = nativeLang.getMessageString("MSGID_DOWNLOADSTOPPED");
-			if (dlStopped == "")
-				dlStopped = MSGID_DOWNLOADSTOPPED;
-
-
-			bool isSuccessful = downloadBinary(zipOp.getDownloadZipUrl(), dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
-			if (!isSuccessful)
-			{
-				return -1;
-			}
-
-			// check if renamed folder exist, if it does, delete it
-			string backup4RestoreInCaseOfFailedPath = zipOp.getDestFolder() + ".backup4RestoreInCaseOfFailed";
-			if (::PathFileExistsA(backup4RestoreInCaseOfFailedPath.c_str()))
-				deleteFileOrFolder(backup4RestoreInCaseOfFailedPath);
-
-			// rename the folder with suffix ".backup4RestoreInCaseOfFailed"
-			::MoveFileA(zipOp.getDestFolder().c_str(), backup4RestoreInCaseOfFailedPath.c_str());
-
-			isSuccessful = decompress(dlDest, zipOp.getDestFolder());
-			if (!isSuccessful)
-			{
-				string unzipFailed = nativeLang.getMessageString("MSGID_UNZIPFAILED");
-				if (unzipFailed == "")
-					unzipFailed = MSGID_UNZIPFAILED;
-
-				::MessageBoxA(NULL, unzipFailed.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_OK);
-
-				// Delete incomplete unzipped folder
-				deleteFileOrFolder(zipOp.getDestFolder());
-
-				// rename back the folder
-				::MoveFileA(backup4RestoreInCaseOfFailedPath.c_str(), zipOp.getDestFolder().c_str());
-
-				return -1;
-			}
-
-			// delete the folder with suffix ".backup4RestoreInCaseOfFailed"
-			deleteFileOrFolder(backup4RestoreInCaseOfFailedPath);
-
+			string destPath = destPathRoot;
+			::PathAppend(destPath, params[i]);
+			deleteFileOrFolder(destPath);
 		}
 
+		::ShellExecuteA(NULL, "open", prog2Launch.c_str(), "", prog2LaunchDir, SW_SHOWNORMAL);
+		return 0;
+	}
+	
+	
+	if (isCleanUp && isUnzip) // update
+	{
+		if (nbParam < 3)
+			return -1;
+
+		string prog2Launch = params[0];
+		char prog2LaunchDir[MAX_PATH];
+		strcpy(prog2LaunchDir, prog2Launch.c_str());
+		::PathRemoveFileSpecA(prog2LaunchDir);
+		string destPathRoot = params[1];
+
+		for (size_t i = 2; i < nbParam; ++i)
+		{
+			string destPath = destPathRoot;
+
+			// break down param in dest folder name and download url
+			auto pos = params[i].find_last_of(" ");
+			if (pos != string::npos && pos > 0)
+			{
+				string folder = params[i].substr(0, pos - 1);
+				string dlUrl = params[i].substr(pos, params[i].length() - 1);
+				::PathAppend(destPath, folder);
+
+				// clean
+				deleteFileOrFolder(destPath);
+
+				// install
+				std::string dlDest = std::getenv("TEMP");
+				dlDest += "\\";
+				dlDest += ::PathFindFileNameA(dlUrl.c_str());
+
+				char *ext = ::PathFindExtensionA(dlDest.c_str());
+				if (strcmp(ext, ".zip") != 0)
+					dlDest += ".zip";
+
+				dlFileName = ::PathFindFileNameA(dlUrl.c_str());
+
+				string dlStopped = nativeLang.getMessageString("MSGID_DOWNLOADSTOPPED");
+				if (dlStopped == "")
+					dlStopped = MSGID_DOWNLOADSTOPPED;
+
+				bool isSuccessful = downloadBinary(dlUrl, dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
+				if (isSuccessful)
+				{
+					isSuccessful = decompress(dlDest, destPathRoot);
+					if (!isSuccessful)
+					{
+						string unzipFailed = nativeLang.getMessageString("MSGID_UNZIPFAILED");
+						if (unzipFailed == "")
+							unzipFailed = MSGID_UNZIPFAILED;
+
+						::MessageBoxA(NULL, unzipFailed.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_OK);
+
+						// Delete incomplete unzipped folder
+						deleteFileOrFolder(destPathRoot);
+					}
+				}
+			}
+		}
+
+		::ShellExecuteA(NULL, "open", prog2Launch.c_str(), "", prog2LaunchDir, SW_SHOWNORMAL);
 		return 0;
 	}
 
+	if (!isCleanUp && isUnzip) // install
+	{
+		if (nbParam != 2)
+			return -1;
+
+		string downloadZipUrl = params[1];
+		string destRoot = params[0];
+
+		std::string dlDest = std::getenv("TEMP");
+		dlDest += "\\";
+		dlDest += ::PathFindFileNameA(downloadZipUrl.c_str());
+
+		char *ext = ::PathFindExtensionA(dlDest.c_str());
+		if (strcmp(ext, ".zip") != 0)
+			dlDest += ".zip";
+
+		dlFileName = ::PathFindFileNameA(downloadZipUrl.c_str());
+
+		string dlStopped = nativeLang.getMessageString("MSGID_DOWNLOADSTOPPED");
+		if (dlStopped == "")
+			dlStopped = MSGID_DOWNLOADSTOPPED;
+
+		bool isSuccessful = downloadBinary(downloadZipUrl, dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
+		if (!isSuccessful)
+		{
+			return -1;
+		}
+
+		isSuccessful = decompress(dlDest, destRoot);
+		if (!isSuccessful)
+		{
+			string unzipFailed = nativeLang.getMessageString("MSGID_UNZIPFAILED");
+			if (unzipFailed == "")
+				unzipFailed = MSGID_UNZIPFAILED;
+
+			::MessageBoxA(NULL, unzipFailed.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_OK);
+
+			// Delete incomplete unzipped folder
+			deleteFileOrFolder(destRoot);
+
+			return -1;
+		}
+		return 0;
+	}
+
+
+	//
+	// Notepad++ Updater
+	//
 	hInst = hInstance;
 	try {
 		if (launchSettingsDlg)
