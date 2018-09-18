@@ -795,6 +795,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		}
 
 		::ShellExecuteA(NULL, "open", prog2Launch.c_str(), "", prog2LaunchDir, SW_SHOWNORMAL);
+
 		return 0;
 	}
 	
@@ -818,8 +819,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 			auto pos = params[i].find_last_of(" ");
 			if (pos != string::npos && pos > 0)
 			{
-				string folder = params[i].substr(0, pos - 1);
-				string dlUrl = params[i].substr(pos, params[i].length() - 1);
+				string folder = params[i].substr(0, pos);
+				string dlUrl = params[i].substr(pos + 1, params[i].length() - 1);
 				::PathAppend(destPath, folder);
 
 				// clean
