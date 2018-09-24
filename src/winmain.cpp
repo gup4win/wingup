@@ -302,7 +302,7 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 					return false;
 			}
 		}
-		else
+		else // it's a file
 		{
 			char msg[1024];
 			sprintf(msg, "[+] Extracting file '%s'\n", file2extrait.c_str());
@@ -322,30 +322,26 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 				// loop unzipDestTo + file2extraitVector[i] to create directory (by checking existing file length is 0, and removing existing file)
 				if (strArray.size() > 1)
 				{
-					for (size_t j = 0; j < strArray.size() - 1; ++j)
+					string folderFullFilePath = unzipDestTo;
+					for (int j = 0; j < int(strArray.size()) - 1; ++j) // loop on only directory, not on file (which is the last element)
 					{
-						string folderFullFilePath = unzipDestTo;
 						PathAppend(folderFullFilePath, strArray[j]);
 
 						BOOL isCreateFolderOK = FALSE;
 						if (::PathFileExistsA(folderFullFilePath.c_str()))
 						{
-							// check if it is 0 length
-							struct _stat64 buf;
-							_stat64(folderFullFilePath.c_str(), &buf);
-
-							if (buf.st_size == 0)
+							if (!::PathIsDirectoryA(folderFullFilePath.c_str()))
 							{
-								// if 0 length remove it
+								// if it's a file, remove it
 								deleteFileOrFolder(folderFullFilePath);
+								
+								// create it
+								isCreateFolderOK = ::CreateDirectoryA(folderFullFilePath.c_str(), NULL);
 							}
-							else
+							else //perfect
 							{
-								return false;
+								isCreateFolderOK = TRUE;
 							}
-
-							// create it
-							isCreateFolderOK = ::CreateDirectoryA(folderFullFilePath.c_str(), NULL);
 						}
 						else
 						{
@@ -356,8 +352,8 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 						// check if directory creation failed
 						if (!isCreateFolderOK)
 							return false;
-
 					}
+
 					// copy again
 					std::ofstream destFile2;
 					destFile2.open(extraitFullFilePath, std::ios::binary | std::ios::trunc);
@@ -729,6 +725,24 @@ bool runInstaller(const string& app2runPath, const string& binWindowsClassName, 
 	return true;
 }
 
+void writeLog(const char *logFileName, const char *logSuffix, const char *log2write)
+{
+	FILE *f = fopen(logFileName, "a+");
+	string log = logSuffix;
+	log += log2write;
+	fwrite(log.c_str(), sizeof(log.c_str()[0]), log.length(), f);
+	fputc('\n', f);
+	fflush(f);
+	fclose(f);
+};
+
+#ifdef _DEBUG
+#define WRITE_LOG(fn, suffix, log) writeLog(fn, suffix, log);
+#else
+#define WRITE_LOG(fn, suffix, log)
+#endif
+
+
 /*
 uninstall: tell user to restart Notepad++ - Gup.exe remove all - clean in batch - relaunch Notepad++
 gup.exe -clean "appPath2Launch" "dest_folder" "fold1" "a fold2" "fold3"
@@ -767,6 +781,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		return 0;
 	}
 
+	WRITE_LOG("c:\\tmp\\winup.log", "lpszCmdLine: ", lpszCmdLine);
+	
 	GupExtraOptions extraOptions("gupOptions.xml");
 	GupNativeLang nativeLang("nativeLang.xml");
 	GupParameters gupParams("gup.xml");
@@ -778,8 +794,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	if (isCleanUp && !isUnzip) // remove only
 	{
 		if (nbParam < 3)
+		{
+			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (isCleanUp && !isUnzip) // remove only: ", "nbParam < 3");
 			return -1;
-
+		}
 		string prog2Launch = params[0];
 		char prog2LaunchDir[MAX_PATH];
 		strcpy(prog2LaunchDir, prog2Launch.c_str());
@@ -803,8 +821,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	if (isCleanUp && isUnzip) // update
 	{
 		if (nbParam < 3)
+		{
+			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (isCleanUp && isUnzip) // update: ", "nbParam < 3");
 			return -1;
-
+		}
 		string prog2Launch = params[0];
 		char prog2LaunchDir[MAX_PATH];
 		strcpy(prog2LaunchDir, prog2Launch.c_str());
@@ -867,7 +887,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	if (!isCleanUp && isUnzip) // install
 	{
 		if (nbParam != 2)
+		{
+			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (!isCleanUp && isUnzip) // install: ", "nbParam != 2");
 			return -1;
+		}
 
 		string downloadZipUrl = params[1];
 		string destRoot = params[0];
@@ -889,6 +912,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		bool isSuccessful = downloadBinary(downloadZipUrl, dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
 		if (!isSuccessful)
 		{
+			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (!isCleanUp && isUnzip) // install: ", "downloadBinary func failed.");
 			return -1;
 		}
 
@@ -904,6 +928,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 			// Delete incomplete unzipped folder
 			deleteFileOrFolder(destRoot);
 
+			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (!isCleanUp && isUnzip) // install: ", "decompress func failed.");
 			return -1;
 		}
 		return 0;
@@ -951,8 +976,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		bool getUpdateInfoSuccessful = getUpdateInfo(updateInfo, gupParams, extraOptions, customParam, version);
 
 		if (!getUpdateInfoSuccessful)
+		{
+			WRITE_LOG("c:\\tmp\\winup.log", "return -1 in Npp Updater part: ", "getUpdateInfo func failed.");
 			return -1;
-		
+		}
 
 		GupDownloadInfo gupDlInfo(updateInfo.c_str());
 
@@ -1030,8 +1057,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		bool dlSuccessful = downloadBinary(gupDlInfo.getDownloadLocation(), dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), isSilentMode, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
 
 		if (!dlSuccessful)
+		{
+			WRITE_LOG("c:\\tmp\\winup.log", "return -1 in Npp Updater part: ", "downloadBinary func failed.");
 			return -1;
-
+		}
 
 		//
 		// Run executable bin
@@ -1053,6 +1082,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		if (pFile != NULL)
 			fclose(pFile);
 
+		WRITE_LOG("c:\\tmp\\winup.log", "return -1 in Npp Updater part, exception: ", ex.what());
 		return -1;
 	}
 	catch (...)
@@ -1063,6 +1093,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		if (pFile != NULL)
 			fclose(pFile);
 
+		WRITE_LOG("c:\\tmp\\winup.log", "return -1 in Npp Updater part, exception: ", "Unknown Exception");
 		return -1;
 	}
 }
