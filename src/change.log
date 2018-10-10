@@ -1,14 +1,5 @@
-WinGup (for Notepad++) v5.0.2 change:
+WinGup (for Notepad++) v5.0.3 change:
 
-1. Turn on the silent mode as default (no binary change, only on gup.xml).
-
-
-WinGup (for Notepad++) v5.0.1 bug-fix:
-
-1. Fix unzip bug.
-2. Enhance error management in case of problem of unzip.
-
-
-WinGup (for Notepad++) v5 new enhancement:
-
-1.  Add decompression and deleting capacity (2 new flags: -unzipTo -clean).
+1.  Fix an unzip bug.
+2.  Fix a parser argument bug.
+3.  Change logic of plugins removal/update/installation.
