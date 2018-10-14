@@ -171,6 +171,24 @@ GupParameters::GupParameters(const char * xmlFileName)
 				_softwareName = uaVal;
 		}
 	}
+
+	TiXmlNode *installerParam = root->FirstChildElement("InstallerParam");
+	if (installerParam)
+	{
+		const char *valStr = NULL;
+
+		valStr = (installerParam->ToElement())->Attribute("normalInstall");
+		if (valStr)
+		{
+			_installParamNormal = valStr;
+		}
+
+		valStr = (installerParam->ToElement())->Attribute("silentInstall");
+		if (valStr)
+		{
+			_installParamSilent = valStr;
+		}
+	}
 }
 
 GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _updateLocation("")
