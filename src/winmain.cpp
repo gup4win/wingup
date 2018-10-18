@@ -30,6 +30,7 @@
 using namespace std;
 
 HINSTANCE hInst;
+HHOOK g_hMsgBoxHook;
 static HWND hProgressDlg;
 static HWND hProgressBar;
 static bool doAbort = false;
@@ -40,6 +41,7 @@ static string proxySrv = "0.0.0.0";
 static long proxyPort  = 0;
 static string winGupUserAgent = "WinGup/";
 static string dlFileName = "";
+static string appIconFile = "";
 
 const char FLAG_OPTIONS[] = "-options";
 const char FLAG_VERBOSE[] = "-verbose";
@@ -68,6 +70,52 @@ gup [-verbose] [-vVERSION_VALUE] [-pCUSTOM_PARAM]\r\
     -verbose : Show error/warning message if any.";
 
 std::string thirdDoUpdateDlgButtonLabel;
+
+class CUXHelper
+{
+public:
+	CUXHelper()
+	{
+		g_hMsgBoxHook = SetWindowsHookEx(WH_CALLWNDPROC, CallWndProc, NULL, GetCurrentThreadId());
+	}
+
+	~CUXHelper()
+	{
+		UnhookWindowsHookEx(g_hMsgBoxHook);
+	}
+
+	static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
+	{
+		if (nCode == HC_ACTION)
+		{
+			CWPSTRUCT* pcwp = (CWPSTRUCT*)lParam;
+
+			if (pcwp->message == WM_INITDIALOG)
+			{
+				setIcon(pcwp->hwnd, appIconFile);
+			}
+		}
+
+		return CallNextHookEx(g_hMsgBoxHook, nCode, wParam, lParam);
+	}
+
+	static void setIcon(HWND hwnd, string iconFile)
+	{
+		if (!iconFile.empty())
+		{
+			HICON hIcon = nullptr, hIconSm = nullptr;
+
+			hIcon = reinterpret_cast<HICON>(LoadImageA(NULL, iconFile.c_str(), IMAGE_ICON, 32, 32, LR_LOADFROMFILE));
+			hIconSm = reinterpret_cast<HICON>(LoadImageA(NULL, iconFile.c_str(), IMAGE_ICON, 16, 16, LR_LOADFROMFILE));
+			if (hIcon && hIconSm)
+			{
+				SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+				SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIconSm);
+			}
+		}
+	}
+};
+CUXHelper uxHelper;
 
 static bool isInList(const char *token2Find, char *list2Clean) {
 	char word[1024];
@@ -266,6 +314,7 @@ LRESULT CALLBACK progressBarDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARA
 										  hWndDlg, NULL, hInst, NULL);
 			SendMessage(hProgressBar, PBM_SETRANGE, 0, MAKELPARAM(0, 100)); 
 			SendMessage(hProgressBar, PBM_SETSTEP, 1, 0);
+			CUXHelper::setIcon(hProgressDlg, appIconFile);
 			goToScreenCenter(hWndDlg);
 			return TRUE; 
 
@@ -557,6 +606,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		customParam = getParamVal('p', lpszCmdLine);
 	}
 
+	// Object (gupParams) is moved here because we need app icon form configuration file
+	GupParameters gupParams("gup.xml");
+	appIconFile = gupParams.getSoftwareIcon();
+
 	if (isHelp)
 	{
 		::MessageBoxA(NULL, MSGID_HELP, "GUP Command Argument Help", MB_OK);
@@ -565,8 +618,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 	GupExtraOptions extraOptions("gupOptions.xml");
 	GupNativeLang nativeLang("nativeLang.xml");
-	GupParameters gupParams("gup.xml");
-	
+
 	hInst = hInstance;
 	try {
 		if (launchSettingsDlg)
