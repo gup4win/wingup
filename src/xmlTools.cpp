@@ -171,6 +171,18 @@ GupParameters::GupParameters(const char * xmlFileName)
 				_softwareName = uaVal;
 		}
 	}
+
+	TiXmlNode *softwareIconNode = root->FirstChildElement("SoftwareIcon");
+	if (softwareIconNode)
+	{
+		TiXmlNode *un = softwareIconNode->FirstChild();
+		if (un)
+		{
+			const char *uaVal = un->Value();
+			if (uaVal)
+				_softwareIcon = uaVal;
+		}
+	}
 }
 
 GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _updateLocation("")

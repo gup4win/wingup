@@ -24,12 +24,14 @@
 #include "resource.h"
 #include <shlwapi.h>
 #include "xmlTools.h"
+#include <Uxtheme.h>
 #define CURL_STATICLIB
 #include "../curl/include/curl/curl.h"
 
 using namespace std;
 
 HINSTANCE hInst;
+HHOOK g_hMsgBoxHook;
 static HWND hProgressDlg;
 static HWND hProgressBar;
 static bool doAbort = false;
@@ -40,6 +42,7 @@ static string proxySrv = "0.0.0.0";
 static long proxyPort  = 0;
 static string winGupUserAgent = "WinGup/";
 static string dlFileName = "";
+static string appIconFile = "";
 
 const char FLAG_OPTIONS[] = "-options";
 const char FLAG_VERBOSE[] = "-verbose";
@@ -68,6 +71,98 @@ gup [-verbose] [-vVERSION_VALUE] [-pCUSTOM_PARAM]\r\
     -verbose : Show error/warning message if any.";
 
 std::string thirdDoUpdateDlgButtonLabel;
+
+class CUXHelper
+{
+public:
+	CUXHelper()
+	{
+		_hUXTheme = ::LoadLibrary(TEXT("uxtheme.dll"));
+		if (_hUXTheme)
+			_enableThemeDialogTextureFuncAddr = reinterpret_cast<ETDTProc>(::GetProcAddress(_hUXTheme, "EnableThemeDialogTexture"));
+
+		g_hMsgBoxHook = SetWindowsHookEx(WH_CALLWNDPROC, CallWndProc, NULL, GetCurrentThreadId());
+	}
+
+	~CUXHelper()
+	{
+		if (_hUXTheme)
+			::FreeLibrary(_hUXTheme);
+
+		UnhookWindowsHookEx(g_hMsgBoxHook);
+	}
+
+	void goToScreenCenter(HWND hwnd)
+	{
+		RECT screenRc;
+		::SystemParametersInfo(SPI_GETWORKAREA, 0, &screenRc, 0);
+
+		POINT center;
+		center.x = screenRc.left + (screenRc.right - screenRc.left) / 2;
+		center.y = screenRc.top + (screenRc.bottom - screenRc.top) / 2;
+
+		RECT rc;
+		::GetWindowRect(hwnd, &rc);
+		int x = center.x - (rc.right - rc.left) / 2;
+		int y = center.y - (rc.bottom - rc.top) / 2;
+
+		::SetWindowPos(hwnd, HWND_TOP, x, y, rc.right - rc.left, rc.bottom - rc.top, SWP_SHOWWINDOW);
+	}
+
+	void enableDlgTheme(HWND hwnd)
+	{
+		if (_enableThemeDialogTextureFuncAddr)
+		{
+			_enableThemeDialogTextureFuncAddr(hwnd, ETDT_ENABLETAB);
+			redraw(hwnd);
+		}
+	}
+
+	static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
+	{
+		if (nCode == HC_ACTION)
+		{
+			CWPSTRUCT* pcwp = (CWPSTRUCT*)lParam;
+
+			if (pcwp->message == WM_INITDIALOG)
+			{
+				setIcon(pcwp->hwnd, appIconFile);
+			}
+		}
+
+		return CallNextHookEx(g_hMsgBoxHook, nCode, wParam, lParam);
+	}
+
+	static void setIcon(HWND hwnd, string iconFile)
+	{
+		if (!iconFile.empty())
+		{
+			HICON hIcon = nullptr, hIconSm = nullptr;
+
+			hIcon = reinterpret_cast<HICON>(LoadImageA(NULL, iconFile.c_str(), IMAGE_ICON, 32, 32, LR_LOADFROMFILE));
+			hIconSm = reinterpret_cast<HICON>(LoadImageA(NULL, iconFile.c_str(), IMAGE_ICON, 16, 16, LR_LOADFROMFILE));
+			if (hIcon && hIconSm)
+			{
+				SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+				SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIconSm);
+			}
+		}
+	}
+
+private:
+	void redraw(HWND hwnd, bool forceUpdate = false) const
+	{
+		::InvalidateRect(hwnd, nullptr, TRUE);
+		if (forceUpdate)
+			::UpdateWindow(hwnd);
+	}
+
+private:
+	HMODULE _hUXTheme = nullptr;
+	using ETDTProc = HRESULT(WINAPI *) (HWND, DWORD);
+	ETDTProc _enableThemeDialogTextureFuncAddr = nullptr;
+};
+CUXHelper uxHelper;
 
 static bool isInList(const char *token2Find, char *list2Clean) {
 	char word[1024];
@@ -169,24 +264,6 @@ static string getParamVal(char c, char *list2Clean) {
 	return "";
 };
 
-static void goToScreenCenter(HWND hwnd)
-{
-    RECT screenRc;
-	::SystemParametersInfo(SPI_GETWORKAREA, 0, &screenRc, 0);
-
-    POINT center;
-	center.x = screenRc.left + (screenRc.right - screenRc.left) / 2;
-    center.y = screenRc.top + (screenRc.bottom - screenRc.top)/2;
-
-	RECT rc;
-	::GetWindowRect(hwnd, &rc);
-	int x = center.x - (rc.right - rc.left)/2;
-	int y = center.y - (rc.bottom - rc.top)/2;
-
-	::SetWindowPos(hwnd, HWND_TOP, x, y, rc.right - rc.left, rc.bottom - rc.top, SWP_SHOWWINDOW);
-};
-
-
 // This is the getUpdateInfo call back function used by curl
 static size_t getUpdateInfoCallback(char *data, size_t size, size_t nmemb, std::string *updateInfo)
 {
@@ -248,7 +325,9 @@ LRESULT CALLBACK progressBarDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARA
 										  hWndDlg, NULL, hInst, NULL);
 			SendMessage(hProgressBar, PBM_SETRANGE, 0, MAKELPARAM(0, 100)); 
 			SendMessage(hProgressBar, PBM_SETSTEP, 1, 0);
-			goToScreenCenter(hWndDlg);
+			CUXHelper::setIcon(hProgressDlg, appIconFile);
+			uxHelper.goToScreenCenter(hWndDlg);
+			uxHelper.enableDlgTheme(hWndDlg);
 			return TRUE; 
 
 		case WM_COMMAND:
@@ -286,7 +365,8 @@ LRESULT CALLBACK yesNoNeverDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LP
 			if (thirdDoUpdateDlgButtonLabel != "")
 				::SetDlgItemTextA(hWndDlg, IDCANCEL, thirdDoUpdateDlgButtonLabel.c_str());
 
-			goToScreenCenter(hWndDlg);
+			uxHelper.goToScreenCenter(hWndDlg);
+			uxHelper.enableDlgTheme(hWndDlg);
 			return TRUE;
 		}
 
@@ -321,7 +401,8 @@ LRESULT CALLBACK proxyDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM)
 		case WM_INITDIALOG:
 			::SetDlgItemTextA(hWndDlg, IDC_PROXYSERVER_EDIT, proxySrv.c_str());
 			::SetDlgItemInt(hWndDlg, IDC_PORT_EDIT, proxyPort, FALSE);
-			goToScreenCenter(hWndDlg);
+			uxHelper.goToScreenCenter(hWndDlg);
+			uxHelper.enableDlgTheme(hWndDlg);
 			return TRUE; 
 
 		case WM_COMMAND:
@@ -539,6 +620,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		customParam = getParamVal('p', lpszCmdLine);
 	}
 
+	// Object (gupParams) is moved here because we need app icon form configuration file
+	GupParameters gupParams("gup.xml");
+	appIconFile = gupParams.getSoftwareIcon();
+
 	if (isHelp)
 	{
 		::MessageBoxA(NULL, MSGID_HELP, "GUP Command Argument Help", MB_OK);
@@ -547,8 +632,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 	GupExtraOptions extraOptions("gupOptions.xml");
 	GupNativeLang nativeLang("nativeLang.xml");
-	GupParameters gupParams("gup.xml");
-	
+
 	hInst = hInstance;
 	try {
 		if (launchSettingsDlg)
