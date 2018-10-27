@@ -29,6 +29,7 @@
 #include "resource.h"
 #include <shlwapi.h>
 #include "xmlTools.h"
+#include "sha-256.h"
 
 #define CURL_STATICLIB
 #include "../curl/include/curl/curl.h"
@@ -253,6 +254,28 @@ bool deleteFileOrFolder(const string& f2delete)
 
 	delete[] actionFolder;
 	return (res == 0);
+};
+
+std::string getFileContent(const char *file2read)
+{
+	if (!::PathFileExistsA(file2read))
+		return "";
+
+	const size_t blockSize = 1024;
+	char data[blockSize];
+	std::string wholeFileContent = "";
+	FILE *fp = fopen(file2read, "rb");
+
+	size_t lenFile = 0;
+	do
+	{
+		lenFile = fread(data, 1, blockSize, fp);
+		if (lenFile <= 0) break;
+		wholeFileContent.append(data, lenFile);
+	} while (lenFile > 0);
+
+	fclose(fp);
+	return wholeFileContent;
 };
 
 bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
@@ -558,7 +581,7 @@ static DWORD WINAPI launchProgressBar(void *)
 	return 0;
 }
 
-bool downloadBinary(const string& urlFrom, const string& destTo, pair<string, int> proxyServerInfo, bool isSilentMode, const pair<string, string>& stoppedMessage)
+bool downloadBinary(const string& urlFrom, const string& destTo, const string& sha2HashToCheck, pair<string, int> proxyServerInfo, bool isSilentMode, const pair<string, string>& stoppedMessage)
 {
 	FILE* pFile = fopen(destTo.c_str(), "wb");
 
@@ -604,9 +627,51 @@ bool downloadBinary(const string& urlFrom, const string& destTo, pair<string, in
 		doAbort = false;
 		return false;
 	}
-
 	fflush(pFile);
 	fclose(pFile);
+
+	//
+	// Check the hash if need
+	//
+	bool ok = true;
+	if (!sha2HashToCheck.empty())
+	{
+		char sha2hashStr[65] = { '\0' };
+		std::string content = getFileContent(destTo.c_str());
+		if (content.empty())
+		{
+			// Remove installed plugin
+			MessageBoxA(NULL, "The plugin package is not found.", "Plugin cannot be found", MB_OK | MB_APPLMODAL);
+			ok = false;
+		}
+		else
+		{
+			uint8_t sha2hash[32];
+			calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(content.c_str()), content.length());
+
+			for (size_t i = 0; i < 32; i++)
+			{
+				sprintf(sha2hashStr + i * 2, "%02x", sha2hash[i]);
+			}
+
+			if (sha2HashToCheck != sha2hashStr)
+			{
+				string pluginPakageName = ::PathFindFileNameA(destTo.c_str());
+				string msg = "The hash of plugin package \"";
+				msg += pluginPakageName;
+				msg += "\" is not correct. This plugin won't be installed.";
+				MessageBoxA(NULL, msg.c_str(), "Plugin package hash mismatched", MB_OK | MB_APPLMODAL);
+				ok = false;
+			}
+		}
+	}
+
+	if (!ok)
+	{
+		// Remove downloaded plugin package
+		deleteFileOrFolder(destTo);
+		return false;
+	}
 
 	return true;
 }
@@ -749,11 +814,11 @@ gup.exe -clean "appPath2Launch" "dest_folder" "fold1" "a fold2" "fold3"
 gup.exe -clean "c:\npp\notepad++.exe" "c:\temp\" "toto" "ti ti" "tata"
 
 update:    tell user to restart Notepad++ - Gup.exe download - remove all in directory - unzip/clean in batch - relaunch Notepad++
-gup.exe -unzip -clean  "appPath2Launch" "dest_folder" "toto http://toto" "titi http://titi" "tata http://tata"
-gup.exe -unzip -clean "c:\npp\notepad++.exe" c:\temp\ "toto http://toto" "ti et ti http://titi" "tata http://tata"
+gup.exe -unzip -clean  "appPath2Launch" "dest_folder" "toto http://toto 7c31a97b..." "titi http://titi 087a0591..." "tata http://tata 2e9766c..."
+gup.exe -unzip -clean "c:\npp\notepad++.exe" c:\temp\ "toto http://toto 7c31a97b..." "ti et ti http://titi 087a0591..." "tata http://tata 2e9766c..."
 
 Install:   GUp.exe download - create directory - unzip: one by one, no relaunch
-gup.exe -unzipTo c:\donho\notepad++\plugins "https://github.com/npp-plugins/mimetools/releases/download/v2.1/mimetools.v2.1.zip"
+gup.exe -unzipTo "c:\donho\notepad++\plugins" https://github.com/npp-plugins/mimetools/releases/download/v2.1/mimetools.v2.1.zip 7c31a97ba2c5973a3087a05918a8acbf1e57a82d6d2e9766cb32611a1cbb8515
 */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 {
@@ -839,8 +904,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 			auto pos = params[i].find_last_of(" ");
 			if (pos != string::npos && pos > 0)
 			{
-				string folder = params[i].substr(0, pos);
-				string dlUrl = params[i].substr(pos + 1, params[i].length() - 1);
+				string folder;
+				string dlUrl;
+
+				string tempStr = params[i].substr(0, pos);
+				string sha256ToCheck = params[i].substr(pos + 1, params[i].length() - 1);
+				if (sha256ToCheck.length() != 64)
+					continue;
+
+				auto pos2 = tempStr.find_last_of(" ");
+				if (pos2 != string::npos && pos2 > 0)
+				{
+					// 3 parts - OK
+					dlUrl = tempStr.substr(pos2 + 1, tempStr.length() - 1);
+					folder = tempStr.substr(0, pos2);
+				}
+				else
+				{
+					// 2 parts - error. Just pass to the next
+					continue;
+				}
+
 				::PathAppend(destPath, folder);
 
 				// clean
@@ -861,7 +945,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 				if (dlStopped == "")
 					dlStopped = MSGID_DOWNLOADSTOPPED;
 
-				bool isSuccessful = downloadBinary(dlUrl, dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
+				bool isSuccessful = downloadBinary(dlUrl, dlDest, sha256ToCheck, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
 				if (isSuccessful)
 				{
 					isSuccessful = decompress(dlDest, destPathRoot);
@@ -886,14 +970,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 	if (!isCleanUp && isUnzip) // install
 	{
-		if (nbParam != 2)
+		if (nbParam != 3)
 		{
-			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (!isCleanUp && isUnzip) // install: ", "nbParam != 2");
+			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (!isCleanUp && isUnzip) // install: ", "nbParam != 3");
 			return -1;
 		}
 
-		string downloadZipUrl = params[1];
 		string destRoot = params[0];
+		string downloadZipUrl = params[1];
+		string sha256_toCheck = params[2];
 
 		std::string dlDest = std::getenv("TEMP");
 		dlDest += "\\";
@@ -909,7 +994,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		if (dlStopped == "")
 			dlStopped = MSGID_DOWNLOADSTOPPED;
 
-		bool isSuccessful = downloadBinary(downloadZipUrl, dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
+		bool isSuccessful = downloadBinary(downloadZipUrl, dlDest, sha256_toCheck, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
 		if (!isSuccessful)
 		{
 			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (!isCleanUp && isUnzip) // install: ", "downloadBinary func failed.");
@@ -1054,7 +1139,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		if (dlStopped == "")
 			dlStopped = MSGID_DOWNLOADSTOPPED;
 
-		bool dlSuccessful = downloadBinary(gupDlInfo.getDownloadLocation(), dlDest, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), isSilentMode, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
+		bool dlSuccessful = downloadBinary(gupDlInfo.getDownloadLocation(), dlDest, "", pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), isSilentMode, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
 
 		if (!dlSuccessful)
 		{

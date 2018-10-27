@@ -18,6 +18,7 @@
     <ClCompile Include="..\src\TinyXml\tinyxmlparser.cpp">
       <Filter>tinyxml</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\sha2\sha-256.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\resource.h" />
@@ -28,6 +29,7 @@
     <ClInclude Include="..\src\TinyXml\tinyxml.h">
       <Filter>tinyxml</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\sha2\sha-256.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\gup.rc" />
