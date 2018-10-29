@@ -278,6 +278,8 @@ std::string getFileContent(const char *file2read)
 	return wholeFileContent;
 };
 
+// unzipDestTo should be plugin home root + plugin folder name
+// ex: %APPDATA%\..\local\Notepad++\plugins\myAwesomePlugin
 bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 {
 	// if destination folder doesn't exist, create it.
@@ -393,6 +395,24 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 			destFile.flush();
 			destFile.close();
 		}
+	}
+
+	// check installed dll
+	string pluginFolder = PathFindFileNameA(unzipDestTo.c_str());
+	string installedPluginPath = unzipDestTo + "\\" + pluginFolder + ".dll";
+	
+	if (::PathFileExistsA(installedPluginPath.c_str()))
+	{
+		// DLL is deployed correctly.
+		// OK and nothing to do.
+	}
+	else
+	{
+		// Remove installed plugin
+		MessageBox(NULL, TEXT("The plugin package is built wrongly. This plugin will be uninstalled."), TEXT("GUP"), MB_OK | MB_APPLMODAL);
+
+		deleteFileOrFolder(unzipDestTo);
+		return FALSE;
 	}
 
 	return true;
@@ -815,16 +835,16 @@ gup.exe -clean "c:\npp\notepad++.exe" "c:\temp\" "toto" "ti ti" "tata"
 
 update:    tell user to restart Notepad++ - Gup.exe download - remove all in directory - unzip/clean in batch - relaunch Notepad++
 gup.exe -unzip -clean  "appPath2Launch" "dest_folder" "toto http://toto 7c31a97b..." "titi http://titi 087a0591..." "tata http://tata 2e9766c..."
-gup.exe -unzip -clean "c:\npp\notepad++.exe" c:\temp\ "toto http://toto 7c31a97b..." "ti et ti http://titi 087a0591..." "tata http://tata 2e9766c..."
+gup.exe -unzip -clean "c:\npp\notepad++.exe" "c:\donho\notepad++\plugins" "toto http://toto 7c31a97b..." "ti et ti http://titi 087a0591..." "tata http://tata 2e9766c..."
 
 Install:   GUp.exe download - create directory - unzip: one by one, no relaunch
-gup.exe -unzipTo "c:\donho\notepad++\plugins" https://github.com/npp-plugins/mimetools/releases/download/v2.1/mimetools.v2.1.zip 7c31a97ba2c5973a3087a05918a8acbf1e57a82d6d2e9766cb32611a1cbb8515
+gup.exe -unzipTo "c:\donho\notepad++\plugins\mimetools" https://github.com/npp-plugins/mimetools/releases/download/v2.1/mimetools.v2.1.zip 7c31a97ba2c5973a3087a05918a8acbf1e57a82d6d2e9766cb32611a1cbb8515
 */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 {
 	bool isSilentMode = false;
 	FILE *pFile = NULL;
-
+	
 	string version;
 	string customParam;
 
