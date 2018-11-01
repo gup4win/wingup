@@ -827,21 +827,11 @@ void writeLog(const char *logFileName, const char *logSuffix, const char *log2wr
 #define WRITE_LOG(fn, suffix, log)
 #endif
 
-
-/*
-uninstall: tell user to restart Notepad++ - Gup.exe remove all - clean in batch - relaunch Notepad++
-gup.exe -clean "appPath2Launch" "dest_folder" "fold1" "a fold2" "fold3"
-gup.exe -clean "c:\npp\notepad++.exe" "c:\temp\" "toto" "ti ti" "tata"
-
-update:    tell user to restart Notepad++ - Gup.exe download - remove all in directory - unzip/clean in batch - relaunch Notepad++
-gup.exe -unzip -clean  "appPath2Launch" "dest_folder" "toto http://toto 7c31a97b..." "titi http://titi 087a0591..." "tata http://tata 2e9766c..."
-gup.exe -unzip -clean "c:\npp\notepad++.exe" "c:\donho\notepad++\plugins" "toto http://toto 7c31a97b..." "ti et ti http://titi 087a0591..." "tata http://tata 2e9766c..."
-
-Install:   GUp.exe download - create directory - unzip: one by one, no relaunch
-gup.exe -unzipTo "c:\donho\notepad++\plugins\mimetools" https://github.com/npp-plugins/mimetools/releases/download/v2.1/mimetools.v2.1.zip 7c31a97ba2c5973a3087a05918a8acbf1e57a82d6d2e9766cb32611a1cbb8515
-*/
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 {
+	// Debug use - stop here so we can attach this process for debugging
+	// ::MessageBoxA(NULL, "And do something dirty to me ;)", "Attach me!", MB_OK);
+
 	bool isSilentMode = false;
 	FILE *pFile = NULL;
 	
@@ -876,6 +866,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	// Plugins Updater
 	//
 	size_t nbParam = params.size();
+
+	// uninstall plugin:
+	// gup.exe -clean "appPath2Launch" "dest_folder" "fold1" "a fold2" "fold3"
+	// gup.exe -clean "c:\npp\notepad++.exe" "c:\temp\" "toto" "ti ti" "tata"
 	if (isCleanUp && !isUnzip) // remove only
 	{
 		if (nbParam < 3)
@@ -902,8 +896,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		return 0;
 	}
 	
-	
-	if (isCleanUp && isUnzip) // update
+	// update:
+	// gup.exe -unzip -clean "appPath2Launch" "dest_folder" "pluginFolderName1 http://pluginFolderName1/pluginFolderName1.zip sha256Hash1" "pluginFolderName2 http://pluginFolderName2/pluginFolderName2.zip sha256Hash2" "plugin Folder Name3 http://plugin_Folder_Name3/plugin_Folder_Name3.zip sha256Hash3"
+	// gup.exe -unzip -clean "c:\npp\notepad++.exe" "c:\donho\notepad++\plugins" "toto http://toto/toto.zip 7c31a97b..." "ti et ti http://ti_ti/ti_ti.zip 087a0591..." "tata http://tata/tata.zip 2e9766c..."
+
+	// Install:
+	// gup.exe -unzip "appPath2Launch" "dest_folder" "pluginFolderName1 http://pluginFolderName1/pluginFolderName1.zip sha256Hash1" "pluginFolderName2 http://pluginFolderName2/pluginFolderName2.zip sha256Hash2" "plugin Folder Name3 http://plugin_Folder_Name3/plugin_Folder_Name3.zip sha256Hash3"
+	// gup.exe -unzip "c:\npp\notepad++.exe" "c:\donho\notepad++\plugins" "toto http://toto/toto.zip 7c31a97b..." "ti et ti http://ti_ti/ti_ti.zip 087a0591..." "tata http://tata/tata.zip 2e9766c..."
+	if (isUnzip) // update or install
 	{
 		if (nbParam < 3)
 		{
@@ -947,8 +947,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 				::PathAppend(destPath, folder);
 
-				// clean
-				deleteFileOrFolder(destPath);
+				if (isCleanUp) // Update
+				{
+					deleteFileOrFolder(destPath);
+				}
 
 				// install
 				std::string dlDest = std::getenv("TEMP");
@@ -968,7 +970,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 				bool isSuccessful = downloadBinary(dlUrl, dlDest, sha256ToCheck, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
 				if (isSuccessful)
 				{
-					isSuccessful = decompress(dlDest, destPathRoot);
+					isSuccessful = decompress(dlDest, destPath);
 					if (!isSuccessful)
 					{
 						string unzipFailed = nativeLang.getMessageString("MSGID_UNZIPFAILED");
@@ -978,7 +980,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 						::MessageBoxA(NULL, unzipFailed.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_OK);
 
 						// Delete incomplete unzipped folder
-						deleteFileOrFolder(destPathRoot);
+						deleteFileOrFolder(destPath);
 					}
 				}
 			}
@@ -987,58 +989,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		::ShellExecuteA(NULL, "open", prog2Launch.c_str(), "", prog2LaunchDir, SW_SHOWNORMAL);
 		return 0;
 	}
-
-	if (!isCleanUp && isUnzip) // install
-	{
-		if (nbParam != 3)
-		{
-			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (!isCleanUp && isUnzip) // install: ", "nbParam != 3");
-			return -1;
-		}
-
-		string destRoot = params[0];
-		string downloadZipUrl = params[1];
-		string sha256_toCheck = params[2];
-
-		std::string dlDest = std::getenv("TEMP");
-		dlDest += "\\";
-		dlDest += ::PathFindFileNameA(downloadZipUrl.c_str());
-
-		char *ext = ::PathFindExtensionA(dlDest.c_str());
-		if (strcmp(ext, ".zip") != 0)
-			dlDest += ".zip";
-
-		dlFileName = ::PathFindFileNameA(downloadZipUrl.c_str());
-
-		string dlStopped = nativeLang.getMessageString("MSGID_DOWNLOADSTOPPED");
-		if (dlStopped == "")
-			dlStopped = MSGID_DOWNLOADSTOPPED;
-
-		bool isSuccessful = downloadBinary(downloadZipUrl, dlDest, sha256_toCheck, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
-		if (!isSuccessful)
-		{
-			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (!isCleanUp && isUnzip) // install: ", "downloadBinary func failed.");
-			return -1;
-		}
-
-		isSuccessful = decompress(dlDest, destRoot);
-		if (!isSuccessful)
-		{
-			string unzipFailed = nativeLang.getMessageString("MSGID_UNZIPFAILED");
-			if (unzipFailed == "")
-				unzipFailed = MSGID_UNZIPFAILED;
-
-			::MessageBoxA(NULL, unzipFailed.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_OK);
-
-			// Delete incomplete unzipped folder
-			deleteFileOrFolder(destRoot);
-
-			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (!isCleanUp && isUnzip) // install: ", "decompress func failed.");
-			return -1;
-		}
-		return 0;
-	}
-
 
 	//
 	// Notepad++ Updater
