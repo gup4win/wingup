@@ -673,8 +673,9 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 			{
 				sprintf(sha2hashStr + i * 2, "%02x", sha2hash[i]);
 			}
-
-			if (sha2HashToCheck != sha2hashStr)
+			string sha2HashToCheckLowerCase = sha2HashToCheck;
+			std::transform(sha2HashToCheckLowerCase.begin(), sha2HashToCheckLowerCase.end(), sha2HashToCheckLowerCase.begin(), ::tolower);
+			if (sha2HashToCheckLowerCase != sha2hashStr)
 			{
 				string pluginPakageName = ::PathFindFileNameA(destTo.c_str());
 				string msg = "The hash of plugin package \"";
@@ -830,7 +831,7 @@ void writeLog(const char *logFileName, const char *logSuffix, const char *log2wr
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 {
 	// Debug use - stop here so we can attach this process for debugging
-	// ::MessageBoxA(NULL, "And do something dirty to me ;)", "Attach me!", MB_OK);
+	//::MessageBoxA(NULL, "And do something dirty to me ;)", "Attach me!", MB_OK);
 
 	bool isSilentMode = false;
 	FILE *pFile = NULL;
