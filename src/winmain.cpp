@@ -265,6 +265,8 @@ std::string getFileContent(const char *file2read)
 	char data[blockSize];
 	std::string wholeFileContent = "";
 	FILE *fp = fopen(file2read, "rb");
+	if(!fp)
+		return "";
 
 	size_t lenFile = 0;
 	do
@@ -604,6 +606,8 @@ static DWORD WINAPI launchProgressBar(void *)
 bool downloadBinary(const string& urlFrom, const string& destTo, const string& sha2HashToCheck, pair<string, int> proxyServerInfo, bool isSilentMode, const pair<string, string>& stoppedMessage)
 {
 	FILE* pFile = fopen(destTo.c_str(), "wb");
+	if (!pFile)
+		return false;
 
 	//  Download the install package from indicated location
 	char errorBuffer[CURL_ERROR_SIZE] = { 0 };
@@ -677,10 +681,14 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 			std::transform(sha2HashToCheckLowerCase.begin(), sha2HashToCheckLowerCase.end(), sha2HashToCheckLowerCase.begin(), ::tolower);
 			if (sha2HashToCheckLowerCase != sha2hashStr)
 			{
-				string pluginPakageName = ::PathFindFileNameA(destTo.c_str());
+				string pluginPackageName = ::PathFindFileNameA(destTo.c_str());
 				string msg = "The hash of plugin package \"";
-				msg += pluginPakageName;
-				msg += "\" is not correct. This plugin won't be installed.";
+				msg += pluginPackageName;
+				msg += "\" is not correct. Expected:\r";
+				msg += sha2HashToCheckLowerCase;
+				msg += "\r<> Found:\r";
+				msg += sha2hashStr;
+				msg += "\rThis plugin won't be installed.";
 				MessageBoxA(NULL, msg.c_str(), "Plugin package hash mismatched", MB_OK | MB_APPLMODAL);
 				ok = false;
 			}
@@ -814,12 +822,15 @@ bool runInstaller(const string& app2runPath, const string& binWindowsClassName, 
 void writeLog(const char *logFileName, const char *logSuffix, const char *log2write)
 {
 	FILE *f = fopen(logFileName, "a+");
-	string log = logSuffix;
-	log += log2write;
-	fwrite(log.c_str(), sizeof(log.c_str()[0]), log.length(), f);
-	fputc('\n', f);
-	fflush(f);
-	fclose(f);
+	if (f)
+	{
+		string log = logSuffix;
+		log += log2write;
+		log += '\n';
+		fwrite(log.c_str(), sizeof(log.c_str()[0]), log.length(), f);
+		fflush(f);
+		fclose(f);
+	}
 };
 
 #ifdef _DEBUG
