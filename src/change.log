@@ -1,5 +1,7 @@
-WinGup (for Notepad++) v5.0.3 change:
+WinGup (for Notepad++) v5.0.4 bug-fix & enhancements:
 
-1.  Fix an unzip bug.
-2.  Fix a parser argument bug.
-3.  Change logic of plugins removal/update/installation.
+1.  Fix updating plugin not working bug.
+2.  Change plugin installation behaviour - same with plugin update now.
+3.  Add SHA-256 hash implementation for checking plugin zip package's SHA-256 hash while installation and update.
+ 
+
