@@ -983,6 +983,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 						// Delete incomplete unzipped folder
 						deleteFileOrFolder(destPath);
 					}
+
+					// Remove downloaded zip from TEMP folder
+					::DeleteFile(dlDest.c_str());
 				}
 			}
 		}
