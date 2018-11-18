@@ -948,9 +948,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 				::PathAppend(destPath, folder);
 
+				// Make a backup path
+				string backup4RestoreInCaseOfFailedPath;
 				if (isCleanUp) // Update
 				{
-					deleteFileOrFolder(destPath);
+					//deleteFileOrFolder(destPath);
+
+					// check if renamed folder exist, if it does, delete it
+					backup4RestoreInCaseOfFailedPath = destPath + ".backup4RestoreInCaseOfFailed";
+					if (::PathFileExistsA(backup4RestoreInCaseOfFailedPath.c_str()))
+						deleteFileOrFolder(backup4RestoreInCaseOfFailedPath);
+
+					// rename the folder with suffix ".backup4RestoreInCaseOfFailed"
+					::MoveFileA(destPath.c_str(), backup4RestoreInCaseOfFailedPath.c_str());
 				}
 
 				// install
@@ -982,10 +992,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 						// Delete incomplete unzipped folder
 						deleteFileOrFolder(destPath);
+
+						if (!backup4RestoreInCaseOfFailedPath.empty())
+						{
+							// rename back the folder
+							::MoveFileA(backup4RestoreInCaseOfFailedPath.c_str(), destPath.c_str());
+						}
+					}
+					else
+					{
+						if (!backup4RestoreInCaseOfFailedPath.empty())
+						{
+							// delete the folder with suffix ".backup4RestoreInCaseOfFailed"
+							deleteFileOrFolder(backup4RestoreInCaseOfFailedPath);
+						}
 					}
 
 					// Remove downloaded zip from TEMP folder
-					::DeleteFile(dlDest.c_str());
+					::DeleteFileA(dlDest.c_str());
+				}
+				else
+				{
+					if (!backup4RestoreInCaseOfFailedPath.empty())
+					{
+						// delete the folder with suffix ".backup4RestoreInCaseOfFailed"
+						::MoveFileA(backup4RestoreInCaseOfFailedPath.c_str(), destPath.c_str());
+					}
 				}
 			}
 		}
