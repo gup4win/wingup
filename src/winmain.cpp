@@ -1022,7 +1022,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 			}
 		}
 
-		::ShellExecuteA(NULL, "open", prog2Launch.c_str(), "", prog2LaunchDir, SW_SHOWNORMAL);
+		::ShellExecuteA(NULL, "open", "explorer.exe", prog2Launch.c_str(), prog2LaunchDir, SW_SHOWNORMAL);
 		return 0;
 	}
 
