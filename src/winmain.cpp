@@ -312,11 +312,7 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 		string extraitFullFilePath = unzipDestTo;
 		PathAppend(extraitFullFilePath, file2extrait);
 
-		ZipArchiveEntry::Attributes attr = entry->GetAttributes();
-
-		//auto pos = extraitFullFilePath.find_last_of('/');
-		//if (pos == extraitFullFilePath.length() - 1) // it's a folder to created
-		if (attr == ZipArchiveEntry::Attributes::Directory)
+		if (entry->IsDirectory())
 		{
 			// if folder doesn't exist, create it.
 			if (!::PathFileExistsA(extraitFullFilePath.c_str()))
@@ -339,7 +335,7 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 			destFile.open(extraitFullFilePath, std::ios::binary | std::ios::trunc);
 
 			//
-			// We try to catch the wrong detection of folder entry from ZipLib here
+			// We try to catch the missing folder entry case
 			//
 			if (!destFile.is_open())
 			{
@@ -389,6 +385,9 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 					{
 						return false;
 					}
+					utils::stream::copy(*decompressStream, destFile2);
+					destFile2.flush();
+					destFile2.close();
 				}
 			}
 
