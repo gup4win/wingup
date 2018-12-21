@@ -329,13 +329,20 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 				for (size_t k = 0; k < strArray.size(); ++k)
 				{
 					PathAppend(folderPath, strArray[k]);
+
 					if (!::PathFileExistsA(folderPath.c_str()))
 					{
-						if (!::CreateDirectoryA(folderPath.c_str(), NULL))
-							return false;
+						::CreateDirectoryA(folderPath.c_str(), NULL);
+					}
+					else if (!::PathIsDirectoryA(folderPath.c_str())) // The unzip core component is not reliable for the file/directory detection 
+					{                                                 // Hence such hack to make the result is as correct as possible
+						// if it's a file, remove it
+						deleteFileOrFolder(folderPath);
+
+						// create it
+						::CreateDirectoryA(folderPath.c_str(), NULL);
 					}
 				}
-				
 			}
 		}
 		else // it's a file
@@ -349,8 +356,15 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 				PathAppend(folderPath, strArray[k]);
 				if (!::PathFileExistsA(folderPath.c_str()))
 				{
-					if (!::CreateDirectoryA(folderPath.c_str(), NULL))
-						return false;
+					::CreateDirectoryA(folderPath.c_str(), NULL);
+				}
+				else if (!::PathIsDirectoryA(folderPath.c_str())) // The unzip core component is not reliable for the file/directory detection 
+				{                                                 // Hence such hack to make the result is as correct as possible
+					// if it's a file, remove it
+					deleteFileOrFolder(folderPath);
+
+					// create it
+					::CreateDirectoryA(folderPath.c_str(), NULL);
 				}
 			}
 
@@ -806,6 +820,17 @@ void writeLog(const char *logFileName, const char *logSuffix, const char *log2wr
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 {
+	/*
+	{
+		string destPath = "C:\\tmp\\res\\TagsView";
+		string dlDest = "C:\\tmp\\pb\\TagsView_Npp_03beta.zip";
+		bool isSuccessful = decompress(dlDest, destPath);
+		if (isSuccessful)
+		{
+			return 0;
+		}
+	}
+	*/
 	// Debug use - stop here so we can attach this process for debugging
 	//::MessageBoxA(NULL, "And do something dirty to me ;)", "Attach me!", MB_OK);
 
