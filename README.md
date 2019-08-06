@@ -1,3 +1,10 @@
+What is WinGup for Notepad++?
+--------------------------
+
+This project is the fork of [WinGUp](https://github.com/gup4win/wingup).
+WinGUp has been built for Notepad++'s need, but keep its functionality generic for being able to be used on any Windows application. With new built-in Plugins Admin in Notepad++, a more specific updater for Notepad++ is necessary. Hence this fork from the original WinGUp.
+
+
 What is WinGup?
 ---------------
 
