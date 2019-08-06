@@ -592,6 +592,9 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 	char errorBuffer[CURL_ERROR_SIZE] = { 0 };
 	CURLcode res = CURLE_FAILED_INIT;
 	CURL* curl = curl_easy_init();
+
+	::CreateThread(NULL, 0, launchProgressBar, NULL, 0, NULL);
+
 	if (curl)
 	{
 		curl_easy_setopt(curl, CURLOPT_URL, urlFrom.c_str());
@@ -1129,8 +1132,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		//
 		// Download executable bin
 		//
-		::CreateThread(NULL, 0, launchProgressBar, NULL, 0, NULL);
-		
+
 		std::string dlDest = std::getenv("TEMP");
 		dlDest += "\\";
 		dlDest += ::PathFindFileNameA(gupDlInfo.getDownloadLocation().c_str());
