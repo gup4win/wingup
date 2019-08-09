@@ -88,6 +88,20 @@ gup -unzipTo [-clean] FOLDER_TO_ACTION ZIP_URL\r\
 std::string thirdDoUpdateDlgButtonLabel;
 
 
+void writeLog(const char *logFileName, const char *logSuffix, const char *log2write)
+{
+	FILE *f = fopen(logFileName, "a+");
+	if (f)
+	{
+		string log = logSuffix;
+		log += log2write;
+		log += '\n';
+		fwrite(log.c_str(), sizeof(log.c_str()[0]), log.length(), f);
+		fflush(f);
+		fclose(f);
+	}
+};
+
 //commandLine should contain path to n++ executable running
 void parseCommandLine(const char* commandLine, ParamVector& paramVector)
 {
@@ -443,20 +457,20 @@ static size_t getDownloadData(unsigned char *data, size_t size, size_t nmemb, FI
 	return len;
 };
 
-static size_t downloadRatio = 0;
-
-static size_t setProgress(HWND, double t, double d, double, double)
+static size_t setProgress(HWND, double dlTotal, double dlSoFar, double, double)
 {
 	while (stopDL)
 		::Sleep(1000);
-	size_t step = size_t(d * 100.0 / t - downloadRatio);
-	downloadRatio = size_t(d * 100.0 / t);
+
+	size_t downloadedRatio = SendMessage(hProgressBar, PBM_DELTAPOS, 0, 0);
+
+	size_t step = size_t(dlSoFar * 100.0 / dlTotal - downloadedRatio);
 
 	SendMessage(hProgressBar, PBM_SETSTEP, (WPARAM)step, 0);
 	SendMessage(hProgressBar, PBM_STEPIT, 0, 0);
 
 	char percentage[128];
-	sprintf(percentage, "Downloading %s: %Iu %%", dlFileName.c_str(), downloadRatio);
+	sprintf(percentage, "Downloading %s: %Iu %%", dlFileName.c_str(), downloadedRatio);
 	::SetWindowTextA(hProgressDlg, percentage);
 	return 0;
 };
@@ -594,7 +608,6 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 	CURL* curl = curl_easy_init();
 
 	::CreateThread(NULL, 0, launchProgressBar, NULL, 0, NULL);
-
 	if (curl)
 	{
 		curl_easy_setopt(curl, CURLOPT_URL, urlFrom.c_str());
@@ -801,19 +814,6 @@ bool runInstaller(const string& app2runPath, const string& binWindowsClassName, 
 	return true;
 }
 
-void writeLog(const char *logFileName, const char *logSuffix, const char *log2write)
-{
-	FILE *f = fopen(logFileName, "a+");
-	if (f)
-	{
-		string log = logSuffix;
-		log += log2write;
-		log += '\n';
-		fwrite(log.c_str(), sizeof(log.c_str()[0]), log.length(), f);
-		fflush(f);
-		fclose(f);
-	}
-};
 
 #ifdef _DEBUG
 #define WRITE_LOG(fn, suffix, log) writeLog(fn, suffix, log);
