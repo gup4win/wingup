@@ -1,5 +1,5 @@
 /*
- Copyright 2007 Don HO <don.h@free.fr>
+ Copyright 2019 Don HO <don.h@free.fr>
 
  This file is part of GUP.
 
@@ -20,8 +20,8 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#define VERSION_VALUE "5.1\0"
-#define VERSION_DIGITALVALUE 5, 1, 0, 0
+#define VERSION_VALUE "5.11\0"
+#define VERSION_DIGITALVALUE 5, 1, 1, 0
 
 #define IDD_PROGRESS_DLG 1001
 #define IDD_PROXY_DLG 1002

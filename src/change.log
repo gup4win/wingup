@@ -1,5 +1,3 @@
-WinGup (for Notepad++) v5.1 bug-fix & enhancements:
+WinGup (for Notepad++) v5.1.1 enhancements:
 
-1.  Fix directory/file detection bug while unzip.
-2.  Fix 0 length unzipped issue for plugin operations.
-3.  Enhance checking download plugin package hash error message.
+1.  UI improvement: Plugins downloading with the progress bar
