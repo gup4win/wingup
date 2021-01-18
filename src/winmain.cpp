@@ -56,7 +56,6 @@ const char FLAG_HELP[] = "--help";
 const char FLAG_UUZIP[] = "-unzipTo";
 const char FLAG_CLEANUP[] = "-clean";
 
-const char MSGID_NOUPDATE[] = "No update is available.";
 const char MSGID_UPDATEAVAILABLE[] = "An update package is available, do you want to download it?";
 const char MSGID_DOWNLOADSTOPPED[] = "Download is stopped by user. Update is aborted.";
 const char MSGID_CLOSEAPP[] = " is opened.\rUpdater will close it in order to process the installation.\rContinue?";
@@ -590,6 +589,70 @@ LRESULT CALLBACK proxyDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM)
 	return FALSE;
 }
 
+struct UpdateCheckParams
+{
+	GupNativeLang& _nativeLang;
+	GupParameters& _gupParams;
+};
+
+LRESULT CALLBACK updateCheckDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_INITDIALOG:
+	{
+		auto* params = reinterpret_cast<UpdateCheckParams*>(lParam);
+		if (params)
+		{
+			const string& title = params->_gupParams.getMessageBoxTitle();
+			if (!title.empty())
+				::SetWindowTextA(hWndDlg, title.c_str());
+			string textMsg = params->_nativeLang.getMessageString("MSGID_NOUPDATE");
+			if (!textMsg.empty())
+				::SetDlgItemTextA(hWndDlg, IDC_UPDATE_STATIC1, textMsg.c_str());
+			string textLink = params->_nativeLang.getMessageString("MSGID_DOWNLOADTEXT");
+			if (!textLink.empty())
+				::SetDlgItemTextA(hWndDlg, IDC_DOWNLOAD_LINK, textLink.c_str());
+		}
+		goToScreenCenter(hWndDlg);
+		return TRUE;
+	}
+
+	case WM_COMMAND:
+	{
+		switch LOWORD((wParam))
+		{
+		case IDOK:
+		case IDYES:
+		case IDNO:
+		case IDCANCEL:
+			EndDialog(hWndDlg, wParam);
+			return TRUE;
+		default:
+			break;
+		}
+	}
+
+	case WM_NOTIFY:
+		switch (((LPNMHDR)lParam)->code)
+		{
+		case NM_CLICK:
+		case NM_RETURN:
+		{
+			PNMLINK pNMLink = (PNMLINK)lParam;
+			LITEM item = pNMLink->item;
+			if (lstrcmpW(item.szID, L"id_download") == 0)
+			{
+				::ShellExecute(NULL, TEXT("open"), TEXT("https://notepad-plus-plus.org/downloads/"), NULL, NULL, SW_SHOWNORMAL);
+			}
+			break;
+		}
+		}
+		break;
+	}
+	return FALSE;
+}
+
 static DWORD WINAPI launchProgressBar(void *)
 {
 	::DialogBox(hInst, MAKEINTRESOURCE(IDD_PROGRESS_DLG), NULL, reinterpret_cast<DLGPROC>(progressBarDlgProc));
@@ -673,7 +736,8 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 				sprintf(sha2hashStr + i * 2, "%02x", sha2hash[i]);
 			}
 			string sha2HashToCheckLowerCase = sha2HashToCheck;
-			std::transform(sha2HashToCheckLowerCase.begin(), sha2HashToCheckLowerCase.end(), sha2HashToCheckLowerCase.begin(), ::tolower);
+			std::transform(sha2HashToCheckLowerCase.begin(), sha2HashToCheckLowerCase.end(), sha2HashToCheckLowerCase.begin(),
+				[](char c) { return static_cast<char>(::tolower(c)); });
 			if (sha2HashToCheckLowerCase != sha2hashStr)
 			{
 				string pluginPackageName = ::PathFindFileNameA(destTo.c_str());
@@ -1076,16 +1140,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 			return -1;
 		}
 
+		HWND hApp = ::FindWindowExA(NULL, NULL, gupParams.getClassName().c_str(), NULL);
+		bool isModal = gupParams.isMessageBoxModal();
 		GupDownloadInfo gupDlInfo(updateInfo.c_str());
 
 		if (!gupDlInfo.doesNeed2BeUpdated())
 		{
 			if (!isSilentMode)
 			{
-				string noUpdate = nativeLang.getMessageString("MSGID_NOUPDATE");
-				if (noUpdate == "")
-					noUpdate = MSGID_NOUPDATE;
-				::MessageBoxA(NULL, noUpdate.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_OK);
+				UpdateCheckParams localParams{ nativeLang, gupParams };
+				::DialogBoxParam(hInst, MAKEINTRESOURCE(IDD_UPDATE_DLG), isModal ? hApp : NULL,
+					reinterpret_cast<DLGPROC>(updateCheckDlgProc), reinterpret_cast<LPARAM>(&localParams));
 			}
 			return 0;
 		}
@@ -1104,8 +1169,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		thirdDoUpdateDlgButtonLabel = gupParams.get3rdButtonLabel();
 
 		int dlAnswer = 0;
-		HWND hApp = ::FindWindowExA(NULL, NULL, gupParams.getClassName().c_str(), NULL);
-		bool isModal = gupParams.isMessageBoxModal();
 
 		if (!thirdButtonCmd)
 			dlAnswer = ::MessageBoxA(isModal ? hApp : NULL, updateAvailable.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_YESNO);

@@ -22,10 +22,11 @@
 
 <GUP_NativeLangue name = "English">
 	<PopupMessages>
-		<MSGID_NOUPDATE>No update is available.</MSGID_NOUPDATE>
+		<MSGID_NOUPDATE>No update is available.&#xD;&#xD;The auto-update may not have been activated yet.</MSGID_NOUPDATE>
 		<MSGID_UPDATEAVAILABLE>An update package is available, do you want to download it?</MSGID_UPDATEAVAILABLE>
+		<MSGID_DOWNLOADTEXT>&lt;a id="id_download"&gt;Go to the download page&lt;/a&gt;</MSGID_DOWNLOADTEXT>
 		<MSGID_DOWNLOADSTOPPED>Download is stopped by user. Update is aborted.</MSGID_DOWNLOADSTOPPED>
-		<MSGID_CLOSEAPP> is opened.\rUpdater will close it in order to process the installation.\rContinue?</MSGID_CLOSEAPP>
+		<MSGID_CLOSEAPP> is opened.&#xD;Updater will close it in order to process the installation.&#xD;Continue?</MSGID_CLOSEAPP>
 		<MSGID_ABORTORNOT>Do you want to abort update download?</MSGID_ABORTORNOT>
 		<MSGID_UNZIPFAILED>"Can't unzip: Operation not permitted or decompression failed"</MSGID_UNZIPFAILED>
 	</PopupMessages>
