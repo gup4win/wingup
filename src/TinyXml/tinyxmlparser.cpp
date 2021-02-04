@@ -22,6 +22,8 @@ must not be misrepresented as being the original software.
 distribution.
 */
 
+#pragma warning(disable : 4244) 
+
 #include "tinyxml.h"
 #include <ctype.h>
 

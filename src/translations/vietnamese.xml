@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
     Copyright 2015 Juno_okyo <junookyo@gmail.com>
 	
@@ -17,7 +17,7 @@
 
 <!-- This file is optional.-->
 
-<GUP_NativeLangue name = "Vietnamese">
+<GUP_NativeLangue name="Vietnamese">
 	<PopupMessages>
 		<MSGID_NOUPDATE>Hiện tại không có bản cập nhật nào.</MSGID_NOUPDATE>
 		<MSGID_UPDATEAVAILABLE>Một gói cập nhật hiện sẵn có, bạn có muốn tải về không?</MSGID_UPDATEAVAILABLE>

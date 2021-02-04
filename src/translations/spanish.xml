@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
     Copyright 2015 Adolfo Jayme Barrientos <fitojb@ubuntu.com>
 	
@@ -20,12 +20,12 @@
 <!-- This file is optional.
 Use this file to set your proxy settings if need.
 -->
-<GUP_NativeLangue name = "Español">
+<GUP_NativeLangue name = "EspaÃ±ol">
 	<PopupMessages>
-		<MSGID_NOUPDATE>No hay ninguna actualización disponible.</MSGID_NOUPDATE>
-		<MSGID_UPDATEAVAILABLE>Hay una actualización disponible. ¿Quiere descargarla?</MSGID_UPDATEAVAILABLE>
-		<MSGID_DOWNLOADSTOPPED>Se interrumpió la descarga. No se podrá realizar la actualización.</MSGID_DOWNLOADSTOPPED>
-		<MSGID_CLOSEAPP> está abierto.\rSe cerrará el programa para realizar la instalación.\r¿Quiere continuar?</MSGID_CLOSEAPP>
-		<MSGID_ABORTORNOT>¿Confirma que quiere interrumpir la descarga de la actualización?</MSGID_ABORTORNOT>
+		<MSGID_NOUPDATE  content="No hay ninguna actualizaciÃ³n disponible." />
+		<MSGID_UPDATEAVAILABLE  content="Hay una actualizaciÃ³n disponible. Â¿Quiere descargarla?" />
+		<MSGID_DOWNLOADSTOPPED  content="Se interrumpiÃ³ la descarga. No se podrÃ¡ realizar la actualizaciÃ³n." />
+		<MSGID_CLOSEAPP  content=" estÃ¡ abierto.\rSe cerrarÃ¡ el programa para realizar la instalaciÃ³n.\rÂ¿Quiere continuar?" />
+		<MSGID_ABORTORNOT  content="Â¿Confirma que quiere interrumpir la descarga de la actualizaciÃ³n?" />
 	</PopupMessages>
 </GUP_NativeLangue>

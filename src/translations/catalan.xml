@@ -17,15 +17,15 @@
     You should have received a copy of the GNU Lesser General Public License
     along with GUP.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<!-- This file is optional.
-Use this file to set your proxy settings if need.
--->
-<GUP_NativeLangue name = "Català">
+
+<!-- This file is optional.-->
+
+<GUP_NativeLangue name="Català">
 	<PopupMessages>
-		<MSGID_NOUPDATE>No hi ha cap actualització disponible.</MSGID_NOUPDATE>
-		<MSGID_UPDATEAVAILABLE>Hi ha una actualització disponible. Voleu baixar-la?</MSGID_UPDATEAVAILABLE>
-		<MSGID_DOWNLOADSTOPPED>S'ha interromput la baixada. No es podrà fer l'actualització.</MSGID_DOWNLOADSTOPPED>
-		<MSGID_CLOSEAPP> és obert.\rEl programa es tancarà per fer la instalació.\rVoleu continuar?</MSGID_CLOSEAPP>
-		<MSGID_ABORTORNOT>Segur que voleu interrompre la baixada de l'actualització?</MSGID_ABORTORNOT>
+		<MSGID_NOUPDATE content="No hi ha cap actualització disponible." />
+		<MSGID_UPDATEAVAILABLE content="Hi ha una actualització disponible. Voleu baixar-la?" />
+		<MSGID_DOWNLOADSTOPPED content="S'ha interromput la baixada. No es podrà fer l'actualització." />
+		<MSGID_CLOSEAPP content=" és obert.\rEl programa es tancarà per fer la instalació.\rVoleu continuar?" />
+		<MSGID_ABORTORNOT content="Segur que voleu interrompre la baixada de l'actualització?" />
 	</PopupMessages>
 </GUP_NativeLangue>

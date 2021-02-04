@@ -20,6 +20,8 @@
 #include "tinyxml.h"
 #include <string>
 
+std::wstring s2ws(const std::string& str);
+std::string ws2s(const std::wstring& wstr);
 
 class XMLTool {
 
@@ -30,20 +32,20 @@ protected:
 class GupParameters : public XMLTool {
 public:
 	GupParameters() {};
-	GupParameters(const char * xmlFileName);
+	GupParameters(const wchar_t * xmlFileName);
 	
-	const std::string & getCurrentVersion() const { return _currentVersion;};
-	const std::string & getParam() const { return _param; };
-	const std::string & getInfoLocation() const {return _infoUrl;};
-	const std::string & getClassName() const {return _className2Close;};
-	const std::string & getMessageBoxTitle() const {return _messageBoxTitle;};
-	const std::string & getSoftwareName() const {return _softwareName;};
+	const std::wstring & getCurrentVersion() const { return _currentVersion;};
+	const std::wstring & getParam() const { return _param; };
+	const std::wstring & getInfoLocation() const {return _infoUrl;};
+	const std::wstring & getClassName() const {return _className2Close;};
+	const std::wstring & getMessageBoxTitle() const {return _messageBoxTitle;};
+	const std::wstring & getSoftwareName() const {return _softwareName;};
 	int get3rdButtonCmd() const {return _3rdButton_wm_cmd;};
 	int get3rdButtonWparam() const {return _3rdButton_wParam;};
 	int get3rdButtonLparam() const {return _3rdButton_lParam;};
-	const std::string & get3rdButtonLabel() const { return _3rdButton_label; };
+	const std::wstring & get3rdButtonLabel() const { return _3rdButton_label; };
 
-	void setCurrentVersion(const char *currentVersion) {_currentVersion = currentVersion;};
+	void setCurrentVersion(const wchar_t *currentVersion) {_currentVersion = currentVersion;};
 	bool setSilentMode(bool mode) {
 		bool oldMode = _isSilentMode;
 		_isSilentMode = mode;
@@ -53,47 +55,46 @@ public:
 	bool isMessageBoxModal() const { return _isMessageBoxModal; };
 
 private:
-	std::string _currentVersion;
-	std::string _param;
-	std::string _infoUrl;
-	std::string _className2Close;
-	std::string _messageBoxTitle;
-	std::string _softwareName;
+	std::wstring _currentVersion;
+	std::wstring _param;
+	std::wstring _infoUrl;
+	std::wstring _className2Close;
+	std::wstring _messageBoxTitle;
+	std::wstring _softwareName;
 	bool _isMessageBoxModal = false;
 	int _3rdButton_wm_cmd = 0;
 	int _3rdButton_wParam = 0;
 	int _3rdButton_lParam = 0;
-	std::string _3rdButton_label;
+	std::wstring _3rdButton_label;
 	bool _isSilentMode = true;
 };
 
 class GupExtraOptions : public XMLTool {
 public:
-	GupExtraOptions(const char * xmlFileName);
-	const std::string & getProxyServer() const { return _proxyServer;};
+	GupExtraOptions(const wchar_t * xmlFileName);
+	const std::wstring & getProxyServer() const { return _proxyServer;};
 	long getPort() const { return _port;};
 	bool hasProxySettings() const {return ((!_proxyServer.empty()) && (_port != -1));};
-	void writeProxyInfo(const char *fn, const char *proxySrv, long port);
+	void writeProxyInfo(const wchar_t *fn, const wchar_t *proxySrv, long port);
 
 private:
-	std::string _proxyServer;
-	long _port;
-	//bool _hasProxySettings;
+	std::wstring _proxyServer;
+	long _port = -1;
 };
 
 class GupDownloadInfo : public XMLTool {
 public:
-	GupDownloadInfo() : _updateVersion(""), _updateLocation("") {};
-	GupDownloadInfo(const char * xmlString);
+	GupDownloadInfo() {};
+	GupDownloadInfo(const char* xmlString);
 	
-	const std::string & getVersion() const { return _updateVersion;};
-	const std::string & getDownloadLocation() const {return _updateLocation;};
+	const std::wstring & getVersion() const { return _updateVersion;};
+	const std::wstring & getDownloadLocation() const {return _updateLocation;};
 	bool doesNeed2BeUpdated() const {return _need2BeUpdated;};
 
 private:
 	bool _need2BeUpdated;
-	std::string _updateVersion;
-	std::string _updateLocation;
+	std::wstring _updateVersion;
+	std::wstring _updateLocation;
 };
 
 class GupNativeLang : public XMLTool {
@@ -102,7 +103,7 @@ public:
 		_xmlDoc.LoadFile(xmlFileName);
 		_nativeLangRoot = _xmlDoc.FirstChild("GUP_NativeLangue");
 	};
-	std::string getMessageString(std::string msgID);
+	std::wstring getMessageString(std::string msgID);
 
 protected:
 	TiXmlNode *_nativeLangRoot;

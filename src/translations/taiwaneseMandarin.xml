@@ -20,14 +20,14 @@
 
 <!-- This file is optional.-->
 
-<GUP_NativeLangue name="français" version="5.1.2">
+<GUP_NativeLangue name="台灣繁體" version="5.1.2">
 	<PopupMessages>
-		<MSGID_NOUPDATE content="La mise à jour n'est pas disponible.&#xD;&#xD;Elle n'est éventuellement pas encore déclenchée."/>
-		<MSGID_UPDATEAVAILABLE content="Une mise à jour est disponible, voulez-vous le télécharger?"/>
-		<MSGID_DOWNLOADTEXT content="Aller à la page de téléchargement"/>
-		<MSGID_DOWNLOADSTOPPED content="Le téléchargement est interrompu. La mise à jour ne sera pas poursuivie."/>
-		<MSGID_CLOSEAPP content=" est ouvert. Il sera fermé afin de pouvoir poursuivre l'installation. Continue?"/>
-		<MSGID_ABORTORNOT content="Etes-vous sûr d'interrompre le téléchargement?"/>
-		<MSGID_UNZIPFAILED content="Impossible de dézipper: l'opération n'est pas permise ou la décompression a échoué."/>
+		<MSGID_NOUPDATE content="無更新&#xD;&#xD;或自動更新尚未啟動 。" />
+		<MSGID_UPDATEAVAILABLE content="有可更新的新版本，您要下載嗎？" />
+		<MSGID_DOWNLOADTEXT content="進入官方網站下載頁面" />
+		<MSGID_DOWNLOADSTOPPED content="用戶已停止下載。 更新被中止。" />
+		<MSGID_CLOSEAPP content=" 已開啟&#xD;更新程式將關閉它以便繼續安裝。&#xD;繼續嗎？" />
+		<MSGID_ABORTORNOT content="您要中止更新下載嗎？" />
+		<MSGID_UNZIPFAILED content="無法解壓縮：權限不足或是解壓縮失敗" />
 	</PopupMessages>
 </GUP_NativeLangue>

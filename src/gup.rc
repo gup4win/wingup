@@ -90,8 +90,7 @@ CAPTION "No update"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "No update is available.\r\rThe auto-update may not have been activated yet.",IDC_UPDATE_STATIC1,"Static",WS_GROUP|SS_CENTER,10,12,167,30
-    CONTROL         "<a id=""id_download"">Go to the download page</a>",IDC_DOWNLOAD_LINK,
-                    "SysLink",WS_TABSTOP,51,48,84,12
+    CONTROL         "<a id=""id_download"">Go to the download page</a>",IDC_DOWNLOAD_LINK,"SysLink",WS_TABSTOP,51,48,110,12
     DEFPUSHBUTTON   "OK",IDOK,68,72,50,14
 END
 

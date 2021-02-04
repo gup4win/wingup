@@ -18,12 +18,31 @@
 */
 
 #include "xmlTools.h"
+#include <locale>
+#include <codecvt>
 
 using namespace std;
 
-GupParameters::GupParameters(const char * xmlFileName)
+
+wstring s2ws(const string& str)
 {
-	_xmlDoc.LoadFile(xmlFileName);
+	using convert_typeX = codecvt_utf8<wchar_t>;
+	wstring_convert<convert_typeX, wchar_t> converterX;
+
+	return converterX.from_bytes(str);
+}
+
+string ws2s(const wstring& wstr)
+{
+	using convert_typeX = codecvt_utf8<wchar_t>;
+	wstring_convert<convert_typeX, wchar_t> converterX;
+
+	return converterX.to_bytes(wstr);
+}
+
+GupParameters::GupParameters(const wchar_t * xmlFileName)
+{
+	_xmlDoc.LoadFile(ws2s(xmlFileName).c_str());
 
 	TiXmlNode *root = _xmlDoc.FirstChild("GUPInput");
 	if (!root)
@@ -38,7 +57,7 @@ GupParameters::GupParameters(const char * xmlFileName)
 			const char *val = n->Value();
 			if (val)
 			{
-				_currentVersion = val;
+				_currentVersion = s2ws(val);
 			}
 		}
 	}
@@ -52,7 +71,7 @@ GupParameters::GupParameters(const char * xmlFileName)
 			const char *val = n->Value();
 			if (val)
 			{
-				_param = val;
+				_param = s2ws(val);
 			}
 		}
 	}
@@ -69,7 +88,7 @@ GupParameters::GupParameters(const char * xmlFileName)
 	if (!iuVal || !(*iuVal))
 		throw exception("InfoUrl is missed.");
 	
-	_infoUrl = iuVal;
+	_infoUrl = s2ws(iuVal);
 
 	TiXmlNode *classeNameNode = root->FirstChildElement("ClassName2Close");
 	if (classeNameNode)
@@ -80,7 +99,7 @@ GupParameters::GupParameters(const char * xmlFileName)
 			const char *val = n->Value();
 			if (val)
 			{
-				_className2Close = val;
+				_className2Close = s2ws(val);
 			}
 		}
 	}
@@ -96,7 +115,7 @@ GupParameters::GupParameters(const char * xmlFileName)
 			valStr = n->Value();
 			if (valStr)
 			{
-				_messageBoxTitle = valStr;
+				_messageBoxTitle = s2ws(valStr);
 			}
 		}
 
@@ -133,7 +152,7 @@ GupParameters::GupParameters(const char * xmlFileName)
 		const char * extraCmdLabel = (progNameNode->ToElement())->Attribute("extraCmdButtonLabel");
 		if (extraCmdLabel != NULL)
 		{
-			_3rdButton_label = extraCmdLabel;
+			_3rdButton_label = s2ws(extraCmdLabel);
 		}
 	}
 
@@ -168,12 +187,12 @@ GupParameters::GupParameters(const char * xmlFileName)
 		{
 			const char *uaVal = un->Value();
 			if (uaVal)
-				_softwareName = uaVal;
+				_softwareName = s2ws(uaVal);
 		}
 	}
 }
 
-GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _updateLocation("")
+GupDownloadInfo::GupDownloadInfo(const char* xmlString)
 {
 	_xmlDoc.Parse(xmlString);
 
@@ -214,7 +233,7 @@ GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _
 				const char *val = n->Value();
 				if (val)
 				{
-					_updateVersion = val;
+					_updateVersion = s2ws(val);
 				}
 			}
 		}
@@ -231,13 +250,13 @@ GupDownloadInfo::GupDownloadInfo(const char * xmlString) : _updateVersion(""), _
 		if (!locVal || !(*locVal))
 			throw exception("Location is missed.");
 		
-		_updateLocation = locVal;
+		_updateLocation = s2ws(locVal);
 	}
 }
 
-GupExtraOptions::GupExtraOptions(const char * xmlFileName) : _proxyServer(""), _port(-1)//, _hasProxySettings(false)
+GupExtraOptions::GupExtraOptions(const wchar_t * xmlFileName)
 {
-	_xmlDoc.LoadFile(xmlFileName);
+	_xmlDoc.LoadFile(ws2s(xmlFileName).c_str());
 
 	TiXmlNode *root = _xmlDoc.FirstChild("GUPOptions");
 	if (!root)
@@ -254,7 +273,7 @@ GupExtraOptions::GupExtraOptions(const char * xmlFileName) : _proxyServer(""), _
 			{
 				const char *val = server->Value();
 				if (val)
-					_proxyServer = val;
+					_proxyServer = s2ws(val);
 			}
 		}
 
@@ -272,13 +291,13 @@ GupExtraOptions::GupExtraOptions(const char * xmlFileName) : _proxyServer(""), _
 	}
 }
 
-void GupExtraOptions::writeProxyInfo(const char *fn, const char *proxySrv, long port)
+void GupExtraOptions::writeProxyInfo(const wchar_t* fn, const wchar_t* proxySrv, long port)
 {
-	TiXmlDocument newProxySettings(fn);
+	TiXmlDocument newProxySettings(ws2s(fn).c_str());
 	TiXmlNode *root = newProxySettings.InsertEndChild(TiXmlElement("GUPOptions"));
 	TiXmlNode *proxy = root->InsertEndChild(TiXmlElement("Proxy"));
 	TiXmlNode *server = proxy->InsertEndChild(TiXmlElement("server"));
-	server->InsertEndChild(TiXmlText(proxySrv));
+	server->InsertEndChild(TiXmlText(ws2s(proxySrv).c_str()));
 	TiXmlNode *portNode = proxy->InsertEndChild(TiXmlElement("port"));
 	char portStr[10];
 	sprintf(portStr, "%d", port);
@@ -287,26 +306,24 @@ void GupExtraOptions::writeProxyInfo(const char *fn, const char *proxySrv, long 
 	newProxySettings.SaveFile();
 }
 
-std::string GupNativeLang::getMessageString(std::string msgID)
+std::wstring GupNativeLang::getMessageString(std::string msgID)
 {
 	if (!_nativeLangRoot)
-		return "";
+		return L"";
 
 	TiXmlNode *popupMessagesNode = _nativeLangRoot->FirstChildElement("PopupMessages");
 	if (!popupMessagesNode)
-		return "";
+		return L"";
 
 	TiXmlNode *node = popupMessagesNode->FirstChildElement(msgID.c_str());
 	if (!node)
-		return "";
+		return L"";
 
-	TiXmlNode *sn = node->FirstChild();
-	if (!sn)
-		return "";
-		
-	const char *val = sn->Value();
-	if (!val || !(*val))
-		return "";
-	
-	return val;
+	TiXmlElement* element = node->ToElement();
+
+	const char *content = element->Attribute("content");
+	if (content)
+		return s2ws(content);
+
+	return L"";
 }

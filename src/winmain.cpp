@@ -36,32 +36,32 @@
 
 using namespace std;
 
-typedef vector<string> ParamVector;
+typedef vector<wstring> ParamVector;
 
 HINSTANCE hInst;
 static HWND hProgressDlg;
 static HWND hProgressBar;
 static bool doAbort = false;
 static bool stopDL = false;
-static string msgBoxTitle = "";
-static string abortOrNot = "";
-static string proxySrv = "0.0.0.0";
+static wstring msgBoxTitle = L"";
+static wstring abortOrNot = L"";
+static wstring proxySrv = L"0.0.0.0";
 static long proxyPort  = 0;
-static string winGupUserAgent = "WinGup/";
-static string dlFileName = "";
+static wstring winGupUserAgent = L"WinGup/";
+static wstring dlFileName = L"";
 
-const char FLAG_OPTIONS[] = "-options";
-const char FLAG_VERBOSE[] = "-verbose";
-const char FLAG_HELP[] = "--help";
-const char FLAG_UUZIP[] = "-unzipTo";
-const char FLAG_CLEANUP[] = "-clean";
+const wchar_t FLAG_OPTIONS[] = L"-options";
+const wchar_t FLAG_VERBOSE[] = L"-verbose";
+const wchar_t FLAG_HELP[] = L"--help";
+const wchar_t FLAG_UUZIP[] = L"-unzipTo";
+const wchar_t FLAG_CLEANUP[] = L"-clean";
 
-const char MSGID_UPDATEAVAILABLE[] = "An update package is available, do you want to download it?";
-const char MSGID_DOWNLOADSTOPPED[] = "Download is stopped by user. Update is aborted.";
-const char MSGID_CLOSEAPP[] = " is opened.\rUpdater will close it in order to process the installation.\rContinue?";
-const char MSGID_ABORTORNOT[] = "Do you want to abort update download?";
-const char MSGID_UNZIPFAILED[] = "Can't unzip:\nOperation not permitted or decompression failed";
-const char MSGID_HELP[] = "Usage :\r\
+const wchar_t MSGID_UPDATEAVAILABLE[] = L"An update package is available, do you want to download it?";
+const wchar_t MSGID_DOWNLOADSTOPPED[] = L"Download is stopped by user. Update is aborted.";
+const wchar_t MSGID_CLOSEAPP[] = L" is opened.\rUpdater will close it in order to process the installation.\rContinue?";
+const wchar_t MSGID_ABORTORNOT[] = L"Do you want to abort update download?";
+const wchar_t MSGID_UNZIPFAILED[] = L"Can't unzip:\nOperation not permitted or decompression failed";
+const wchar_t MSGID_HELP[] = L"Usage :\r\
 \r\
 gup --help\r\
 gup -options\r\
@@ -84,15 +84,14 @@ gup -unzipTo [-clean] FOLDER_TO_ACTION ZIP_URL\r\
     ZIP_URL: The URL to download zip file.\r\
     FOLDER_TO_ACTION: The folder where we clean or/and unzip to.\r\
 	";
-std::string thirdDoUpdateDlgButtonLabel;
+std::wstring thirdDoUpdateDlgButtonLabel;
 
-
-void writeLog(const char *logFileName, const char *logSuffix, const char *log2write)
+void writeLog(const wchar_t *logFileName, const wchar_t *logSuffix, const wchar_t *log2write)
 {
-	FILE *f = fopen(logFileName, "a+");
+	FILE *f = _wfopen(logFileName, L"a+");
 	if (f)
 	{
-		string log = logSuffix;
+		wstring log = logSuffix;
 		log += log2write;
 		log += '\n';
 		fwrite(log.c_str(), sizeof(log.c_str()[0]), log.length(), f);
@@ -102,20 +101,20 @@ void writeLog(const char *logFileName, const char *logSuffix, const char *log2wr
 };
 
 //commandLine should contain path to n++ executable running
-void parseCommandLine(const char* commandLine, ParamVector& paramVector)
+void parseCommandLine(const wchar_t* commandLine, ParamVector& paramVector)
 {
 	if (!commandLine)
 		return;
 
-	char* cmdLine = new char[lstrlenA(commandLine) + 1];
-	lstrcpyA(cmdLine, commandLine);
+	wchar_t* cmdLine = new wchar_t[lstrlen(commandLine) + 1];
+	lstrcpy(cmdLine, commandLine);
 
-	char* cmdLinePtr = cmdLine;
+	wchar_t* cmdLinePtr = cmdLine;
 
 	bool isInFile = false;
 	bool isInWhiteSpace = true;
-	size_t commandLength = lstrlenA(cmdLinePtr);
-	std::vector<char *> args;
+	size_t commandLength = lstrlen(cmdLinePtr);
+	std::vector<wchar_t *> args;
 	for (size_t i = 0; i < commandLength; ++i)
 	{
 		switch (cmdLinePtr[i])
@@ -156,13 +155,13 @@ void parseCommandLine(const char* commandLine, ParamVector& paramVector)
 	delete[] cmdLine;
 };
 
-bool isInList(const char* token2Find, ParamVector & params)
+bool isInList(const wchar_t* token2Find, ParamVector & params)
 {
 	size_t nbItems = params.size();
 
 	for (size_t i = 0; i < nbItems; ++i)
 	{
-		if (!strcmp(token2Find, params.at(i).c_str()))
+		if (!lstrcmp(token2Find, params.at(i).c_str()))
 		{
 			params.erase(params.begin() + i);
 			return true;
@@ -171,15 +170,16 @@ bool isInList(const char* token2Find, ParamVector & params)
 	return false;
 };
 
-bool getParamVal(char c, ParamVector & params, string & value)
+bool getParamVal(wchar_t c, ParamVector & params, wstring & value)
 {
-	value = "";
+	value = L"";
 	size_t nbItems = params.size();
 
 	for (size_t i = 0; i < nbItems; ++i)
 	{
-		const char* token = params.at(i).c_str();
-		if (token[0] == '-' && strlen(token) >= 2 && token[1] == c) {	//dash, and enough chars
+		const wchar_t* token = params.at(i).c_str();
+		if (token[0] == '-' && lstrlen(token) >= 2 && token[1] == c) //dash, and enough chars
+		{
 			value = (token + 2);
 			params.erase(params.begin() + i);
 			return true;
@@ -188,11 +188,11 @@ bool getParamVal(char c, ParamVector & params, string & value)
 	return false;
 }
 
-string PathAppend(string& strDest, const string& str2append)
+wstring PathAppend(wstring& strDest, const wstring& str2append)
 {
 	if (strDest.empty() && str2append.empty()) // "" + ""
 	{
-		strDest = "\\";
+		strDest = L"\\";
 		return strDest;
 	}
 
@@ -217,16 +217,16 @@ string PathAppend(string& strDest, const string& str2append)
 	}
 
 	// toto + titi
-	strDest += "\\";
+	strDest += L"\\";
 	strDest += str2append;
 
 	return strDest;
 };
 
-vector<string> tokenizeString(const string & tokenString, const char delim)
+vector<wstring> tokenizeString(const wstring & tokenString, const char delim)
 {
 	//Vector is created on stack and copied on return
-	std::vector<string> tokens;
+	std::vector<wstring> tokens;
 
 	// Skip delimiters at beginning.
 	string::size_type lastPos = tokenString.find_first_not_of(delim, 0);
@@ -245,15 +245,15 @@ vector<string> tokenizeString(const string & tokenString, const char delim)
 	return tokens;
 };
 
-bool deleteFileOrFolder(const string& f2delete)
+bool deleteFileOrFolder(const wstring& f2delete)
 {
 	auto len = f2delete.length();
-	LPSTR actionFolder = new char[len + 2];
-	strcpy(actionFolder, f2delete.c_str());
+	wchar_t* actionFolder = new wchar_t[len + 2];
+	lstrcpy(actionFolder, f2delete.c_str());
 	actionFolder[len] = 0;
 	actionFolder[len + 1] = 0;
 
-	SHFILEOPSTRUCTA fileOpStruct = { 0 };
+	SHFILEOPSTRUCT fileOpStruct = { 0 };
 	fileOpStruct.hwnd = NULL;
 	fileOpStruct.pFrom = actionFolder;
 	fileOpStruct.pTo = NULL;
@@ -263,23 +263,23 @@ bool deleteFileOrFolder(const string& f2delete)
 	fileOpStruct.hNameMappings = NULL;
 	fileOpStruct.lpszProgressTitle = NULL;
 
-	int res = SHFileOperationA(&fileOpStruct);
+	int res = SHFileOperation(&fileOpStruct);
 
 	delete[] actionFolder;
 	return (res == 0);
 };
 
-std::string getFileContent(const char *file2read)
+std::wstring getFileContent(const wchar_t *file2read)
 {
-	if (!::PathFileExistsA(file2read))
-		return "";
+	if (!::PathFileExists(file2read))
+		return L"";
 
 	const size_t blockSize = 1024;
-	char data[blockSize];
-	std::string wholeFileContent = "";
-	FILE *fp = fopen(file2read, "rb");
+	wchar_t data[blockSize];
+	std::wstring wholeFileContent = L"";
+	FILE *fp = _wfopen(file2read, L"rb");
 	if(!fp)
-		return "";
+		return L"";
 
 	size_t lenFile = 0;
 	do
@@ -295,16 +295,17 @@ std::string getFileContent(const char *file2read)
 
 // unzipDestTo should be plugin home root + plugin folder name
 // ex: %APPDATA%\..\local\Notepad++\plugins\myAwesomePlugin
-bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
+bool decompress(const wstring& zipFullFilePath, const wstring& unzipDestTo)
 {
 	// if destination folder doesn't exist, create it.
-	if (!::PathFileExistsA(unzipDestTo.c_str()))
+	if (!::PathFileExists(unzipDestTo.c_str()))
 	{
-		if (!::CreateDirectoryA(unzipDestTo.c_str(), NULL))
+		if (!::CreateDirectory(unzipDestTo.c_str(), NULL))
 			return false;
 	}
 
-	ZipArchive::Ptr archive = ZipFile::Open(zipFullFilePath.c_str());
+	string zipFullFilePathA = ws2s(zipFullFilePath);
+	ZipArchive::Ptr archive = ZipFile::Open(zipFullFilePathA.c_str());
 
 	std::istream* decompressStream = nullptr;
 	auto count = archive->GetEntriesCount();
@@ -321,63 +322,65 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 		decompressStream = entry->GetDecompressionStream();
 		assert(decompressStream != nullptr);
 
-		string file2extrait = entry->GetFullName();
-		string extraitFullFilePath = unzipDestTo;
+		wstring file2extrait = s2ws(entry->GetFullName());
+		wstring extraitFullFilePath = unzipDestTo;
 		PathAppend(extraitFullFilePath, file2extrait);
 
 
 		// file2extrait be separated into an array
-		vector<string> strArray = tokenizeString(file2extrait, '/');
-		string folderPath = unzipDestTo;
+		vector<wstring> strArray = tokenizeString(file2extrait, '/');
+		wstring folderPath = unzipDestTo;
 
 		if (entry->IsDirectory())
 		{
 			// if folder doesn't exist, create it.
-			if (!::PathFileExistsA(extraitFullFilePath.c_str()))
+			if (!::PathFileExists(extraitFullFilePath.c_str()))
 			{
-				char msg[1024];
-				sprintf(msg, "[+] Create folder '%s'\n", file2extrait.c_str());
-				OutputDebugStringA(msg);		
+				const size_t msgLen = 1024;
+				wchar_t msg[msgLen];
+				swprintf(msg, msgLen, L"[+] Create folder '%s'\n", file2extrait.c_str());
+				OutputDebugString(msg);		
 
 				for (size_t k = 0; k < strArray.size(); ++k)
 				{
 					PathAppend(folderPath, strArray[k]);
 
-					if (!::PathFileExistsA(folderPath.c_str()))
+					if (!::PathFileExists(folderPath.c_str()))
 					{
-						::CreateDirectoryA(folderPath.c_str(), NULL);
+						::CreateDirectory(folderPath.c_str(), NULL);
 					}
-					else if (!::PathIsDirectoryA(folderPath.c_str())) // The unzip core component is not reliable for the file/directory detection 
+					else if (!::PathIsDirectory(folderPath.c_str())) // The unzip core component is not reliable for the file/directory detection 
 					{                                                 // Hence such hack to make the result is as correct as possible
 						// if it's a file, remove it
 						deleteFileOrFolder(folderPath);
 
 						// create it
-						::CreateDirectoryA(folderPath.c_str(), NULL);
+						::CreateDirectory(folderPath.c_str(), NULL);
 					}
 				}
 			}
 		}
 		else // it's a file
 		{
-			char msg[1024];
-			sprintf(msg, "[+] Extracting file '%s'\n", file2extrait.c_str());
-			OutputDebugStringA(msg);
+			const size_t msgLen = 1024;
+			wchar_t msg[msgLen];
+			swprintf(msg, msgLen, L"[+] Extracting file '%s'\n", file2extrait.c_str());
+			OutputDebugString(msg);
 
 			for (size_t k = 0; k < strArray.size() - 1; ++k) // loop on only directory, not on file (which is the last element)
 			{
 				PathAppend(folderPath, strArray[k]);
-				if (!::PathFileExistsA(folderPath.c_str()))
+				if (!::PathFileExists(folderPath.c_str()))
 				{
-					::CreateDirectoryA(folderPath.c_str(), NULL);
+					::CreateDirectory(folderPath.c_str(), NULL);
 				}
-				else if (!::PathIsDirectoryA(folderPath.c_str())) // The unzip core component is not reliable for the file/directory detection 
+				else if (!::PathIsDirectory(folderPath.c_str())) // The unzip core component is not reliable for the file/directory detection 
 				{                                                 // Hence such hack to make the result is as correct as possible
 					// if it's a file, remove it
 					deleteFileOrFolder(folderPath);
 
 					// create it
-					::CreateDirectoryA(folderPath.c_str(), NULL);
+					::CreateDirectory(folderPath.c_str(), NULL);
 				}
 			}
 
@@ -392,10 +395,10 @@ bool decompress(const string& zipFullFilePath, const string& unzipDestTo)
 	}
 
 	// check installed dll
-	string pluginFolder = PathFindFileNameA(unzipDestTo.c_str());
-	string installedPluginPath = unzipDestTo + "\\" + pluginFolder + ".dll";
+	wstring pluginFolder = PathFindFileName(unzipDestTo.c_str());
+	wstring installedPluginPath = unzipDestTo + L"\\" + pluginFolder + L".dll";
 	
-	if (::PathFileExistsA(installedPluginPath.c_str()))
+	if (::PathFileExists(installedPluginPath.c_str()))
 	{
 		// DLL is deployed correctly.
 		// OK and nothing to do.
@@ -468,9 +471,10 @@ static size_t setProgress(HWND, double dlTotal, double dlSoFar, double, double)
 	SendMessage(hProgressBar, PBM_SETSTEP, (WPARAM)step, 0);
 	SendMessage(hProgressBar, PBM_STEPIT, 0, 0);
 
-	char percentage[128];
-	sprintf(percentage, "Downloading %s: %Iu %%", dlFileName.c_str(), downloadedRatio);
-	::SetWindowTextA(hProgressDlg, percentage);
+	const size_t percentageLen = 1024;
+	wchar_t percentage[percentageLen];
+	swprintf(percentage, percentageLen, L"Downloading %s: %Iu %%", dlFileName.c_str(), downloadedRatio);
+	::SetWindowText(hProgressDlg, percentage);
 	return 0;
 };
 
@@ -502,9 +506,9 @@ LRESULT CALLBACK progressBarDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARA
 				return TRUE;
 			case IDCANCEL:
 				stopDL = true;
-				if (abortOrNot == "")
+				if (abortOrNot == L"")
 					abortOrNot = MSGID_ABORTORNOT;
-				int abortAnswer = ::MessageBoxA(hWndDlg, abortOrNot.c_str(), msgBoxTitle.c_str(), MB_YESNO);
+				int abortAnswer = ::MessageBox(hWndDlg, abortOrNot.c_str(), msgBoxTitle.c_str(), MB_YESNO);
 				if (abortAnswer == IDYES)
 				{
 					doAbort = true;
@@ -526,8 +530,8 @@ LRESULT CALLBACK yesNoNeverDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, LP
 	{
 		case WM_INITDIALOG:
 		{
-			if (thirdDoUpdateDlgButtonLabel != "")
-				::SetDlgItemTextA(hWndDlg, IDCANCEL, thirdDoUpdateDlgButtonLabel.c_str());
+			if (thirdDoUpdateDlgButtonLabel != L"")
+				::SetDlgItemText(hWndDlg, IDCANCEL, thirdDoUpdateDlgButtonLabel.c_str());
 
 			goToScreenCenter(hWndDlg);
 			return TRUE;
@@ -562,7 +566,7 @@ LRESULT CALLBACK proxyDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM)
 	switch(Msg)
 	{
 		case WM_INITDIALOG:
-			::SetDlgItemTextA(hWndDlg, IDC_PROXYSERVER_EDIT, proxySrv.c_str());
+			::SetDlgItemText(hWndDlg, IDC_PROXYSERVER_EDIT, proxySrv.c_str());
 			::SetDlgItemInt(hWndDlg, IDC_PORT_EDIT, proxyPort, FALSE);
 			goToScreenCenter(hWndDlg);
 			return TRUE; 
@@ -572,8 +576,8 @@ LRESULT CALLBACK proxyDlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM)
 			{
 				case IDOK:
 				{
-					char proxyServer[MAX_PATH];
-					::GetDlgItemTextA(hWndDlg, IDC_PROXYSERVER_EDIT, proxyServer, MAX_PATH);
+					wchar_t proxyServer[MAX_PATH];
+					::GetDlgItemText(hWndDlg, IDC_PROXYSERVER_EDIT, proxyServer, MAX_PATH);
 					proxySrv = proxyServer;
 					proxyPort = ::GetDlgItemInt(hWndDlg, IDC_PORT_EDIT, NULL, FALSE);
 					EndDialog(hWndDlg, 1);
@@ -599,61 +603,63 @@ LRESULT CALLBACK updateCheckDlgProc(HWND hWndDlg, UINT message, WPARAM wParam, L
 {
 	switch (message)
 	{
-	case WM_INITDIALOG:
-	{
-		auto* params = reinterpret_cast<UpdateCheckParams*>(lParam);
-		if (params)
+		case WM_INITDIALOG:
 		{
-			const string& title = params->_gupParams.getMessageBoxTitle();
-			if (!title.empty())
-				::SetWindowTextA(hWndDlg, title.c_str());
-			string textMsg = params->_nativeLang.getMessageString("MSGID_NOUPDATE");
-			if (!textMsg.empty())
-				::SetDlgItemTextA(hWndDlg, IDC_UPDATE_STATIC1, textMsg.c_str());
-			string goToDlStr = params->_nativeLang.getMessageString("MSGID_DOWNLOADTEXT");
-			if (!goToDlStr.empty())
+			auto* params = reinterpret_cast<UpdateCheckParams*>(lParam);
+			if (params)
 			{
-				string textLink = "<a id=\"id_download\">";
-				textLink += goToDlStr;
-				textLink += "</a>";
-				::SetDlgItemTextA(hWndDlg, IDC_DOWNLOAD_LINK, textLink.c_str());
-			}
-		}
-		goToScreenCenter(hWndDlg);
-		return TRUE;
-	}
+				const wstring& title = params->_gupParams.getMessageBoxTitle();
+				if (!title.empty())
+					::SetWindowText(hWndDlg, title.c_str());
 
-	case WM_COMMAND:
-	{
-		switch LOWORD((wParam))
-		{
-		case IDOK:
-		case IDYES:
-		case IDNO:
-		case IDCANCEL:
-			EndDialog(hWndDlg, wParam);
+				wstring textMsg = params->_nativeLang.getMessageString("MSGID_NOUPDATE");
+				if (!textMsg.empty())
+					::SetDlgItemText(hWndDlg, IDC_UPDATE_STATIC1, textMsg.c_str());
+
+				wstring goToDlStr = params->_nativeLang.getMessageString("MSGID_DOWNLOADTEXT");
+				if (!goToDlStr.empty())
+				{
+					wstring textLink = L"<a id=\"id_download\">";
+					textLink += goToDlStr;
+					textLink += L"</a>";
+					::SetDlgItemText(hWndDlg, IDC_DOWNLOAD_LINK, textLink.c_str());
+				}
+			}
+			goToScreenCenter(hWndDlg);
 			return TRUE;
-		default:
-			break;
 		}
-	}
 
-	case WM_NOTIFY:
-		switch (((LPNMHDR)lParam)->code)
+		case WM_COMMAND:
 		{
-		case NM_CLICK:
-		case NM_RETURN:
-		{
-			PNMLINK pNMLink = (PNMLINK)lParam;
-			LITEM item = pNMLink->item;
-			if (lstrcmpW(item.szID, L"id_download") == 0)
+			switch LOWORD((wParam))
 			{
-				::ShellExecute(NULL, TEXT("open"), TEXT("https://notepad-plus-plus.org/downloads/"), NULL, NULL, SW_SHOWNORMAL);
+				case IDOK:
+				case IDYES:
+				case IDNO:
+				case IDCANCEL:
+					EndDialog(hWndDlg, wParam);
+					return TRUE;
+				default:
+					break;
+			}
+		}
+
+		case WM_NOTIFY:
+			switch (((LPNMHDR)lParam)->code)
+			{
+				case NM_CLICK:
+				case NM_RETURN:
+				{
+					PNMLINK pNMLink = (PNMLINK)lParam;
+					LITEM item = pNMLink->item;
+					if (lstrcmpW(item.szID, L"id_download") == 0)
+					{
+						::ShellExecute(NULL, TEXT("open"), TEXT("https://notepad-plus-plus.org/downloads/"), NULL, NULL, SW_SHOWNORMAL);
+					}
+					break;
+				}
 			}
 			break;
-		}
-		}
-		break;
 	}
 	return FALSE;
 }
@@ -664,9 +670,9 @@ static DWORD WINAPI launchProgressBar(void *)
 	return 0;
 }
 
-bool downloadBinary(const string& urlFrom, const string& destTo, const string& sha2HashToCheck, pair<string, int> proxyServerInfo, bool isSilentMode, const pair<string, string>& stoppedMessage)
+bool downloadBinary(const wstring& urlFrom, const wstring& destTo, const wstring& sha2HashToCheck, pair<wstring, int> proxyServerInfo, bool isSilentMode, const pair<wstring, wstring>& stoppedMessage)
 {
-	FILE* pFile = fopen(destTo.c_str(), "wb");
+	FILE* pFile = _wfopen(destTo.c_str(), L"wb");
 	if (!pFile)
 		return false;
 
@@ -678,7 +684,7 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 	::CreateThread(NULL, 0, launchProgressBar, NULL, 0, NULL);
 	if (curl)
 	{
-		curl_easy_setopt(curl, CURLOPT_URL, urlFrom.c_str());
+		curl_easy_setopt(curl, CURLOPT_URL, ws2s(urlFrom).c_str());
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, TRUE);
 
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, getDownloadData);
@@ -688,12 +694,12 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 		curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, setProgress);
 		curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, hProgressBar);
 
-		curl_easy_setopt(curl, CURLOPT_USERAGENT, winGupUserAgent.c_str());
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, ws2s(winGupUserAgent).c_str());
 		curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 
 		if (!proxyServerInfo.first.empty() && proxyServerInfo.second != -1)
 		{
-			curl_easy_setopt(curl, CURLOPT_PROXY, proxyServerInfo.first.c_str());
+			curl_easy_setopt(curl, CURLOPT_PROXY, ws2s(proxyServerInfo.first).c_str());
 			curl_easy_setopt(curl, CURLOPT_PROXYPORT, proxyServerInfo.second);
 		}
 		curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_ALLOW_BEAST | CURLSSLOPT_NO_REVOKE);
@@ -707,9 +713,10 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 	{
 		if (!isSilentMode && doAbort == false)
 			::MessageBoxA(NULL, errorBuffer, "curl error", MB_OK);
+
 		if (doAbort)
 		{
-			::MessageBoxA(NULL, stoppedMessage.first.c_str(), stoppedMessage.second.c_str(), MB_OK);
+			::MessageBox(NULL, stoppedMessage.first.c_str(), stoppedMessage.second.c_str(), MB_OK);
 		}
 		doAbort = false;
 		return false;
@@ -724,11 +731,11 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 	if (!sha2HashToCheck.empty())
 	{
 		char sha2hashStr[65] = { '\0' };
-		std::string content = getFileContent(destTo.c_str());
+		std::wstring content = getFileContent(destTo.c_str());
 		if (content.empty())
 		{
 			// Remove installed plugin
-			MessageBoxA(NULL, "The plugin package is not found.", "Plugin cannot be found", MB_OK | MB_APPLMODAL);
+			MessageBox(NULL, L"The plugin package is not found.", L"Plugin cannot be found", MB_OK | MB_APPLMODAL);
 			ok = false;
 		}
 		else
@@ -740,20 +747,22 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 			{
 				sprintf(sha2hashStr + i * 2, "%02x", sha2hash[i]);
 			}
-			string sha2HashToCheckLowerCase = sha2HashToCheck;
+			wstring sha2HashToCheckLowerCase = sha2HashToCheck;
 			std::transform(sha2HashToCheckLowerCase.begin(), sha2HashToCheckLowerCase.end(), sha2HashToCheckLowerCase.begin(),
 				[](char c) { return static_cast<char>(::tolower(c)); });
-			if (sha2HashToCheckLowerCase != sha2hashStr)
+
+			wstring sha2hashStrW = s2ws(sha2hashStr);
+			if (sha2HashToCheckLowerCase != sha2hashStrW)
 			{
-				string pluginPackageName = ::PathFindFileNameA(destTo.c_str());
-				string msg = "The hash of plugin package \"";
+				wstring pluginPackageName = ::PathFindFileName(destTo.c_str());
+				wstring msg = L"The hash of plugin package \"";
 				msg += pluginPackageName;
-				msg += "\" is not correct. Expected:\r";
+				msg += L"\" is not correct. Expected:\r";
 				msg += sha2HashToCheckLowerCase;
-				msg += "\r<> Found:\r";
-				msg += sha2hashStr;
-				msg += "\rThis plugin won't be installed.";
-				MessageBoxA(NULL, msg.c_str(), "Plugin package hash mismatched", MB_OK | MB_APPLMODAL);
+				msg += L"\r<> Found:\r";
+				msg += sha2hashStrW;
+				msg += L"\rThis plugin won't be installed.";
+				MessageBox(NULL, msg.c_str(), L"Plugin package hash mismatched", MB_OK | MB_APPLMODAL);
 				ok = false;
 			}
 		}
@@ -769,7 +778,7 @@ bool downloadBinary(const string& urlFrom, const string& destTo, const string& s
 	return true;
 }
 
-bool getUpdateInfo(const string& info2get, const GupParameters& gupParams, const GupExtraOptions& proxyServer, const string& customParam, const string& version)
+bool getUpdateInfo(const string& info2get, const GupParameters& gupParams, const GupExtraOptions& proxyServer, const wstring& customParam, const wstring& version)
 {
 	char errorBuffer[CURL_ERROR_SIZE] = { 0 };
 
@@ -781,7 +790,7 @@ bool getUpdateInfo(const string& info2get, const GupParameters& gupParams, const
 	curl = curl_easy_init();
 	if (curl)
 	{
-		std::string urlComplete = gupParams.getInfoLocation() + "?version=";
+		std::wstring urlComplete = gupParams.getInfoLocation() + L"?version=";
 		if (!version.empty())
 			urlComplete += version;
 		else
@@ -789,18 +798,18 @@ bool getUpdateInfo(const string& info2get, const GupParameters& gupParams, const
 
 		if (!customParam.empty())
 		{
-			string customParamPost = "&param=";
+			wstring customParamPost = L"&param=";
 			customParamPost += customParam;
 			urlComplete += customParamPost;
 		}
 		else if (!gupParams.getParam().empty())
 		{
-			string customParamPost = "&param=";
+			wstring customParamPost = L"&param=";
 			customParamPost += gupParams.getParam();
 			urlComplete += customParamPost;
 		}
 
-		curl_easy_setopt(curl, CURLOPT_URL, urlComplete.c_str());
+		curl_easy_setopt(curl, CURLOPT_URL, ws2s(urlComplete).c_str());
 
 
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, TRUE);
@@ -808,26 +817,26 @@ bool getUpdateInfo(const string& info2get, const GupParameters& gupParams, const
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, getUpdateInfoCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &info2get);
 
-		string ua = gupParams.getSoftwareName();
+		wstring ua = gupParams.getSoftwareName();
 
 		winGupUserAgent += VERSION_VALUE;
-		if (ua != "")
+		if (ua != L"")
 		{
-			ua += "/";
+			ua += L"/";
 			ua += version;
-			ua += " (";
+			ua += L" (";
 			ua += winGupUserAgent;
-			ua += ")";
+			ua += L")";
 
 			winGupUserAgent = ua;
 		}
 
-		curl_easy_setopt(curl, CURLOPT_USERAGENT, winGupUserAgent.c_str());
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, ws2s(winGupUserAgent).c_str());
 		curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 
 		if (proxyServer.hasProxySettings())
 		{
-			curl_easy_setopt(curl, CURLOPT_PROXY, proxyServer.getProxyServer().c_str());
+			curl_easy_setopt(curl, CURLOPT_PROXY, ws2s(proxyServer.getProxyServer()).c_str());
 			curl_easy_setopt(curl, CURLOPT_PROXYPORT, proxyServer.getPort());
 		}
 
@@ -847,16 +856,16 @@ bool getUpdateInfo(const string& info2get, const GupParameters& gupParams, const
 	return true;
 }
 
-bool runInstaller(const string& app2runPath, const string& binWindowsClassName, const string& closeMsg, const string& closeMsgTitle)
+bool runInstaller(const wstring& app2runPath, const wstring& binWindowsClassName, const wstring& closeMsg, const wstring& closeMsgTitle)
 {
 
 	if (!binWindowsClassName.empty())
 	{
-		HWND h = ::FindWindowExA(NULL, NULL, binWindowsClassName.c_str(), NULL);
+		HWND h = ::FindWindowEx(NULL, NULL, binWindowsClassName.c_str(), NULL);
 
 		if (h)
 		{
-			int installAnswer = ::MessageBoxA(NULL, closeMsg.c_str(), closeMsgTitle.c_str(), MB_YESNO);
+			int installAnswer = ::MessageBox(NULL, closeMsg.c_str(), closeMsgTitle.c_str(), MB_YESNO);
 
 			if (installAnswer == IDNO)
 			{
@@ -868,12 +877,12 @@ bool runInstaller(const string& app2runPath, const string& binWindowsClassName, 
 		while (h)
 		{
 			::SendMessage(h, WM_CLOSE, 0, 0);
-			h = ::FindWindowExA(NULL, NULL, binWindowsClassName.c_str(), NULL);
+			h = ::FindWindowEx(NULL, NULL, binWindowsClassName.c_str(), NULL);
 		}
 	}
 
 	// execute the installer
-	HINSTANCE result = ::ShellExecuteA(NULL, "open", app2runPath.c_str(), "", ".", SW_SHOW);
+	HINSTANCE result = ::ShellExecute(NULL, L"open", app2runPath.c_str(), L"", L".", SW_SHOW);
 
 	if (result <= (HINSTANCE)32) // There's a problem (Don't ask me why, ask Microsoft)
 	{
@@ -890,12 +899,12 @@ bool runInstaller(const string& app2runPath, const string& binWindowsClassName, 
 #define WRITE_LOG(fn, suffix, log)
 #endif
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR lpszCmdLine, int)
 {
 	/*
 	{
-		string destPath = "C:\\tmp\\res\\TagsView";
-		string dlDest = "C:\\tmp\\pb\\TagsView_Npp_03beta.zip";
+		wstring destPath = L"C:\\tmp\\res\\TagsView";
+		wstring dlDest = L"C:\\tmp\\pb\\TagsView_Npp_03beta.zip";
 		bool isSuccessful = decompress(dlDest, destPath);
 		if (isSuccessful)
 		{
@@ -904,13 +913,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	}
 	*/
 	// Debug use - stop here so we can attach this process for debugging
-	//::MessageBoxA(NULL, "And do something dirty to me ;)", "Attach me!", MB_OK);
+	//::MessageBox(NULL, L"And do something dirty to me ;)", L"Attach me!", MB_OK);
 
 	bool isSilentMode = false;
 	FILE *pFile = NULL;
 	
-	string version;
-	string customParam;
+	wstring version;
+	wstring customParam;
 
 	ParamVector params;
 	parseCommandLine(lpszCmdLine, params);
@@ -926,15 +935,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 	if (isHelp)
 	{
-		::MessageBoxA(NULL, MSGID_HELP, "GUP Command Argument Help", MB_OK);
+		::MessageBox(NULL, MSGID_HELP, L"GUP Command Argument Help", MB_OK);
 		return 0;
 	}
 
-	WRITE_LOG("c:\\tmp\\winup.log", "lpszCmdLine: ", lpszCmdLine);
+	WRITE_LOG(L"c:\\tmp\\winup.log", L"lpszCmdLine: ", lpszCmdLine);
 	
-	GupExtraOptions extraOptions("gupOptions.xml");
+	GupExtraOptions extraOptions(L"gupOptions.xml");
 	GupNativeLang nativeLang("nativeLang.xml");
-	GupParameters gupParams("gup.xml");
+	GupParameters gupParams(L"gup.xml");
 
 	//
 	// Plugins Updater
@@ -948,24 +957,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	{
 		if (nbParam < 3)
 		{
-			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (isCleanUp && !isUnzip) // remove only: ", "nbParam < 3");
+			WRITE_LOG(L"c:\\tmp\\winup.log", L"-1 in plugin updater's part - if (isCleanUp && !isUnzip) // remove only: ", L"nbParam < 3");
 			return -1;
 		}
-		string prog2Launch = params[0];
-		char prog2LaunchDir[MAX_PATH];
-		strcpy(prog2LaunchDir, prog2Launch.c_str());
-		::PathRemoveFileSpecA(prog2LaunchDir);
-		string destPathRoot = params[1];
+		wstring prog2Launch = params[0];
+		wchar_t prog2LaunchDir[MAX_PATH];
+		lstrcpy(prog2LaunchDir, prog2Launch.c_str());
+		::PathRemoveFileSpec(prog2LaunchDir);
+		wstring destPathRoot = params[1];
 
 		// clean
 		for (size_t i = 2; i < nbParam; ++i)
 		{
-			string destPath = destPathRoot;
+			wstring destPath = destPathRoot;
 			::PathAppend(destPath, params[i]);
 			deleteFileOrFolder(destPath);
 		}
 
-		::ShellExecuteA(NULL, "open", "explorer.exe", prog2Launch.c_str(), prog2LaunchDir, SW_SHOWNORMAL);
+		::ShellExecute(NULL, L"open", L"explorer.exe", prog2Launch.c_str(), prog2LaunchDir, SW_SHOWNORMAL);
 
 		return 0;
 	}
@@ -981,32 +990,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 	{
 		if (nbParam < 3)
 		{
-			WRITE_LOG("c:\\tmp\\winup.log", "-1 in plugin updater's part - if (isCleanUp && isUnzip) // update: ", "nbParam < 3");
+			WRITE_LOG(L"c:\\tmp\\winup.log", L"-1 in plugin updater's part - if (isCleanUp && isUnzip) // update: ", L"nbParam < 3");
 			return -1;
 		}
-		string prog2Launch = params[0];
-		char prog2LaunchDir[MAX_PATH];
-		strcpy(prog2LaunchDir, prog2Launch.c_str());
-		::PathRemoveFileSpecA(prog2LaunchDir);
-		string destPathRoot = params[1];
+		wstring prog2Launch = params[0];
+		wchar_t prog2LaunchDir[MAX_PATH];
+		lstrcpy(prog2LaunchDir, prog2Launch.c_str());
+		::PathRemoveFileSpec(prog2LaunchDir);
+		wstring destPathRoot = params[1];
 
 		for (size_t i = 2; i < nbParam; ++i)
 		{
-			string destPath = destPathRoot;
+			wstring destPath = destPathRoot;
 
 			// break down param in dest folder name and download url
-			auto pos = params[i].find_last_of(" ");
-			if (pos != string::npos && pos > 0)
+			auto pos = params[i].find_last_of(L" ");
+			if (pos != wstring::npos && pos > 0)
 			{
-				string folder;
-				string dlUrl;
+				wstring folder;
+				wstring dlUrl;
 
-				string tempStr = params[i].substr(0, pos);
-				string sha256ToCheck = params[i].substr(pos + 1, params[i].length() - 1);
+				wstring tempStr = params[i].substr(0, pos);
+				wstring sha256ToCheck = params[i].substr(pos + 1, params[i].length() - 1);
 				if (sha256ToCheck.length() != 64)
 					continue;
 
-				auto pos2 = tempStr.find_last_of(" ");
+				auto pos2 = tempStr.find_last_of(L" ");
 				if (pos2 != string::npos && pos2 > 0)
 				{
 					// 3 parts - OK
@@ -1022,46 +1031,46 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 				::PathAppend(destPath, folder);
 
 				// Make a backup path
-				string backup4RestoreInCaseOfFailedPath;
+				wstring backup4RestoreInCaseOfFailedPath;
 				if (isCleanUp) // Update
 				{
 					//deleteFileOrFolder(destPath);
 
 					// check if renamed folder exist, if it does, delete it
-					backup4RestoreInCaseOfFailedPath = destPath + ".backup4RestoreInCaseOfFailed";
-					if (::PathFileExistsA(backup4RestoreInCaseOfFailedPath.c_str()))
+					backup4RestoreInCaseOfFailedPath = destPath + L".backup4RestoreInCaseOfFailed";
+					if (::PathFileExists(backup4RestoreInCaseOfFailedPath.c_str()))
 						deleteFileOrFolder(backup4RestoreInCaseOfFailedPath);
 
 					// rename the folder with suffix ".backup4RestoreInCaseOfFailed"
-					::MoveFileA(destPath.c_str(), backup4RestoreInCaseOfFailedPath.c_str());
+					::MoveFile(destPath.c_str(), backup4RestoreInCaseOfFailedPath.c_str());
 				}
 
 				// install
-				std::string dlDest = std::getenv("TEMP");
-				dlDest += "\\";
-				dlDest += ::PathFindFileNameA(dlUrl.c_str());
+				std::wstring dlDest = _wgetenv(L"TEMP");
+				dlDest += L"\\";
+				dlDest += ::PathFindFileName(dlUrl.c_str());
 
-				char *ext = ::PathFindExtensionA(dlDest.c_str());
-				if (strcmp(ext, ".zip") != 0)
-					dlDest += ".zip";
+				wchar_t *ext = ::PathFindExtension(dlDest.c_str());
+				if (lstrcmp(ext, L".zip") != 0)
+					dlDest += L".zip";
 
-				dlFileName = ::PathFindFileNameA(dlUrl.c_str());
+				dlFileName = ::PathFindFileName(dlUrl.c_str());
 
-				string dlStopped = nativeLang.getMessageString("MSGID_DOWNLOADSTOPPED");
-				if (dlStopped == "")
+				wstring dlStopped = nativeLang.getMessageString("MSGID_DOWNLOADSTOPPED");
+				if (dlStopped == L"")
 					dlStopped = MSGID_DOWNLOADSTOPPED;
 
-				bool isSuccessful = downloadBinary(dlUrl, dlDest, sha256ToCheck, pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
+				bool isSuccessful = downloadBinary(dlUrl, dlDest, sha256ToCheck, pair<wstring, int>(extraOptions.getProxyServer(), extraOptions.getPort()), true, pair<wstring, wstring>(dlStopped, gupParams.getMessageBoxTitle()));
 				if (isSuccessful)
 				{
 					isSuccessful = decompress(dlDest, destPath);
 					if (!isSuccessful)
 					{
-						string unzipFailed = nativeLang.getMessageString("MSGID_UNZIPFAILED");
-						if (unzipFailed == "")
+						wstring unzipFailed = nativeLang.getMessageString("MSGID_UNZIPFAILED");
+						if (unzipFailed == L"")
 							unzipFailed = MSGID_UNZIPFAILED;
 
-						::MessageBoxA(NULL, unzipFailed.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_OK);
+						::MessageBox(NULL, unzipFailed.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_OK);
 
 						// Delete incomplete unzipped folder
 						deleteFileOrFolder(destPath);
@@ -1069,7 +1078,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 						if (!backup4RestoreInCaseOfFailedPath.empty())
 						{
 							// rename back the folder
-							::MoveFileA(backup4RestoreInCaseOfFailedPath.c_str(), destPath.c_str());
+							::MoveFile(backup4RestoreInCaseOfFailedPath.c_str(), destPath.c_str());
 						}
 					}
 					else
@@ -1082,20 +1091,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 					}
 
 					// Remove downloaded zip from TEMP folder
-					::DeleteFileA(dlDest.c_str());
+					::DeleteFile(dlDest.c_str());
 				}
 				else
 				{
 					if (!backup4RestoreInCaseOfFailedPath.empty())
 					{
 						// delete the folder with suffix ".backup4RestoreInCaseOfFailed"
-						::MoveFileA(backup4RestoreInCaseOfFailedPath.c_str(), destPath.c_str());
+						::MoveFile(backup4RestoreInCaseOfFailedPath.c_str(), destPath.c_str());
 					}
 				}
 			}
 		}
 
-		::ShellExecuteA(NULL, "open", "explorer.exe", prog2Launch.c_str(), prog2LaunchDir, SW_SHOWNORMAL);
+		::ShellExecute(NULL, L"open", L"explorer.exe", prog2Launch.c_str(), prog2LaunchDir, SW_SHOWNORMAL);
 		return 0;
 	}
 
@@ -1112,7 +1121,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 				proxyPort = extraOptions.getPort();
 			}
 			if (::DialogBox(hInst, MAKEINTRESOURCE(IDD_PROXY_DLG), NULL, reinterpret_cast<DLGPROC>(proxyDlgProc)))
-				extraOptions.writeProxyInfo("gupOptions.xml", proxySrv.c_str(), proxyPort);
+				extraOptions.writeProxyInfo(L"gupOptions.xml", proxySrv.c_str(), proxyPort);
 
 			return 0;
 		}
@@ -1141,11 +1150,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 
 		if (!getUpdateInfoSuccessful)
 		{
-			WRITE_LOG("c:\\tmp\\winup.log", "return -1 in Npp Updater part: ", "getUpdateInfo func failed.");
+			WRITE_LOG(L"c:\\tmp\\winup.log", L"return -1 in Npp Updater part: ", L"getUpdateInfo func failed.");
 			return -1;
 		}
 
-		HWND hApp = ::FindWindowExA(NULL, NULL, gupParams.getClassName().c_str(), NULL);
+		HWND hApp = ::FindWindowEx(NULL, NULL, gupParams.getClassName().c_str(), NULL);
 		bool isModal = gupParams.isMessageBoxModal();
 		GupDownloadInfo gupDlInfo(updateInfo.c_str());
 
@@ -1166,8 +1175,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		//
 
 		// Ask user if he/she want to do update
-		string updateAvailable = nativeLang.getMessageString("MSGID_UPDATEAVAILABLE");
-		if (updateAvailable == "")
+		wstring updateAvailable = nativeLang.getMessageString("MSGID_UPDATEAVAILABLE");
+		if (updateAvailable == L"")
 			updateAvailable = MSGID_UPDATEAVAILABLE;
 		
 		int thirdButtonCmd = gupParams.get3rdButtonCmd();
@@ -1176,7 +1185,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		int dlAnswer = 0;
 
 		if (!thirdButtonCmd)
-			dlAnswer = ::MessageBoxA(isModal ? hApp : NULL, updateAvailable.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_YESNO);
+			dlAnswer = ::MessageBox(isModal ? hApp : NULL, updateAvailable.c_str(), gupParams.getMessageBoxTitle().c_str(), MB_YESNO);
 		else
 			dlAnswer = static_cast<int32_t>(::DialogBox(hInst, MAKEINTRESOURCE(IDD_YESNONEVERDLG), isModal ? hApp : NULL, reinterpret_cast<DLGPROC>(yesNoNeverDlgProc)));
 
@@ -1187,7 +1196,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		
 		if (dlAnswer == IDCANCEL)
 		{
-			if (gupParams.getClassName() != "")
+			if (gupParams.getClassName() != L"")
 			{
 				if (hApp)
 				{
@@ -1201,35 +1210,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		// Download executable bin
 		//
 
-		std::string dlDest = std::getenv("TEMP");
-		dlDest += "\\";
-		dlDest += ::PathFindFileNameA(gupDlInfo.getDownloadLocation().c_str());
+		std::wstring dlDest = _wgetenv(L"TEMP");
+		dlDest += L"\\";
+		dlDest += ::PathFindFileName(gupDlInfo.getDownloadLocation().c_str());
 
-        char *ext = ::PathFindExtensionA(gupDlInfo.getDownloadLocation().c_str());
-        if (strcmp(ext, ".exe") != 0)
-            dlDest += ".exe";
+        wchar_t *ext = ::PathFindExtension(gupDlInfo.getDownloadLocation().c_str());
+        if (lstrcmpW(ext, L".exe") != 0)
+            dlDest += L".exe";
 
-		dlFileName = ::PathFindFileNameA(gupDlInfo.getDownloadLocation().c_str());
+		dlFileName = ::PathFindFileName(gupDlInfo.getDownloadLocation().c_str());
 
 
-		string dlStopped = nativeLang.getMessageString("MSGID_DOWNLOADSTOPPED");
-		if (dlStopped == "")
+		wstring dlStopped = nativeLang.getMessageString("MSGID_DOWNLOADSTOPPED");
+		if (dlStopped == L"")
 			dlStopped = MSGID_DOWNLOADSTOPPED;
 
-		bool dlSuccessful = downloadBinary(gupDlInfo.getDownloadLocation(), dlDest, "", pair<string, int>(extraOptions.getProxyServer(), extraOptions.getPort()), isSilentMode, pair<string, string>(dlStopped, gupParams.getMessageBoxTitle()));
+		bool dlSuccessful = downloadBinary(gupDlInfo.getDownloadLocation(), dlDest, L"", pair<wstring, int>(extraOptions.getProxyServer(), extraOptions.getPort()), isSilentMode, pair<wstring, wstring>(dlStopped, gupParams.getMessageBoxTitle()));
 
 		if (!dlSuccessful)
 		{
-			WRITE_LOG("c:\\tmp\\winup.log", "return -1 in Npp Updater part: ", "downloadBinary func failed.");
+			WRITE_LOG(L"c:\\tmp\\winup.log", L"return -1 in Npp Updater part: ", L"downloadBinary func failed.");
 			return -1;
 		}
 
 		//
 		// Run executable bin
 		//
-		string msg = gupParams.getClassName();
-		string closeApp = nativeLang.getMessageString("MSGID_CLOSEAPP");
-		if (closeApp == "")
+		wstring msg = gupParams.getClassName();
+		wstring closeApp = nativeLang.getMessageString("MSGID_CLOSEAPP");
+		if (closeApp == L"")
 			closeApp = MSGID_CLOSEAPP;
 		msg += closeApp;
 
@@ -1244,7 +1253,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		if (pFile != NULL)
 			fclose(pFile);
 
-		WRITE_LOG("c:\\tmp\\winup.log", "return -1 in Npp Updater part, exception: ", ex.what());
+		WRITE_LOG(L"c:\\tmp\\winup.log", L"return -1 in Npp Updater part, exception: ", s2ws(ex.what()).c_str());
 		return -1;
 	}
 	catch (...)
@@ -1255,7 +1264,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		if (pFile != NULL)
 			fclose(pFile);
 
-		WRITE_LOG("c:\\tmp\\winup.log", "return -1 in Npp Updater part, exception: ", "Unknown Exception");
+		WRITE_LOG(L"c:\\tmp\\winup.log", L"return -1 in Npp Updater part, exception: ", L"Unknown Exception");
 		return -1;
 	}
 }

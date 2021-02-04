@@ -20,14 +20,14 @@
 
 <!-- This file is optional.-->
 
-<GUP_NativeLangue name="français" version="5.1.2">
+<GUP_NativeLangue name="English" version="5.1.2">
 	<PopupMessages>
-		<MSGID_NOUPDATE content="La mise à jour n'est pas disponible.&#xD;&#xD;Elle n'est éventuellement pas encore déclenchée."/>
-		<MSGID_UPDATEAVAILABLE content="Une mise à jour est disponible, voulez-vous le télécharger?"/>
-		<MSGID_DOWNLOADTEXT content="Aller à la page de téléchargement"/>
-		<MSGID_DOWNLOADSTOPPED content="Le téléchargement est interrompu. La mise à jour ne sera pas poursuivie."/>
-		<MSGID_CLOSEAPP content=" est ouvert. Il sera fermé afin de pouvoir poursuivre l'installation. Continue?"/>
-		<MSGID_ABORTORNOT content="Etes-vous sûr d'interrompre le téléchargement?"/>
-		<MSGID_UNZIPFAILED content="Impossible de dézipper: l'opération n'est pas permise ou la décompression a échoué."/>
+		<MSGID_NOUPDATE content="No update is available.&#xD;&#xD;The auto-update may not have been activated yet." />
+		<MSGID_UPDATEAVAILABLE content="An update package is available, do you want to download it?" />
+		<MSGID_DOWNLOADTEXT content="Go to the download page" />
+		<MSGID_DOWNLOADSTOPPED content="Download is stopped by user. Update is aborted." />
+		<MSGID_CLOSEAPP content=" is opened.&#xD;Updater will close it in order to process the installation.&#xD;Continue?" />
+		<MSGID_ABORTORNOT content="Do you want to abort update download?" />
+		<MSGID_UNZIPFAILED content="Can't unzip: Operation not permitted or decompression failed" />
 	</PopupMessages>
 </GUP_NativeLangue>
