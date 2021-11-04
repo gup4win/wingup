@@ -220,8 +220,8 @@ static size_t setProgress(HWND, double t, double d, double, double)
 	// Once downloading is finish (100%) close the progress bar dialog
 	// as there is no need to keep it opened because
 	// new dailog asking to close the app will appear (if specified classname in configuration)
-	static bool IsDialogClosed = false;
-	if (!IsDialogClosed)
+	static bool isDialogClosed = false;
+	if (!isDialogClosed)
 	{
 		while (stopDL)
 			::Sleep(1000);
@@ -243,7 +243,7 @@ static size_t setProgress(HWND, double t, double d, double, double)
 		if (ratio == 100)
 		{
 			SendMessage(hProgressDlg, WM_COMMAND, IDOK, 0);
-			IsDialogClosed = true;
+			isDialogClosed = true;
 		}
 	}
 	return 0;
