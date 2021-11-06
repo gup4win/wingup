@@ -88,7 +88,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\src\libcurl\include;..\src\TinyXml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader />
@@ -96,10 +96,12 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl_debug.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\curl\builds\libcurl-vc14-x86-debug-dll-ipv6-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\curl\builds\libcurl-vc15-x86-debug-dll-ipv6-sspi-schannel\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -121,10 +123,12 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl_debug.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\curl\builds\libcurl-vc14-x64-debug-dll-ipv6-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\curl\builds\libcurl-vc15-x64-debug-dll-ipv6-sspi-schannel\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
     </Link>
@@ -147,6 +151,8 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -163,7 +169,7 @@ copy ..\src\ConfigFiles\gup.xml ..\bin\gup.xml
 copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin\getDownLoadUrl.php
 copy ..\LICENSE ..\bin\LICENSE
 copy ..\README.md ..\bin\README.md
-copy ..\curl\builds\libcurl-vc14-x86-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin\libcurl.dll
+copy ..\curl\builds\libcurl-vc15-x86-release-dll-ipv6-sspi-schannel\bin\libcurl.dll ..\bin\libcurl.dll
 xcopy ..\src\translations ..\bin\translations\ /S /Y /E
 del ..\bin\GUP.iobj
 del ..\bin\GUP.ipdb</Command>
@@ -187,6 +193,8 @@ del ..\bin\GUP.ipdb</Command>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>None</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl.lib;comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -202,7 +210,7 @@ copy ..\src\ConfigFiles\gup.xml ..\bin64\gup.xml
 copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin64\getDownLoadUrl.php
 copy ..\LICENSE ..\bin64\LICENSE
 copy ..\README.md ..\bin64\README.md
-copy ..\curl\builds\libcurl-vc14-x64-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin64\libcurl.dll
+copy ..\curl\builds\libcurl-vc15-x64-release-dll-ipv6-sspi-schannel\bin\libcurl.dll ..\bin64\libcurl.dll
 xcopy ..\src\translations ..\bin64\translations\  /S /Y /E
 del ..\bin64\GUP.iobj
 del ..\bin64\GUP.ipdb</Command>

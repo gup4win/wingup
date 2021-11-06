@@ -1,11 +1,10 @@
-version: 4.1.{build}
+version: 4.2.{build}
 image: Visual Studio 2017
 
 
 environment:
   matrix:
-  - PlatformToolset: v140_xp
-  - PlatformToolset: v141_xp
+  - PlatformToolset: v141
 
 platform:
     - x64
@@ -22,15 +21,14 @@ install:
     - if "%platform%"=="Win32" set archi=x86
     - if "%platform%"=="Win32" set platform_input=Win32
 
-    - if "%PlatformToolset%"=="v140_xp" call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %archi%
-    - if "%PlatformToolset%"=="v141_xp" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %archi%
+    - if "%PlatformToolset%"=="v141" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %archi%
 
 
 build_script:
     - cd "%APPVEYOR_BUILD_FOLDER%"\curl\winbuild
     - if "%configuration%"=="Debug" set debugflag=yes
     - if "%configuration%"=="Release" set debugflag=no
-    - nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static DEBUG="%debugflag%" 
+    - nmake /f Makefile.vc mode=dll vc=15 RTLIBCFG=static DEBUG="%debugflag%" 
 
     - cd "%APPVEYOR_BUILD_FOLDER%"\vcproj
     - msbuild GUP.vcxproj /m /p:configuration="%configuration%" /p:platform="%platform_input%" /p:PlatformToolset="%PlatformToolset%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
@@ -41,39 +39,11 @@ after_build:
 
         if ($env:PLATFORM_INPUT -eq "x64" -and $env:CONFIGURATION -eq "Release") {
             Push-AppveyorArtifact "bin64\GUP.exe" -FileName GUP.exe
-            Push-AppveyorArtifact curl\builds\libcurl-vc14-x64-release-dll-ipv6-sspi-winssl\bin\libcurl.dll -FileName libcurl.dll
+            Push-AppveyorArtifact curl\builds\libcurl-vc15-x64-release-dll-ipv6-sspi-schannel\bin\libcurl.dll -FileName libcurl.dll
         }
 
         if ($env:PLATFORM_INPUT -eq "Win32" -and $env:CONFIGURATION -eq "Release") {
             Push-AppveyorArtifact "bin\GUP.exe" -FileName GUP.exe
-            Push-AppveyorArtifact curl\builds\libcurl-vc14-x86-release-dll-ipv6-sspi-winssl\bin\libcurl.dll -FileName libcurl.dll
+            Push-AppveyorArtifact curl\builds\libcurl-vc15-x86-release-dll-ipv6-sspi-schannel\bin\libcurl.dll -FileName libcurl.dll
         }
-
-        if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release" -and $env:PLATFORMTOOLSET -eq "v140_xp") {
-            if($env:PLATFORM_INPUT -eq "x64"){
-            $ZipFileName = "wingup.$($env:APPVEYOR_REPO_TAG_NAME).bin.x64.zip"
-            7z a $ZipFileName bin64\*
-            }
-            if($env:PLATFORM_INPUT -eq "Win32"){
-            $ZipFileName = "wingup.$($env:APPVEYOR_REPO_TAG_NAME).bin.zip"
-            7z a $ZipFileName bin\*
-            }
-        }
-
-artifacts:
-  - path: wingup_*.zip
-    name: releases
-
-deploy:
-    provider: GitHub
-    auth_token:
-        secure: !!TODO, see https://www.appveyor.com/docs/deployment/github/#provider-settings!!
-    artifact: releases
-    draft: false
-    prerelease: false
-    force_update: true
-    on:
-        appveyor_repo_tag: true
-        PlatformToolset: v140_xp
-        configuration: Release
 
