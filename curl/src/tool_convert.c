@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2012, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2021, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -65,7 +65,7 @@ CURLcode convert_to_network(char *buffer, size_t length)
   in_bytes = out_bytes = length;
   res = iconv(outbound_cd, &input_ptr,  &in_bytes,
               &output_ptr, &out_bytes);
-  if((res == (size_t)-1) || (in_bytes != 0)) {
+  if((res == (size_t)-1) || (in_bytes)) {
     return CURLE_CONV_FAILED;
   }
 
@@ -95,7 +95,7 @@ CURLcode convert_from_network(char *buffer, size_t length)
   in_bytes = out_bytes = length;
   res = iconv(inbound_cd, &input_ptr,  &in_bytes,
               &output_ptr, &out_bytes);
-  if((res == (size_t)-1) || (in_bytes != 0)) {
+  if((res == (size_t)-1) || (in_bytes)) {
     return CURLE_CONV_FAILED;
   }
 
@@ -122,15 +122,13 @@ char convert_char(curl_infotype infotype, char this_char)
   case CURLINFO_SSL_DATA_IN:
   case CURLINFO_SSL_DATA_OUT:
     /* data, treat as ASCII */
-    if((this_char >= 0x20) && (this_char < 0x7f)) {
-      /* printable ASCII hex value: convert to host encoding */
-      (void)convert_from_network(&this_char, 1);
-    }
-    else {
+    if(this_char < 0x20 || this_char >= 0x7f) {
       /* non-printable ASCII, use a replacement character */
       return UNPRINTABLE_CHAR;
     }
-    /* fall through to default */
+    /* printable ASCII hex value: convert to host encoding */
+    (void)convert_from_network(&this_char, 1);
+    /* FALLTHROUGH */
   default:
     /* treat as host encoding */
     if(ISPRINT(this_char)
@@ -147,4 +145,3 @@ char convert_char(curl_infotype infotype, char this_char)
 }
 
 #endif /* CURL_DOES_CONVERSIONS */
-

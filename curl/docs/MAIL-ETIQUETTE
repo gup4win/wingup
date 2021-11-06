@@ -34,7 +34,7 @@ MAIL ETIQUETTE
   1.1 Mailing Lists
 
   The mailing lists we have are all listed and described at
-  https://curl.haxx.se/mail/
+  https://curl.se/mail/
 
   Each mailing list is targeted to a specific set of users and subjects,
   please use the one or the ones that suit you the most.
@@ -170,7 +170,7 @@ MAIL ETIQUETTE
   send your email to.
 
   Your email as sent to a curl mailing list will end up in mail archives, on
-  the curl web site and elsewhere, for others to see and read. Today and in
+  the curl website and elsewhere, for others to see and read. Today and in
   the future. In addition to the archives, the mail is sent out to thousands
   of individuals. There is no way to undo a sent email.
 
@@ -179,8 +179,8 @@ MAIL ETIQUETTE
   or just remove them completely from the mail. Note that this includes base64
   encoded HTTP Basic auth headers.
 
-  This public nature of the curl mailing lists makes automaticly inserted mail
-  footers about mails being "private" or "only meant for the receipient" or
+  This public nature of the curl mailing lists makes automatically inserted mail
+  footers about mails being "private" or "only meant for the recipient" or
   similar even more silly than usual. Because they are absolutely not private
   when sent to a public mailing list.
 

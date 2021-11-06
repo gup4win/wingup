@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2021, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -30,6 +30,8 @@
 #include "formdata.h"
 #include "sendf.h"
 #include "urldata.h"
+#include "multiif.h"
+#include "strerror.h"
 
 #include "curl_memory.h"
 /* The last #include file should be: */
@@ -77,14 +79,17 @@ CURLcode Curl_convert_clone(struct Curl_easy *data,
 
 /*
  * Curl_convert_to_network() is an internal function for performing ASCII
- * conversions on non-ASCII platforms. It convers the buffer _in place_.
+ * conversions on non-ASCII platforms. It converts the buffer _in place_.
  */
 CURLcode Curl_convert_to_network(struct Curl_easy *data,
                                  char *buffer, size_t length)
 {
   if(data && data->set.convtonetwork) {
     /* use translation callback */
-    CURLcode result = data->set.convtonetwork(buffer, length);
+    CURLcode result;
+    Curl_set_in_callback(data, true);
+    result = data->set.convtonetwork(buffer, length);
+    Curl_set_in_callback(data, false);
     if(result) {
       failf(data,
             "CURLOPT_CONV_TO_NETWORK_FUNCTION callback returned %d: %s",
@@ -100,6 +105,7 @@ CURLcode Curl_convert_to_network(struct Curl_easy *data,
     iconv_t *cd = &tmpcd;
     char *input_ptr, *output_ptr;
     size_t in_bytes, out_bytes, rc;
+    char ebuffer[STRERROR_LEN];
 
     /* open an iconv conversion descriptor if necessary */
     if(data)
@@ -112,7 +118,7 @@ CURLcode Curl_convert_to_network(struct Curl_easy *data,
               "The iconv_open(\"%s\", \"%s\") call failed with errno %i: %s",
               CURL_ICONV_CODESET_OF_NETWORK,
               CURL_ICONV_CODESET_OF_HOST,
-              errno, strerror(errno));
+              errno, Curl_strerror(errno, ebuffer, sizeof(ebuffer)));
         return CURLE_CONV_FAILED;
       }
     }
@@ -123,10 +129,10 @@ CURLcode Curl_convert_to_network(struct Curl_easy *data,
                &output_ptr, &out_bytes);
     if(!data)
       iconv_close(tmpcd);
-    if((rc == ICONV_ERROR) || (in_bytes != 0)) {
+    if((rc == ICONV_ERROR) || (in_bytes)) {
       failf(data,
             "The Curl_convert_to_network iconv call failed with errno %i: %s",
-            errno, strerror(errno));
+            errno, Curl_strerror(errno, ebuffer, sizeof(ebuffer)));
       return CURLE_CONV_FAILED;
     }
 #else
@@ -140,14 +146,17 @@ CURLcode Curl_convert_to_network(struct Curl_easy *data,
 
 /*
  * Curl_convert_from_network() is an internal function for performing ASCII
- * conversions on non-ASCII platforms. It convers the buffer _in place_.
+ * conversions on non-ASCII platforms. It converts the buffer _in place_.
  */
 CURLcode Curl_convert_from_network(struct Curl_easy *data,
                                    char *buffer, size_t length)
 {
   if(data && data->set.convfromnetwork) {
     /* use translation callback */
-    CURLcode result = data->set.convfromnetwork(buffer, length);
+    CURLcode result;
+    Curl_set_in_callback(data, true);
+    result = data->set.convfromnetwork(buffer, length);
+    Curl_set_in_callback(data, false);
     if(result) {
       failf(data,
             "CURLOPT_CONV_FROM_NETWORK_FUNCTION callback returned %d: %s",
@@ -163,6 +172,7 @@ CURLcode Curl_convert_from_network(struct Curl_easy *data,
     iconv_t *cd = &tmpcd;
     char *input_ptr, *output_ptr;
     size_t in_bytes, out_bytes, rc;
+    char ebuffer[STRERROR_LEN];
 
     /* open an iconv conversion descriptor if necessary */
     if(data)
@@ -175,7 +185,7 @@ CURLcode Curl_convert_from_network(struct Curl_easy *data,
               "The iconv_open(\"%s\", \"%s\") call failed with errno %i: %s",
               CURL_ICONV_CODESET_OF_HOST,
               CURL_ICONV_CODESET_OF_NETWORK,
-              errno, strerror(errno));
+              errno, Curl_strerror(errno, ebuffer, sizeof(ebuffer)));
         return CURLE_CONV_FAILED;
       }
     }
@@ -186,10 +196,10 @@ CURLcode Curl_convert_from_network(struct Curl_easy *data,
                &output_ptr, &out_bytes);
     if(!data)
       iconv_close(tmpcd);
-    if((rc == ICONV_ERROR) || (in_bytes != 0)) {
+    if((rc == ICONV_ERROR) || (in_bytes)) {
       failf(data,
             "Curl_convert_from_network iconv call failed with errno %i: %s",
-            errno, strerror(errno));
+            errno, Curl_strerror(errno, ebuffer, sizeof(ebuffer)));
       return CURLE_CONV_FAILED;
     }
 #else
@@ -210,7 +220,10 @@ CURLcode Curl_convert_from_utf8(struct Curl_easy *data,
 {
   if(data && data->set.convfromutf8) {
     /* use translation callback */
-    CURLcode result = data->set.convfromutf8(buffer, length);
+    CURLcode result;
+    Curl_set_in_callback(data, true);
+    result = data->set.convfromutf8(buffer, length);
+    Curl_set_in_callback(data, false);
     if(result) {
       failf(data,
             "CURLOPT_CONV_FROM_UTF8_FUNCTION callback returned %d: %s",
@@ -227,6 +240,7 @@ CURLcode Curl_convert_from_utf8(struct Curl_easy *data,
     char *input_ptr;
     char *output_ptr;
     size_t in_bytes, out_bytes, rc;
+    char ebuffer[STRERROR_LEN];
 
     /* open an iconv conversion descriptor if necessary */
     if(data)
@@ -239,7 +253,7 @@ CURLcode Curl_convert_from_utf8(struct Curl_easy *data,
               "The iconv_open(\"%s\", \"%s\") call failed with errno %i: %s",
               CURL_ICONV_CODESET_OF_HOST,
               CURL_ICONV_CODESET_FOR_UTF8,
-              errno, strerror(errno));
+              errno, Curl_strerror(errno, ebuffer, sizeof(ebuffer)));
         return CURLE_CONV_FAILED;
       }
     }
@@ -250,10 +264,10 @@ CURLcode Curl_convert_from_utf8(struct Curl_easy *data,
                &output_ptr, &out_bytes);
     if(!data)
       iconv_close(tmpcd);
-    if((rc == ICONV_ERROR) || (in_bytes != 0)) {
+    if((rc == ICONV_ERROR) || (in_bytes)) {
       failf(data,
             "The Curl_convert_from_utf8 iconv call failed with errno %i: %s",
-            errno, strerror(errno));
+            errno, Curl_strerror(errno, ebuffer, sizeof(ebuffer)));
       return CURLE_CONV_FAILED;
     }
     if(output_ptr < input_ptr) {

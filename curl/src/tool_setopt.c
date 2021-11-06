@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2021, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -31,8 +31,8 @@
 #include "tool_easysrc.h"
 #include "tool_setopt.h"
 #include "tool_convert.h"
+#include "tool_msgs.h"
 
-#include "mime.h"
 #include "memdebug.h" /* keep this as LAST include */
 
 /* Lookup tables for converting setopt values back to symbols */
@@ -44,7 +44,7 @@
 #define NV1(e, v) {#e, (v)}
 #define NVEND {NULL, 0}         /* sentinel to mark end of list */
 
-const NameValue setopt_nv_CURLPROXY[] = {
+const struct NameValue setopt_nv_CURLPROXY[] = {
   NV(CURLPROXY_HTTP),
   NV(CURLPROXY_HTTP_1_0),
   NV(CURLPROXY_HTTPS),
@@ -55,7 +55,7 @@ const NameValue setopt_nv_CURLPROXY[] = {
   NVEND,
 };
 
-const NameValue setopt_nv_CURL_SOCKS_PROXY[] = {
+const struct NameValue setopt_nv_CURL_SOCKS_PROXY[] = {
   NV(CURLPROXY_SOCKS4),
   NV(CURLPROXY_SOCKS5),
   NV(CURLPROXY_SOCKS4A),
@@ -63,7 +63,12 @@ const NameValue setopt_nv_CURL_SOCKS_PROXY[] = {
   NVEND,
 };
 
-const NameValueUnsigned setopt_nv_CURLAUTH[] = {
+const struct NameValueUnsigned setopt_nv_CURLHSTS[] = {
+  NV(CURLHSTS_ENABLE),
+  NVEND,
+};
+
+const struct NameValueUnsigned setopt_nv_CURLAUTH[] = {
   NV(CURLAUTH_ANY),             /* combination */
   NV(CURLAUTH_ANYSAFE),         /* combination */
   NV(CURLAUTH_BASIC),
@@ -77,16 +82,17 @@ const NameValueUnsigned setopt_nv_CURLAUTH[] = {
   NVEND,
 };
 
-const NameValue setopt_nv_CURL_HTTP_VERSION[] = {
+const struct NameValue setopt_nv_CURL_HTTP_VERSION[] = {
   NV(CURL_HTTP_VERSION_NONE),
   NV(CURL_HTTP_VERSION_1_0),
   NV(CURL_HTTP_VERSION_1_1),
   NV(CURL_HTTP_VERSION_2_0),
   NV(CURL_HTTP_VERSION_2TLS),
+  NV(CURL_HTTP_VERSION_3),
   NVEND,
 };
 
-const NameValue setopt_nv_CURL_SSLVERSION[] = {
+const struct NameValue setopt_nv_CURL_SSLVERSION[] = {
   NV(CURL_SSLVERSION_DEFAULT),
   NV(CURL_SSLVERSION_TLSv1),
   NV(CURL_SSLVERSION_SSLv2),
@@ -98,7 +104,7 @@ const NameValue setopt_nv_CURL_SSLVERSION[] = {
   NVEND,
 };
 
-const NameValue setopt_nv_CURL_TIMECOND[] = {
+const struct NameValue setopt_nv_CURL_TIMECOND[] = {
   NV(CURL_TIMECOND_IFMODSINCE),
   NV(CURL_TIMECOND_IFUNMODSINCE),
   NV(CURL_TIMECOND_LASTMOD),
@@ -106,14 +112,14 @@ const NameValue setopt_nv_CURL_TIMECOND[] = {
   NVEND,
 };
 
-const NameValue setopt_nv_CURLFTPSSL_CCC[] = {
+const struct NameValue setopt_nv_CURLFTPSSL_CCC[] = {
   NV(CURLFTPSSL_CCC_NONE),
   NV(CURLFTPSSL_CCC_PASSIVE),
   NV(CURLFTPSSL_CCC_ACTIVE),
   NVEND,
 };
 
-const NameValue setopt_nv_CURLUSESSL[] = {
+const struct NameValue setopt_nv_CURLUSESSL[] = {
   NV(CURLUSESSL_NONE),
   NV(CURLUSESSL_TRY),
   NV(CURLUSESSL_CONTROL),
@@ -121,13 +127,17 @@ const NameValue setopt_nv_CURLUSESSL[] = {
   NVEND,
 };
 
-const NameValueUnsigned setopt_nv_CURLSSLOPT[] = {
+const struct NameValueUnsigned setopt_nv_CURLSSLOPT[] = {
   NV(CURLSSLOPT_ALLOW_BEAST),
   NV(CURLSSLOPT_NO_REVOKE),
+  NV(CURLSSLOPT_NO_PARTIALCHAIN),
+  NV(CURLSSLOPT_REVOKE_BEST_EFFORT),
+  NV(CURLSSLOPT_NATIVE_CA),
+  NV(CURLSSLOPT_AUTO_CLIENT_CERT),
   NVEND,
 };
 
-const NameValue setopt_nv_CURL_NETRC[] = {
+const struct NameValue setopt_nv_CURL_NETRC[] = {
   NV(CURL_NETRC_IGNORED),
   NV(CURL_NETRC_OPTIONAL),
   NV(CURL_NETRC_REQUIRED),
@@ -136,7 +146,7 @@ const NameValue setopt_nv_CURL_NETRC[] = {
 
 /* These mappings essentially triplicated - see
  * tool_libinfo.c and tool_paramhlp.c */
-const NameValue setopt_nv_CURLPROTO[] = {
+const struct NameValue setopt_nv_CURLPROTO[] = {
   NV(CURLPROTO_ALL),            /* combination */
   NV(CURLPROTO_DICT),
   NV(CURLPROTO_FILE),
@@ -164,7 +174,7 @@ const NameValue setopt_nv_CURLPROTO[] = {
 };
 
 /* These options have non-zero default values. */
-static const NameValue setopt_nv_CURLNONZERODEFAULTS[] = {
+static const struct NameValue setopt_nv_CURLNONZERODEFAULTS[] = {
   NV1(CURLOPT_SSL_VERIFYPEER, 1),
   NV1(CURLOPT_SSL_VERIFYHOST, 1),
   NV1(CURLOPT_SSL_ENABLE_NPN, 1),
@@ -181,12 +191,18 @@ static const NameValue setopt_nv_CURLNONZERODEFAULTS[] = {
   ret = easysrc_add args; \
   if(ret) \
     goto nomem; \
-} WHILE_FALSE
+} while(0)
 #define ADDF(args) do { \
   ret = easysrc_addf args; \
   if(ret) \
     goto nomem; \
-} WHILE_FALSE
+} while(0)
+#define NULL_CHECK(p) do { \
+  if(!p) { \
+    ret = CURLE_OUT_OF_MEMORY; \
+    goto nomem; \
+  } \
+} while(0)
 
 #define DECL0(s) ADD((&easysrc_decl, s))
 #define DECL1(f,a) ADDF((&easysrc_decl, f,a))
@@ -210,26 +226,34 @@ static const NameValue setopt_nv_CURLNONZERODEFAULTS[] = {
 
 /* Escape string to C string syntax.  Return NULL if out of memory.
  * Is this correct for those wacky EBCDIC guys? */
-static char *c_escape(const char *str, size_t len)
+
+#define MAX_STRING_LENGTH_OUTPUT 2000
+#define ZERO_TERMINATED -1
+
+static char *c_escape(const char *str, curl_off_t len)
 {
   const char *s;
   unsigned char c;
   char *escaped, *e;
+  unsigned int cutoff = 0;
 
-  if(len == CURL_ZERO_TERMINATED)
+  if(len == ZERO_TERMINATED)
     len = strlen(str);
 
-  /* Check for possible overflow. */
-  if(len > (~(size_t) 0) / 4)
-    return NULL;
+  if(len > MAX_STRING_LENGTH_OUTPUT) {
+    /* cap ridiculously long strings */
+    len = MAX_STRING_LENGTH_OUTPUT;
+    cutoff = 3;
+  }
 
   /* Allocate space based on worst-case */
-  escaped = malloc(4 * len + 1);
+  escaped = malloc(4 * (size_t)len + 1 + cutoff);
   if(!escaped)
     return NULL;
 
   e = escaped;
-  for(s = str; (c = *s) != '\0'; s++) {
+  for(s = str; len; s++, len--) {
+    c = *s;
     if(c == '\n') {
       strcpy(e, "\\n");
       e += 2;
@@ -250,13 +274,15 @@ static char *c_escape(const char *str, size_t len)
       strcpy(e, "\\\"");
       e += 2;
     }
-    else if(! isprint(c)) {
-      snprintf(e, 5, "\\%03o", (unsigned)c);
+    else if(!isprint(c)) {
+      msnprintf(e, 5, "\\x%02x", (unsigned)c);
       e += 4;
     }
     else
       *e++ = c;
   }
+  while(cutoff--)
+    *e++ = '.';
   *e = '\0';
   return escaped;
 }
@@ -264,7 +290,7 @@ static char *c_escape(const char *str, size_t len)
 /* setopt wrapper for enum types */
 CURLcode tool_setopt_enum(CURL *curl, struct GlobalConfig *config,
                           const char *name, CURLoption tag,
-                          const NameValue *nvlist, long lval)
+                          const struct NameValue *nvlist, long lval)
 {
   CURLcode ret = CURLE_OK;
   bool skip = FALSE;
@@ -275,11 +301,12 @@ CURLcode tool_setopt_enum(CURL *curl, struct GlobalConfig *config,
 
   if(config->libcurl && !skip && !ret) {
     /* we only use this for real if --libcurl was used */
-    const NameValue *nv = NULL;
+    const struct NameValue *nv = NULL;
     for(nv = nvlist; nv->name; nv++) {
-      if(nv->value == lval) break; /* found it */
+      if(nv->value == lval)
+        break; /* found it */
     }
-    if(! nv->name) {
+    if(!nv->name) {
       /* If no definition was found, output an explicit value.
        * This could happen if new values are defined and used
        * but the NameValue list is not updated. */
@@ -290,14 +317,18 @@ CURLcode tool_setopt_enum(CURL *curl, struct GlobalConfig *config,
     }
   }
 
- nomem:
+#ifdef DEBUGBUILD
+  if(ret)
+    warnf(config, "option %s returned error (%d)\n", name, (int)ret);
+#endif
+  nomem:
   return ret;
 }
 
 /* setopt wrapper for flags */
 CURLcode tool_setopt_flags(CURL *curl, struct GlobalConfig *config,
                            const char *name, CURLoption tag,
-                           const NameValue *nvlist, long lval)
+                           const struct NameValue *nvlist, long lval)
 {
   CURLcode ret = CURLE_OK;
   bool skip = FALSE;
@@ -310,9 +341,9 @@ CURLcode tool_setopt_flags(CURL *curl, struct GlobalConfig *config,
     /* we only use this for real if --libcurl was used */
     char preamble[80];          /* should accommodate any symbol name */
     long rest = lval;           /* bits not handled yet */
-    const NameValue *nv = NULL;
-    snprintf(preamble, sizeof(preamble),
-             "curl_easy_setopt(hnd, %s, ", name);
+    const struct NameValue *nv = NULL;
+    msnprintf(preamble, sizeof(preamble),
+              "curl_easy_setopt(hnd, %s, ", name);
     for(nv = nvlist; nv->name; nv++) {
       if((nv->value & ~ rest) == 0) {
         /* all value flags contained in rest */
@@ -322,7 +353,7 @@ CURLcode tool_setopt_flags(CURL *curl, struct GlobalConfig *config,
         if(!rest)
           break;                /* handled them all */
         /* replace with all spaces for continuation line */
-        snprintf(preamble, sizeof(preamble), "%*s", strlen(preamble), "");
+        msnprintf(preamble, sizeof(preamble), "%*s", strlen(preamble), "");
       }
     }
     /* If any bits have no definition, output an explicit value.
@@ -339,7 +370,7 @@ CURLcode tool_setopt_flags(CURL *curl, struct GlobalConfig *config,
 /* setopt wrapper for bitmasks */
 CURLcode tool_setopt_bitmask(CURL *curl, struct GlobalConfig *config,
                              const char *name, CURLoption tag,
-                             const NameValueUnsigned *nvlist,
+                             const struct NameValueUnsigned *nvlist,
                              long lval)
 {
   CURLcode ret = CURLE_OK;
@@ -353,9 +384,9 @@ CURLcode tool_setopt_bitmask(CURL *curl, struct GlobalConfig *config,
     /* we only use this for real if --libcurl was used */
     char preamble[80];
     unsigned long rest = (unsigned long)lval;
-    const NameValueUnsigned *nv = NULL;
-    snprintf(preamble, sizeof(preamble),
-             "curl_easy_setopt(hnd, %s, ", name);
+    const struct NameValueUnsigned *nv = NULL;
+    msnprintf(preamble, sizeof(preamble),
+              "curl_easy_setopt(hnd, %s, ", name);
     for(nv = nvlist; nv->name; nv++) {
       if((nv->value & ~ rest) == 0) {
         /* all value flags contained in rest */
@@ -365,7 +396,7 @@ CURLcode tool_setopt_bitmask(CURL *curl, struct GlobalConfig *config,
         if(!rest)
           break;                /* handled them all */
         /* replace with all spaces for continuation line */
-        snprintf(preamble, sizeof(preamble), "%*s", strlen(preamble), "");
+        msnprintf(preamble, sizeof(preamble), "%*s", strlen(preamble), "");
       }
     }
     /* If any bits have no definition, output an explicit value.
@@ -394,7 +425,7 @@ static CURLcode libcurl_generate_slist(struct curl_slist *slist, int *slistno)
   CLEAN1("slist%d = NULL;", *slistno);
   for(; slist; slist = slist->next) {
     Curl_safefree(escaped);
-    escaped = c_escape(slist->data, CURL_ZERO_TERMINATED);
+    escaped = c_escape(slist->data, ZERO_TERMINATED);
     if(!escaped)
       return CURLE_OUT_OF_MEMORY;
     DATA3("slist%d = curl_slist_append(slist%d, \"%s\");",
@@ -406,155 +437,167 @@ static CURLcode libcurl_generate_slist(struct curl_slist *slist, int *slistno)
   return ret;
 }
 
-/* Generate source code for a mime structure. */
-static CURLcode libcurl_generate_mime(curl_mime *mime, int *mimeno)
+static CURLcode libcurl_generate_mime(CURL *curl,
+                                      struct GlobalConfig *config,
+                                      struct tool_mime *toolmime,
+                                      int *mimeno);     /* Forward. */
+
+/* Wrapper to generate source code for a mime part. */
+static CURLcode libcurl_generate_mime_part(CURL *curl,
+                                           struct GlobalConfig *config,
+                                           struct tool_mime *part,
+                                           int mimeno)
 {
   CURLcode ret = CURLE_OK;
-  int i;
-  curl_off_t size;
-  curl_mimepart *part;
-  char *filename;
+  int submimeno = 0;
   char *escaped = NULL;
-  char *cp;
-  char *data;
+  const char *data = NULL;
+  const char *filename = part->filename;
 
-  /* May need several mime variables, so invent name */
+  /* Parts are linked in reverse order. */
+  if(part->prev) {
+    ret = libcurl_generate_mime_part(curl, config, part->prev, mimeno);
+    if(ret)
+      return ret;
+  }
+
+  /* Create the part. */
+  CODE2("part%d = curl_mime_addpart(mime%d);", mimeno, mimeno);
+
+  switch(part->kind) {
+  case TOOLMIME_PARTS:
+    ret = libcurl_generate_mime(curl, config, part, &submimeno);
+    if(!ret) {
+      CODE2("curl_mime_subparts(part%d, mime%d);", mimeno, submimeno);
+      CODE1("mime%d = NULL;", submimeno);   /* Avoid freeing in CLEAN. */
+    }
+    break;
+
+  case TOOLMIME_DATA:
+#ifdef CURL_DOES_CONVERSIONS
+    /* Data will be set in ASCII, thus issue a comment with clear text. */
+    escaped = c_escape(part->data, ZERO_TERMINATED);
+    NULL_CHECK(escaped);
+    CODE1("/* \"%s\" */", escaped);
+
+    /* Our data is always textual: convert it to ASCII. */
+    {
+      size_t size = strlen(part->data);
+      char *cp = malloc(size + 1);
+
+      NULL_CHECK(cp);
+      memcpy(cp, part->data, size + 1);
+      ret = convert_to_network(cp, size);
+      data = cp;
+    }
+#else
+    data = part->data;
+#endif
+    if(!ret) {
+      Curl_safefree(escaped);
+      escaped = c_escape(data, ZERO_TERMINATED);
+      NULL_CHECK(escaped);
+      CODE2("curl_mime_data(part%d, \"%s\", CURL_ZERO_TERMINATED);",
+                            mimeno, escaped);
+    }
+    break;
+
+  case TOOLMIME_FILE:
+  case TOOLMIME_FILEDATA:
+    escaped = c_escape(part->data, ZERO_TERMINATED);
+    NULL_CHECK(escaped);
+    CODE2("curl_mime_filedata(part%d, \"%s\");", mimeno, escaped);
+    if(part->kind == TOOLMIME_FILEDATA && !filename) {
+      CODE1("curl_mime_filename(part%d, NULL);", mimeno);
+    }
+    break;
+
+  case TOOLMIME_STDIN:
+    if(!filename)
+      filename = "-";
+    /* FALLTHROUGH */
+  case TOOLMIME_STDINDATA:
+    /* Can only be reading stdin in the current context. */
+    CODE1("curl_mime_data_cb(part%d, -1, (curl_read_callback) fread, \\",
+          mimeno);
+    CODE0("                  (curl_seek_callback) fseek, NULL, stdin);");
+    break;
+  default:
+    /* Other cases not possible in this context. */
+    break;
+  }
+
+  if(!ret && part->encoder) {
+    Curl_safefree(escaped);
+    escaped = c_escape(part->encoder, ZERO_TERMINATED);
+    NULL_CHECK(escaped);
+    CODE2("curl_mime_encoder(part%d, \"%s\");", mimeno, escaped);
+  }
+
+  if(!ret && filename) {
+    Curl_safefree(escaped);
+    escaped = c_escape(filename, ZERO_TERMINATED);
+    NULL_CHECK(escaped);
+    CODE2("curl_mime_filename(part%d, \"%s\");", mimeno, escaped);
+  }
+
+  if(!ret && part->name) {
+    Curl_safefree(escaped);
+    escaped = c_escape(part->name, ZERO_TERMINATED);
+    NULL_CHECK(escaped);
+    CODE2("curl_mime_name(part%d, \"%s\");", mimeno, escaped);
+  }
+
+  if(!ret && part->type) {
+    Curl_safefree(escaped);
+    escaped = c_escape(part->type, ZERO_TERMINATED);
+    NULL_CHECK(escaped);
+    CODE2("curl_mime_type(part%d, \"%s\");", mimeno, escaped);
+  }
+
+  if(!ret && part->headers) {
+    int slistno;
+
+    ret = libcurl_generate_slist(part->headers, &slistno);
+    if(!ret) {
+      CODE2("curl_mime_headers(part%d, slist%d, 1);", mimeno, slistno);
+      CODE1("slist%d = NULL;", slistno); /* Prevent CLEANing. */
+    }
+  }
+
+nomem:
+#ifdef CURL_DOES_CONVERSIONS
+  if(data)
+    free((char *) data);
+#endif
+
+  Curl_safefree(escaped);
+  return ret;
+}
+
+/* Wrapper to generate source code for a mime structure. */
+static CURLcode libcurl_generate_mime(CURL *curl,
+                                      struct GlobalConfig *config,
+                                      struct tool_mime *toolmime,
+                                      int *mimeno)
+{
+  CURLcode ret = CURLE_OK;
+
+  /* May need several mime variables, so invent name. */
   *mimeno = ++easysrc_mime_count;
-
   DECL1("curl_mime *mime%d;", *mimeno);
   DATA1("mime%d = NULL;", *mimeno);
   CODE1("mime%d = curl_mime_init(hnd);", *mimeno);
   CLEAN1("curl_mime_free(mime%d);", *mimeno);
   CLEAN1("mime%d = NULL;", *mimeno);
-  if(mime->firstpart) {
+
+  if(toolmime->subparts) {
     DECL1("curl_mimepart *part%d;", *mimeno);
-    for(part = mime->firstpart; part; part = part->nextpart) {
-      CODE2("part%d = curl_mime_addpart(mime%d);", *mimeno, *mimeno);
-      filename = part->filename;
-      switch(part->kind) {
-      case MIMEKIND_FILE:
-        Curl_safefree(escaped);
-        escaped = c_escape(part->data, CURL_ZERO_TERMINATED);
-        if(!escaped)
-          return CURLE_OUT_OF_MEMORY;
-        CODE2("curl_mime_filedata(part%d, \"%s\");", *mimeno, escaped);
-        if(!filename)
-          CODE1("curl_mime_filename(part%d, NULL);", *mimeno);
-        else {
-          /* Fast check to see if remote file name is base name. */
-          filename = part->data;
-          for(cp = filename; *cp; cp++)
-            if(*cp == '/' || *cp == '\\')
-              filename = cp + 1;
-          if(!part->filename || !strcmp(filename, part->filename))
-            filename = NULL;
-          else
-            filename = part->filename;
-        }
-        break;
-      case MIMEKIND_CALLBACK:
-        /* Can only be reading stdin in the current context. */
-        CODE1("curl_mime_data_cb(part%d, -1, (curl_read_callback) fread, \\",
-              *mimeno);
-        CODE0("                  (curl_seek_callback) fseek, NULL, stdin);");
-        break;
-      case MIMEKIND_DATA:
-#ifdef CURL_DOES_CONVERSIONS
-          /* Data is stored in ASCII and we want in in the host character
-             code. Convert it back for output. */
-          data = malloc(part->datasize + 1);
-          if(!data) {
-            ret = CURLE_OUT_OF_MEMORY;
-            goto nomem;
-          }
-          memcpy(data, part->data, part->datasize + 1);
-          ret = convert_from_network(data, strlen(data));
-          if(ret) {
-            Curl_safefree(data);
-            goto nomem;
-          }
-#else
-        data = part->data;
-#endif
-
-        /* Are there any nul byte in data? */
-        for(cp = data; *cp; cp++)
-          ;
-        size = (cp == data + part->datasize)? (curl_off_t) -1: part->datasize;
-        Curl_safefree(escaped);
-        escaped = c_escape(data, (size_t) part->datasize);
-#ifdef CURL_DOES_CONVERSIONS
-        Curl_safefree(data);
-#endif
-        if(!escaped)
-          return CURLE_OUT_OF_MEMORY;
-        if(size >= 0)
-          CODE3("curl_mime_data(part%d, \"%s\", %" CURL_FORMAT_CURL_OFF_T ");",
-                                *mimeno, escaped, size);
-        else
-          CODE2("curl_mime_data(part%d, \"%s\", CURL_ZERO_TERMINATED);",
-                                *mimeno, escaped);
-        break;
-      case MIMEKIND_MULTIPART:
-        ret = libcurl_generate_mime(part->arg, &i);
-        if(ret)
-          goto nomem;
-        CODE2("curl_mime_subparts(part%d, mime%d);", *mimeno, i);
-        CODE1("mime%d = NULL;", i);   /* Avoid freeing in CLEAN sequence. */
-        break;
-      default:
-        /* Other cases not possible in this context. */
-        break;
-      }
-
-      if(part->encoder) {
-        Curl_safefree(escaped);
-        escaped = c_escape(part->encoder->name, CURL_ZERO_TERMINATED);
-        if(!escaped)
-          return CURLE_OUT_OF_MEMORY;
-        CODE2("curl_mime_encoder(part%d, \"%s\");", *mimeno, escaped);
-      }
-
-      if(filename) {
-        Curl_safefree(escaped);
-        escaped = c_escape(filename, CURL_ZERO_TERMINATED);
-        if(!escaped)
-          return CURLE_OUT_OF_MEMORY;
-        CODE2("curl_mime_filename(part%d, \"%s\");", *mimeno, escaped);
-      }
-
-      if(part->name) {
-        Curl_safefree(escaped);
-        escaped = c_escape(part->name, CURL_ZERO_TERMINATED);
-        if(!escaped)
-          return CURLE_OUT_OF_MEMORY;
-        CODE2("curl_mime_name(part%d, \"%s\");", *mimeno, escaped);
-      }
-
-      if(part->mimetype) {
-        Curl_safefree(escaped);
-        escaped = c_escape(part->mimetype, CURL_ZERO_TERMINATED);
-        if(!escaped)
-          return CURLE_OUT_OF_MEMORY;
-        CODE2("curl_mime_type(part%d, \"%s\");", *mimeno, escaped);
-      }
-
-      if(part->userheaders) {
-        int ownership = part->flags & MIME_USERHEADERS_OWNER? 1: 0;
-
-        ret = libcurl_generate_slist(part->userheaders, &i);
-        if(ret)
-          goto nomem;
-        CODE3("curl_mime_headers(part%d, slist%d, %d);",
-              *mimeno, i, ownership);
-        if(ownership)
-          CODE1("slist%d = NULL;", i); /* Prevent freeing in CLEAN sequence. */
-      }
-    }
+    ret = libcurl_generate_mime_part(curl, config,
+                                     toolmime->subparts, *mimeno);
   }
 
 nomem:
-  Curl_safefree(escaped);
   return ret;
 }
 
@@ -563,17 +606,15 @@ CURLcode tool_setopt_mimepost(CURL *curl, struct GlobalConfig *config,
                               const char *name, CURLoption tag,
                               curl_mime *mimepost)
 {
-  CURLcode ret = CURLE_OK;
+  CURLcode ret = curl_easy_setopt(curl, tag, mimepost);
+  int mimeno = 0;
 
-  ret = curl_easy_setopt(curl, tag, mimepost);
-
-  if(config->libcurl && mimepost && !ret) {
-    int i;
-
-    ret = libcurl_generate_mime(mimepost, &i);
+  if(!ret && config->libcurl) {
+    ret = libcurl_generate_mime(curl, config,
+                                config->current->mimeroot, &mimeno);
 
     if(!ret)
-      CODE2("curl_easy_setopt(hnd, %s, mime%d);", name, i);
+      CODE2("curl_easy_setopt(hnd, %s, mime%d);", name, mimeno);
   }
 
 nomem:
@@ -603,7 +644,8 @@ CURLcode tool_setopt_slist(CURL *curl, struct GlobalConfig *config,
 
 /* generic setopt wrapper for all other options.
  * Some type information is encoded in the tag value. */
-CURLcode tool_setopt(CURL *curl, bool str, struct GlobalConfig *config,
+CURLcode tool_setopt(CURL *curl, bool str, struct GlobalConfig *global,
+                     struct OperationConfig *config,
                      const char *name, CURLoption tag, ...)
 {
   va_list arg;
@@ -621,7 +663,7 @@ CURLcode tool_setopt(CURL *curl, bool str, struct GlobalConfig *config,
     /* Value is expected to be a long */
     long lval = va_arg(arg, long);
     long defval = 0L;
-    const NameValue *nv = NULL;
+    const struct NameValue *nv = NULL;
     for(nv = setopt_nv_CURLNONZERODEFAULTS; nv->name; nv++) {
       if(!strcmp(name, nv->name)) {
         defval = nv->value;
@@ -629,7 +671,7 @@ CURLcode tool_setopt(CURL *curl, bool str, struct GlobalConfig *config,
       }
     }
 
-    snprintf(buf, sizeof(buf), "%ldL", lval);
+    msnprintf(buf, sizeof(buf), "%ldL", lval);
     value = buf;
     ret = curl_easy_setopt(curl, tag, lval);
     if(lval == defval)
@@ -663,32 +705,46 @@ CURLcode tool_setopt(CURL *curl, bool str, struct GlobalConfig *config,
     ret = curl_easy_setopt(curl, tag, pval);
 
   }
-  else {
+  else if(tag < CURLOPTTYPE_BLOB) {
     /* Value is expected to be curl_off_t */
     curl_off_t oval = va_arg(arg, curl_off_t);
-    snprintf(buf, sizeof(buf),
-             "(curl_off_t)%" CURL_FORMAT_CURL_OFF_T, oval);
+    msnprintf(buf, sizeof(buf),
+              "(curl_off_t)%" CURL_FORMAT_CURL_OFF_T, oval);
     value = buf;
     ret = curl_easy_setopt(curl, tag, oval);
 
     if(!oval)
       skip = TRUE;
   }
+  else {
+    /* Value is a blob */
+    void *pblob = va_arg(arg, void *);
+
+    /* blobs are never printable */
+    if(pblob) {
+      value = "blobpointer";
+      remark = TRUE;
+    }
+    else
+      skip = TRUE;
+
+    ret = curl_easy_setopt(curl, tag, pblob);
+  }
 
   va_end(arg);
 
-  if(config->libcurl && !skip && !ret) {
+  if(global->libcurl && !skip && !ret) {
     /* we only use this for real if --libcurl was used */
 
     if(remark)
       REM2("%s set to a %s", name, value);
     else {
       if(escape) {
-        escaped = c_escape(value, CURL_ZERO_TERMINATED);
-        if(!escaped) {
-          ret = CURLE_OUT_OF_MEMORY;
-          goto nomem;
-        }
+        curl_off_t len = ZERO_TERMINATED;
+        if(tag == CURLOPT_POSTFIELDS)
+          len = config->postfieldsize;
+        escaped = c_escape(value, len);
+        NULL_CHECK(escaped);
         CODE2("curl_easy_setopt(hnd, %s, \"%s\");", name, escaped);
       }
       else
@@ -701,4 +757,129 @@ CURLcode tool_setopt(CURL *curl, bool str, struct GlobalConfig *config,
   return ret;
 }
 
+#else /* CURL_DISABLE_LIBCURL_OPTION */
+
+#include "tool_cfgable.h"
+#include "tool_setopt.h"
+
 #endif /* CURL_DISABLE_LIBCURL_OPTION */
+
+/*
+ * tool_setopt_skip() allows the curl tool code to avoid setopt options that
+ * are explicitly disabled in the build.
+ */
+bool tool_setopt_skip(CURLoption tag)
+{
+#ifdef CURL_DISABLE_PROXY
+#define USED_TAG
+  switch(tag) {
+  case CURLOPT_HAPROXYPROTOCOL:
+  case CURLOPT_HTTPPROXYTUNNEL:
+  case CURLOPT_NOPROXY:
+  case CURLOPT_PRE_PROXY:
+  case CURLOPT_PROXY:
+  case CURLOPT_PROXYAUTH:
+  case CURLOPT_PROXY_CAINFO:
+  case CURLOPT_PROXY_CAPATH:
+  case CURLOPT_PROXY_CRLFILE:
+  case CURLOPT_PROXYHEADER:
+  case CURLOPT_PROXY_KEYPASSWD:
+  case CURLOPT_PROXYPASSWORD:
+  case CURLOPT_PROXY_PINNEDPUBLICKEY:
+  case CURLOPT_PROXYPORT:
+  case CURLOPT_PROXY_SERVICE_NAME:
+  case CURLOPT_PROXY_SSLCERT:
+  case CURLOPT_PROXY_SSLCERTTYPE:
+  case CURLOPT_PROXY_SSL_CIPHER_LIST:
+  case CURLOPT_PROXY_SSLKEY:
+  case CURLOPT_PROXY_SSLKEYTYPE:
+  case CURLOPT_PROXY_SSL_OPTIONS:
+  case CURLOPT_PROXY_SSL_VERIFYHOST:
+  case CURLOPT_PROXY_SSL_VERIFYPEER:
+  case CURLOPT_PROXY_SSLVERSION:
+  case CURLOPT_PROXY_TLS13_CIPHERS:
+  case CURLOPT_PROXY_TLSAUTH_PASSWORD:
+  case CURLOPT_PROXY_TLSAUTH_TYPE:
+  case CURLOPT_PROXY_TLSAUTH_USERNAME:
+  case CURLOPT_PROXY_TRANSFER_MODE:
+  case CURLOPT_PROXYTYPE:
+  case CURLOPT_PROXYUSERNAME:
+  case CURLOPT_PROXYUSERPWD:
+    return TRUE;
+  default:
+    break;
+  }
+#endif
+#ifdef CURL_DISABLE_FTP
+#define USED_TAG
+  switch(tag) {
+  case CURLOPT_FTPPORT:
+  case CURLOPT_FTP_ACCOUNT:
+  case CURLOPT_FTP_ALTERNATIVE_TO_USER:
+  case CURLOPT_FTP_FILEMETHOD:
+  case CURLOPT_FTP_SKIP_PASV_IP:
+  case CURLOPT_FTP_USE_EPRT:
+  case CURLOPT_FTP_USE_EPSV:
+  case CURLOPT_FTP_USE_PRET:
+  case CURLOPT_KRBLEVEL:
+    return TRUE;
+  default:
+    break;
+  }
+#endif
+#ifdef CURL_DISABLE_RTSP
+#define USED_TAG
+  switch(tag) {
+  case CURLOPT_INTERLEAVEDATA:
+    return TRUE;
+  default:
+    break;
+  }
+#endif
+#if defined(CURL_DISABLE_HTTP) || defined(CURL_DISABLE_COOKIES)
+#define USED_TAG
+  switch(tag) {
+  case CURLOPT_COOKIE:
+  case CURLOPT_COOKIEFILE:
+  case CURLOPT_COOKIEJAR:
+  case CURLOPT_COOKIESESSION:
+    return TRUE;
+  default:
+    break;
+  }
+#endif
+#if defined(CURL_DISABLE_TELNET)
+#define USED_TAG
+  switch(tag) {
+  case CURLOPT_TELNETOPTIONS:
+    return TRUE;
+  default:
+    break;
+  }
+#endif
+#ifdef CURL_DISABLE_TFTP
+#define USED_TAG
+  switch(tag) {
+  case CURLOPT_TFTP_BLKSIZE:
+  case CURLOPT_TFTP_NO_OPTIONS:
+    return TRUE;
+  default:
+    break;
+  }
+#endif
+#ifdef CURL_DISABLE_NETRC
+#define USED_TAG
+  switch(tag) {
+  case CURLOPT_NETRC:
+  case CURLOPT_NETRC_FILE:
+    return TRUE;
+  default:
+    break;
+  }
+#endif
+
+#ifndef USED_TAG
+  (void)tag;
+#endif
+  return FALSE;
+}

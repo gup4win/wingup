@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2021, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -22,6 +22,10 @@
 #include "tool_setup.h"
 
 #include <sys/stat.h>
+
+#ifdef WIN32
+#include <tchar.h>
+#endif
 
 #ifdef HAVE_SIGNAL_H
 #include <signal.h>
@@ -38,6 +42,7 @@
 
 #include "tool_cfgable.h"
 #include "tool_convert.h"
+#include "tool_doswin.h"
 #include "tool_msgs.h"
 #include "tool_operate.h"
 #include "tool_panykey.h"
@@ -111,10 +116,10 @@ static void memory_tracking_init(void)
       env[CURL_MT_LOGFNAME_BUFSIZE-1] = '\0';
     strcpy(fname, env);
     curl_free(env);
-    curl_memdebug(fname);
-    /* this weird stuff here is to make curl_free() get called
-       before curl_memdebug() as otherwise memory tracking will
-       log a free() without an alloc! */
+    curl_dbg_memdebug(fname);
+    /* this weird stuff here is to make curl_free() get called before
+       curl_gdb_memdebug() as otherwise memory tracking will log a free()
+       without an alloc! */
   }
   /* if CURL_MEMLIMIT is set, this enables fail-on-alloc-number-N feature */
   env = curlx_getenv("CURL_MEMLIMIT");
@@ -122,7 +127,7 @@ static void memory_tracking_init(void)
     char *endptr;
     long num = strtol(env, &endptr, 10);
     if((endptr != env) && (endptr == env + strlen(env)) && (num > 0))
-      curl_memlimit(num);
+      curl_dbg_memlimit(num);
     curl_free(env);
   }
 }
@@ -147,6 +152,8 @@ static CURLcode main_init(struct GlobalConfig *config)
   /* Initialise the global config */
   config->showerror = -1;             /* Will show errors */
   config->errors = stderr;            /* Default errors to stderr */
+  config->styled_output = TRUE;       /* enable detection */
+  config->parallel_max = PARALLEL_DEFAULT;
 
   /* Allocate the initial operate config */
   config->first = config->last = malloc(sizeof(struct OperationConfig));
@@ -158,39 +165,29 @@ static CURLcode main_init(struct GlobalConfig *config)
       result = get_libcurl_info();
 
       if(!result) {
-        /* Get a curl handle to use for all forthcoming curl transfers */
-        config->easy = curl_easy_init();
-        if(config->easy) {
-          /* Initialise the config */
-          config_init(config->first);
-          config->first->easy = config->easy;
-          config->first->global = config;
-        }
-        else {
-          helpf(stderr, "error initializing curl easy handle\n");
-          result = CURLE_FAILED_INIT;
-          free(config->first);
-        }
+        /* Initialise the config */
+        config_init(config->first);
+        config->first->global = config;
       }
       else {
-        helpf(stderr, "error retrieving curl library information\n");
+        errorf(config, "error retrieving curl library information\n");
         free(config->first);
       }
     }
     else {
-      helpf(stderr, "error initializing curl library\n");
+      errorf(config, "error initializing curl library\n");
       free(config->first);
     }
   }
   else {
-    helpf(stderr, "error initializing curl\n");
+    errorf(config, "error initializing curl\n");
     result = CURLE_FAILED_INIT;
   }
 
   return result;
 }
 
-static void free_config_fields(struct GlobalConfig *config)
+static void free_globalconfig(struct GlobalConfig *config)
 {
   Curl_safefree(config->trace_dump);
 
@@ -212,22 +209,18 @@ static void free_config_fields(struct GlobalConfig *config)
 static void main_free(struct GlobalConfig *config)
 {
   /* Cleanup the easy handle */
-  curl_easy_cleanup(config->easy);
-  config->easy = NULL;
-
   /* Main cleanup */
   curl_global_cleanup();
   convert_cleanup();
-  metalink_cleanup();
 #ifdef USE_NSS
   if(PR_Initialized()) {
-    /* prevent valgrind from reporting still reachable mem from NSRP arenas */
+    /* prevent valgrind from reporting still reachable mem from NSPR arenas */
     PL_ArenaFinish();
     /* prevent valgrind from reporting possibly lost memory (fd cache, ...) */
     PR_Cleanup();
   }
 #endif
-  free_config_fields(config);
+  free_globalconfig(config);
 
   /* Free the config structures */
   config_free(config->last);
@@ -238,11 +231,33 @@ static void main_free(struct GlobalConfig *config)
 /*
 ** curl tool main function.
 */
+#ifdef _UNICODE
+int wmain(int argc, wchar_t *argv[])
+#else
 int main(int argc, char *argv[])
+#endif
 {
   CURLcode result = CURLE_OK;
   struct GlobalConfig global;
   memset(&global, 0, sizeof(global));
+
+#ifdef WIN32
+  /* Undocumented diagnostic option to list the full paths of all loaded
+     modules. This is purposely pre-init. */
+  if(argc == 2 && !_tcscmp(argv[1], _T("--dump-module-paths"))) {
+    struct curl_slist *item, *head = GetLoadedModulePaths();
+    for(item = head; item; item = item->next)
+      printf("%s\n", item->data);
+    curl_slist_free_all(head);
+    return head ? 0 : 1;
+  }
+  /* win32_init must be called before other init routines. */
+  result = win32_init();
+  if(result) {
+    fprintf(stderr, "curl: (%d) Windows-specific init failed.\n", result);
+    return result;
+  }
+#endif
 
   main_checkfds();
 
@@ -259,11 +274,6 @@ int main(int argc, char *argv[])
   if(!result) {
     /* Start our curl operation */
     result = operate(&global, argc, argv);
-
-#ifdef __SYMBIAN32__
-    if(global.showerror)
-      tool_pressanykey();
-#endif
 
     /* Perform the main cleanup */
     main_free(&global);

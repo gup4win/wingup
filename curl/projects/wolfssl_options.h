@@ -1,3 +1,24 @@
+/***************************************************************************
+ *                                  _   _ ____  _
+ *  Project                     ___| | | |  _ \| |
+ *                             / __| | | | |_) | |
+ *                            | (__| |_| |  _ <| |___
+ *                             \___|\___/|_| \_\_____|
+ *
+ * Copyright (C) 1998 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
+ *
+ * This software is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution. The terms
+ * are also available at https://curl.se/docs/copyright.html.
+ *
+ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
+ * copies of the Software, and permit persons to whom the Software is
+ * furnished to do so, under the terms of the COPYING file.
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+ * KIND, either express or implied.
+ *
+ ***************************************************************************/
 /*
 By default wolfSSL has a very conservative configuration that can result in
 connections to servers failing due to certificate or algorithm problems.
@@ -47,7 +68,7 @@ create the thread local storage and that could be a problem for LoadLibrary.
 Regarding the options that were added via C_EXTRA_FLAGS:
 
 FP_MAX_BITS=16384
-http://www.yassl.com/forums/topic423-cacertorgs-ca-cert-verify-failed-but-withdisablefastmath-it-works.html
+https://www.yassl.com/forums/topic423-cacertorgs-ca-cert-verify-failed-but-withdisablefastmath-it-works.html
 "Since root.crt uses a 4096-bit RSA key, you'll need to increase the fastmath
 buffer size.  You can do this using the define:
 FP_MAX_BITS and setting it to 8192."
@@ -221,4 +242,3 @@ functioning correctly yet. https://github.com/wolfSSL/wolfssl/pull/943
 
 
 #endif /* WOLFSSL_OPTIONS_H */
-

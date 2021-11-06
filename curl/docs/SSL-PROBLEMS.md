@@ -23,8 +23,18 @@
 ## CA bundle missing intermediate certificates
 
   When using said CA bundle to verify a server cert, you will experience
-  problems if your CA cert does not have the certificates for the
-  intermediates in the whole trust chain.
+  problems if your CA store does not contain the certificates for the
+  intermediates if the server doesn't provide them.
+
+  The TLS protocol mandates that the intermediate certificates are sent in the
+  handshake, but as browsers have ways to survive or work around such
+  omissions, missing intermediates in TLS handshakes still happen that
+  browser-users won't notice.
+
+  Browsers work around this problem in two ways: they cache intermediate
+  certificates from previous transfers and some implement the TLS "AIA"
+  extension that lets the client explicitly download such certificates on
+  demand.
 
 ## Protocol version
 
@@ -36,7 +46,8 @@
   An additional complication can be that modern SSL libraries sometimes are
   built with support for older SSL and TLS versions disabled!
 
-  All versions of SSL are considered insecure and should be avoided. Use TLS.
+  All versions of SSL and the TLS versions before 1.2 are considered insecure
+  and should be avoided. Use TLS 1.2 or later.
 
 ## Ciphers
 
@@ -53,9 +64,9 @@
   Note that these weak ciphers are identified as flawed. For example, this
   includes symmetric ciphers with less than 128 bit keys and RC4.
 
-  WinSSL in Windows XP is not able to connect to servers that no longer
+  Schannel in Windows XP is not able to connect to servers that no longer
   support the legacy handshakes and algorithms used by those versions, so we
-  advice against building curl to use WinSSL on really old Windows versions.
+  advice against building curl to use Schannel on really old Windows versions.
 
   References:
 
@@ -77,11 +88,11 @@
   Some SSL backends may do certificate revocation checks (CRL, OCSP, etc)
   depending on the OS or build configuration. The --ssl-no-revoke option was
   introduced in 7.44.0 to disable revocation checking but currently is only
-  supported for WinSSL (the native Windows SSL library), with an exception in
-  the case of Windows' Untrusted Publishers blacklist which it seems can't be
-  bypassed. This option may have broader support to accommodate other SSL
+  supported for Schannel (the native Windows SSL library), with an exception
+  in the case of Windows' Untrusted Publishers block list which it seems can't
+  be bypassed. This option may have broader support to accommodate other SSL
   backends in the future.
 
   References:
 
-  https://curl.haxx.se/docs/ssl-compared.html
+  https://curl.se/docs/ssl-compared.html

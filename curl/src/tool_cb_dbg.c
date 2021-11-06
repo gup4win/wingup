@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -50,24 +50,25 @@ int tool_debug_cb(CURL *handle, curl_infotype type,
   FILE *output = config->errors;
   const char *text;
   struct timeval tv;
-  struct tm *now;
   char timebuf[20];
   time_t secs;
-  static time_t epoch_offset;
-  static int    known_offset;
 
   (void)handle; /* not used */
 
   if(config->tracetime) {
+    struct tm *now;
+    static time_t epoch_offset;
+    static int    known_offset;
     tv = tvnow();
     if(!known_offset) {
       epoch_offset = time(NULL) - tv.tv_sec;
       known_offset = 1;
     }
     secs = epoch_offset + tv.tv_sec;
+    /* !checksrc! disable BANNEDFUNC 1 */
     now = localtime(&secs);  /* not thread safe but we don't care */
-    snprintf(timebuf, sizeof(timebuf), "%02d:%02d:%02d.%06ld ",
-             now->tm_hour, now->tm_min, now->tm_sec, (long)tv.tv_usec);
+    msnprintf(timebuf, sizeof(timebuf), "%02d:%02d:%02d.%06ld ",
+              now->tm_hour, now->tm_min, now->tm_sec, (long)tv.tv_usec);
   }
   else
     timebuf[0] = 0;
@@ -101,14 +102,14 @@ int tool_debug_cb(CURL *handle, curl_infotype type,
     static const char * const s_infotype[] = {
       "*", "<", ">", "{", "}", "{", "}"
     };
-    size_t i;
-    size_t st = 0;
     static bool newl = FALSE;
     static bool traced_data = FALSE;
 
     switch(type) {
     case CURLINFO_HEADER_OUT:
       if(size > 0) {
+        size_t st = 0;
+        size_t i;
         for(i = 0; i < size - 1; i++) {
           if(data[i] == '\n') { /* LF */
             if(!newl) {
@@ -146,7 +147,7 @@ int tool_debug_cb(CURL *handle, curl_infotype type,
         if(!config->isatty || ((output != stderr) && (output != stdout))) {
           if(!newl)
             fprintf(output, "%s%s ", timebuf, s_infotype[type]);
-          fprintf(output, "[%zd bytes data]\n", size);
+          fprintf(output, "[%zu bytes data]\n", size);
           newl = FALSE;
           traced_data = TRUE;
         }
@@ -186,7 +187,7 @@ int tool_debug_cb(CURL *handle, curl_infotype type,
 
   switch(type) {
   case CURLINFO_TEXT:
-    fprintf(output, "%s== Info: %s", timebuf, data);
+    fprintf(output, "%s== Info: %.*s", timebuf, (int)size, data);
     /* FALLTHROUGH */
   default: /* in case a new one is introduced to shock us */
     return 0;
@@ -229,7 +230,7 @@ static void dump(const char *timebuf, const char *text,
     /* without the hex output, we can fit more on screen */
     width = 0x40;
 
-  fprintf(stream, "%s%s, %zd bytes (0x%zx)\n", timebuf, text, size, size);
+  fprintf(stream, "%s%s, %zu bytes (0x%zx)\n", timebuf, text, size, size);
 
   for(i = 0; i < size; i += width) {
 
@@ -279,4 +280,3 @@ static void dump(const char *timebuf, const char *text,
   }
   fflush(stream);
 }
-

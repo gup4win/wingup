@@ -56,24 +56,25 @@ How to build it?
 ----------------
 
  0. You have to build cURL before building WinGup:
- ```
-    a. Open VS2015 Native Tool Command for 32/64 bits
-    b. go to curl winbuild directory:
-       cd <your wingup source path>\curl\winbuild
-	c. compile cURL by using one of the following commands, according the mode and archetecture of wingup you want to build.
-       x64 release: nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static MACHINE=x64
-       x64 debug: nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static DEBUG=yes MACHINE=x64
-       x86 release: nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static MACHINE=x86
-       x86 debug: nmake /f Makefile.vc mode=dll vc=14 RTLIBCFG=static DEBUG=yes MACHINE=x86
-```
- 1. Open [`vcproj\GUP.vcxproj`](https://github.com/gup4win/wingup/blob/master/vcproj/GUP.vcxproj)
+
+    a. Open VS2017 Native Tool Command for 32/64 bits<br/>
+	b. If it's your 1st timee to build, run `<your wingup source path>\curl\buildconf.bat`<br/>
+    c. go to curl winbuild directory:<br/>
+       `cd <your wingup source path>\curl\winbuild`<br/>
+	d. compile cURL by using one of the following commands, according the mode and archetecture of wingup you want to build.<br/>
+       * x64 release: `nmake /f Makefile.vc mode=dll vc=15 RTLIBCFG=static MACHINE=x64`
+       * x64 debug: `nmake /f Makefile.vc mode=dll vc=15 RTLIBCFG=static DEBUG=yes MACHINE=x64`
+       * x86 release: `nmake /f Makefile.vc mode=dll vc=15 RTLIBCFG=static MACHINE=x86`
+       * x86 debug: `nmake /f Makefile.vc mode=dll vc=15 RTLIBCFG=static DEBUG=yes MACHINE=x86`
+
+ 1. Open `<your wingup source path>\vcproj\GUP.vcxproj` in Visual Studio 2017
  
- 2. Build WinGup [like a normal Visual Studio project](https://msdn.microsoft.com/en-us/library/7s88b19e.aspx) with VS2015
+ 2. Build WinGup [like a normal Visual Studio project](https://msdn.microsoft.com/en-us/library/7s88b19e.aspx) with VS2017
 
 
 
 To whom should you say "thank you"?
 -----------------------------------
 
-Don HO
+[Don HO](https://donho.github.io/)
 <don.h@free.fr>

@@ -5,11 +5,11 @@
 .\" *                            | (__| |_| |  _ <| |___
 .\" *                             \___|\___/|_| \_\_____|
 .\" *
-.\" * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+.\" * Copyright (C) 1998 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
 .\" *
 .\" * This software is licensed as described in the file COPYING, which
 .\" * you should have received as part of this distribution. The terms
-.\" * are also available at https://curl.haxx.se/docs/copyright.html.
+.\" * are also available at https://curl.se/docs/copyright.html.
 .\" *
 .\" * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 .\" * copies of the Software, and permit persons to whom the Software is
@@ -20,8 +20,7 @@
 .\" *
 .\" **************************************************************************
 .\"
-.TH CURLINFO_SIZE_UPLOAD_T 3 "June 15, 2017" "libcurl 7.56.1" "curl_easy_getinfo options"
-
+.TH CURLINFO_SIZE_UPLOAD_T 3 "25 May 2017" "libcurl 7.55.0" "curl_easy_getinfo options"
 .SH NAME
 CURLINFO_SIZE_UPLOAD_T \- get the number of uploaded bytes
 .SH SYNOPSIS
@@ -37,7 +36,7 @@ All
 .nf
 CURL *curl = curl_easy_init();
 if(curl) {
-  curl_easy_setopt(curl, CURLOPT_URL, "http://example.com");
+  curl_easy_setopt(curl, CURLOPT_URL, "https://example.com");
 
   /* Perform the request */
   res = curl_easy_perform(curl);
@@ -46,7 +45,7 @@ if(curl) {
     curl_off_t ul;
     res = curl_easy_getinfo(curl, CURLINFO_SIZE_UPLOAD_T, &ul);
     if(!res) {
-      printf("Uploaded " CURL_FORMAT_CURL_OFF_T " bytes\\n", ul);
+      printf("Uploaded %" CURL_FORMAT_CURL_OFF_T " bytes\\n", ul);
     }
   }
 }

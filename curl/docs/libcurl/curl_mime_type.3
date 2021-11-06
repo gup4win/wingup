@@ -5,11 +5,11 @@
 .\" *                            | (__| |_| |  _ <| |___
 .\" *                             \___|\___/|_| \_\_____|
 .\" *
-.\" * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+.\" * Copyright (C) 1998 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
 .\" *
 .\" * This software is licensed as described in the file COPYING, which
 .\" * you should have received as part of this distribution. The terms
-.\" * are also available at https://curl.haxx.se/docs/copyright.html.
+.\" * are also available at https://curl.se/docs/copyright.html.
 .\" *
 .\" * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 .\" * copies of the Software, and permit persons to whom the Software is
@@ -19,8 +19,7 @@
 .\" * KIND, either express or implied.
 .\" *
 .\" **************************************************************************
-.TH curl_mime_type 3 "September 22, 2017" "libcurl 7.56.1" "libcurl Manual"
-
+.TH curl_mime_type 3 "22 August 2017" "libcurl 7.56.0" "libcurl Manual"
 .SH NAME
 curl_mime_type - set a mime part's content type
 .SH SYNOPSIS
@@ -34,7 +33,7 @@ curl_mime_type - set a mime part's content type
 
 \fIpart\fP is the part's handle to assign the content type to.
 
-\fImimetype\fP points to the nul-terminated file mime type string; it may be
+\fImimetype\fP points to the null-terminated file mime type string; it may be
 set to NULL to remove a previously attached mime type.
 
 The mime type string is copied into the part, thus the associated storage may
@@ -46,7 +45,7 @@ a default mime type is determined by the context:
 .br
 - If set as a custom header, use this value.
 .br
-- application/form-data for a HTTP form post.
+- application/form-data for an HTTP form post.
 .br
 - If a remote file name is set, the mime type is taken from the file name
 extension, or application/octet-stream by default.

@@ -5,11 +5,11 @@
 .\" *                            | (__| |_| |  _ <| |___
 .\" *                             \___|\___/|_| \_\_____|
 .\" *
-.\" * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+.\" * Copyright (C) 1998 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
 .\" *
 .\" * This software is licensed as described in the file COPYING, which
 .\" * you should have received as part of this distribution. The terms
-.\" * are also available at https://curl.haxx.se/docs/copyright.html.
+.\" * are also available at https://curl.se/docs/copyright.html.
 .\" *
 .\" * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 .\" * copies of the Software, and permit persons to whom the Software is
@@ -20,8 +20,7 @@
 .\" *
 .\" **************************************************************************
 .\"
-.TH CURLINFO_OS_ERRNO 3 "May 15, 2017" "libcurl 7.56.1" "curl_easy_getinfo options"
-
+.TH CURLINFO_OS_ERRNO 3 "1 Sep 2015" "libcurl 7.44.0" "curl_easy_getinfo options"
 .SH NAME
 CURLINFO_OS_ERRNO \- get errno number from last connect failure
 .SH SYNOPSIS
@@ -39,13 +38,13 @@ All
 CURL *curl = curl_easy_init();
 if(curl) {
   CURLcode res;
-  curl_easy_setopt(curl, CURLOPT_URL, "http://example.com");
+  curl_easy_setopt(curl, CURLOPT_URL, "https://example.com");
   res = curl_easy_perform(curl);
   if(res != CURLE_OK) {
     long error;
     res = curl_easy_getinfo(curl, CURLINFO_OS_ERRNO, &error);
     if(res && error) {
-      printf("Errno: %ld\n", error);
+      printf("Errno: %ld\\n", error);
     }
   }
   curl_easy_cleanup(curl);

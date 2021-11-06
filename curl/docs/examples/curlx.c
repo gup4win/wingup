@@ -15,7 +15,7 @@
  */
 
 /*
- * Copyright (c) 2003 The OpenEvidence Project.  All rights reserved.
+ * Copyright (c) 2003 - 2021 The OpenEvidence Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -159,7 +159,7 @@ static char *ia5string(ASN1_IA5STRING *ia5)
   return tmp;
 }
 
-/* A conveniance routine to get an access URI. */
+/* A convenience routine to get an access URI. */
 static unsigned char *my_get_ext(X509 *cert, const int type,
                                  int extensiontype)
 {
@@ -183,7 +183,7 @@ static unsigned char *my_get_ext(X509 *cert, const int type,
 
 /* This is an application verification call back, it does not
    perform any addition verification but tries to find a URL
-   in the presented certificat. If found, this will become
+   in the presented certificate. If found, this will become
    the URL to be used in the POST.
 */
 
@@ -277,7 +277,7 @@ int main(int argc, char **argv)
 
   int tabLength = 100;
   char *binaryptr;
-  char *mimetype;
+  char *mimetype = NULL;
   char *mimetypeaccept = NULL;
   char *contenttype;
   const char **pp;
@@ -294,7 +294,7 @@ int main(int argc, char **argv)
 
   binaryptr = malloc(tabLength);
 
-  p.verbose = 0;
+  memset(&p, '\0', sizeof(p));
   p.errorbio = BIO_new_fp(stderr, BIO_NOCLOSE);
 
   curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -372,7 +372,7 @@ int main(int argc, char **argv)
     args++;
   }
 
-  if(mimetype == NULL || mimetypeaccept == NULL)
+  if(!mimetype || !mimetypeaccept || !p.p12file)
     badarg = 1;
 
   if(badarg) {
@@ -385,11 +385,11 @@ int main(int argc, char **argv)
   /* set input */
 
   in = BIO_new(BIO_s_file());
-  if(in == NULL) {
+  if(!in) {
     BIO_printf(p.errorbio, "Error setting input bio\n");
     goto err;
   }
-  else if(infile == NULL)
+  else if(!infile)
     BIO_set_fp(in, stdin, BIO_NOCLOSE|BIO_FP_TEXT);
   else if(BIO_read_filename(in, infile) <= 0) {
     BIO_printf(p.errorbio, "Error opening input file %s\n", infile);
@@ -400,11 +400,11 @@ int main(int argc, char **argv)
   /* set output  */
 
   out = BIO_new(BIO_s_file());
-  if(out == NULL) {
+  if(!out) {
     BIO_printf(p.errorbio, "Error setting output bio.\n");
     goto err;
   }
-  else if(outfile == NULL)
+  else if(!outfile)
     BIO_set_fp(out, stdout, BIO_NOCLOSE|BIO_FP_TEXT);
   else if(BIO_write_filename(out, outfile) <= 0) {
     BIO_printf(p.errorbio, "Error opening output file %s\n", outfile);
@@ -453,13 +453,13 @@ int main(int argc, char **argv)
     serverurl = malloc(len);
     snprintf(serverurl, len, "https://%s", hostporturl);
   }
-  else if(p.accesstype != 0) { /* see whether we can find an AIA or SIA for a
-                                  given access type */
+  else if(p.accesstype) { /* see whether we can find an AIA or SIA for a
+                             given access type */
     serverurl = my_get_ext(p.usercert, p.accesstype, NID_info_access);
     if(!serverurl) {
       int j = 0;
       BIO_printf(p.errorbio, "no service URL in user cert "
-                 "cherching in others certificats\n");
+                 "searching in others certificates\n");
       for(j = 0; j<sk_X509_num(p.ca); j++) {
         serverurl = my_get_ext(sk_X509_value(p.ca, j), p.accesstype,
                                NID_info_access);
@@ -474,7 +474,7 @@ int main(int argc, char **argv)
   }
 
   if(!serverurl) {
-    BIO_printf(p.errorbio, "no service URL in certificats,"
+    BIO_printf(p.errorbio, "no service URL in certificates,"
                " check '-accesstype (AD_DVCS | ad_timestamping)'"
                " or use '-connect'\n");
     goto err;
@@ -515,12 +515,20 @@ int main(int argc, char **argv)
   curl_easy_setopt(p.curl, CURLOPT_SSL_CTX_DATA, &p);
 
   {
+    char *ptr;
     int lu; int i = 0;
     while((lu = BIO_read(in, &binaryptr[i], tabLength-i)) >0) {
       i += lu;
       if(i == tabLength) {
         tabLength += 100;
-        binaryptr = realloc(binaryptr, tabLength); /* should be more careful */
+        ptr = realloc(binaryptr, tabLength); /* should be more careful */
+        if(!ptr) {
+          /* out of memory */
+          BIO_printf(p.errorbio, "out of memory (realloc returned NULL)\n");
+          goto fail;
+        }
+        binaryptr = ptr;
+        ptr = NULL;
       }
     }
     tabLength = i;
@@ -536,8 +544,8 @@ int main(int argc, char **argv)
   BIO_printf(p.errorbio, "%d %s %d\n", __LINE__, "curl_easy_perform",
              res = curl_easy_perform(p.curl));
   {
-    int result = curl_easy_getinfo(p.curl, CURLINFO_CONTENT_TYPE, &response);
-    if(mimetypeaccept && p.verbose)
+    curl_easy_getinfo(p.curl, CURLINFO_CONTENT_TYPE, &response);
+    if(mimetypeaccept && p.verbose) {
       if(!strcmp(mimetypeaccept, response))
         BIO_printf(p.errorbio, "the response has a correct mimetype : %s\n",
                    response);
@@ -545,12 +553,13 @@ int main(int argc, char **argv)
         BIO_printf(p.errorbio, "the response doesn\'t have an acceptable "
                    "mime type, it is %s instead of %s\n",
                    response, mimetypeaccept);
+    }
   }
 
   /*** code d'erreur si accept mime ***, egalement code return HTTP != 200 ***/
 
 /* free the header list*/
-
+fail:
   curl_slist_free_all(headers);
 
   /* always cleanup */

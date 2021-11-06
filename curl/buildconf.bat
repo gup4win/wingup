@@ -6,11 +6,11 @@ rem *                             / __| | | | |_) | |
 rem *                            | (__| |_| |  _ <| |___
 rem *                             \___|\___/|_| \_\_____|
 rem *
-rem * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+rem * Copyright (C) 1998 - 2019, Daniel Stenberg, <daniel@haxx.se>, et al.
 rem *
 rem * This software is licensed as described in the file COPYING, which
 rem * you should have received as part of this distribution. The terms
-rem * are also available at https://curl.haxx.se/docs/copyright.html.
+rem * are also available at https://curl.se/docs/copyright.html.
 rem *
 rem * You may opt to use, copy, modify, merge, publish, distribute and/or sell
 rem * copies of the Software, and permit persons to whom the Software is
@@ -93,7 +93,7 @@ rem
 rem Returns:
 rem
 rem 0 - success
-rem 1 - success with simplified tool_hugehelp.c 
+rem 1 - success with simplified tool_hugehelp.c
 rem 2 - failed to generate Makefile
 rem 3 - failed to generate tool_hugehelp.c
 rem
@@ -193,7 +193,7 @@ rem
 
   if defined ROFFCMD (
     echo #include "tool_setup.h"> src\tool_hugehelp.c
-    echo #include "tool_hugehelp.h">> src\tool_hugehelp.c 
+    echo #include "tool_hugehelp.h">> src\tool_hugehelp.c
 
     if defined HAVE_GZIP (
       echo #ifndef HAVE_LIBZ>> src\tool_hugehelp.c
@@ -212,7 +212,7 @@ rem
       copy /Y src\tool_hugehelp.c.cvs src\tool_hugehelp.c 1>NUL 2>&1
     ) else (
       echo #include "tool_setup.h"> src\tool_hugehelp.c
-      echo #include "tool_hugehelp.hd">> src\tool_hugehelp.c
+      echo #include "tool_hugehelp.h">> src\tool_hugehelp.c
       echo.>> src\tool_hugehelp.c
       echo void hugehelp(void^)>> src\tool_hugehelp.c
       echo {>> src\tool_hugehelp.c

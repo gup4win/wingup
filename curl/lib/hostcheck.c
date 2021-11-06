@@ -5,11 +5,11 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2021, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
+ * are also available at https://curl.se/docs/copyright.html.
  *
  * You may opt to use, copy, modify, merge, publish, distribute and/or sell
  * copies of the Software, and permit persons to whom the Software is
@@ -23,18 +23,20 @@
 #include "curl_setup.h"
 
 #if defined(USE_OPENSSL)                                \
-  || defined(USE_AXTLS)                                 \
   || defined(USE_GSKIT)                                 \
-  || (defined(USE_SCHANNEL) && defined(_WIN32_WCE))
+  || defined(USE_SCHANNEL)
 /* these backends use functions from this file */
 
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
+#ifdef HAVE_NETINET_IN6_H
+#include <netinet/in6.h>
+#endif
 
 #include "hostcheck.h"
 #include "strcase.h"
-#include "inet_pton.h"
+#include "hostip.h"
 
 #include "curl_memory.h"
 /* The last #include file should be: */
@@ -65,10 +67,6 @@ static int hostmatch(char *hostname, char *pattern)
   const char *pattern_label_end, *pattern_wildcard, *hostname_label_end;
   int wildcard_enabled;
   size_t prefixlen, suffixlen;
-  struct in_addr ignored;
-#ifdef ENABLE_IPV6
-  struct sockaddr_in6 si6;
-#endif
 
   /* normalize pattern and hostname by stripping off trailing dots */
   size_t len = strlen(hostname);
@@ -79,23 +77,19 @@ static int hostmatch(char *hostname, char *pattern)
     pattern[len-1] = 0;
 
   pattern_wildcard = strchr(pattern, '*');
-  if(pattern_wildcard == NULL)
+  if(!pattern_wildcard)
     return strcasecompare(pattern, hostname) ?
       CURL_HOST_MATCH : CURL_HOST_NOMATCH;
 
   /* detect IP address as hostname and fail the match if so */
-  if(Curl_inet_pton(AF_INET, hostname, &ignored) > 0)
+  if(Curl_host_is_ipnum(hostname))
     return CURL_HOST_NOMATCH;
-#ifdef ENABLE_IPV6
-  if(Curl_inet_pton(AF_INET6, hostname, &si6.sin6_addr) > 0)
-    return CURL_HOST_NOMATCH;
-#endif
 
   /* We require at least 2 dots in pattern to avoid too wide wildcard
      match. */
   wildcard_enabled = 1;
   pattern_label_end = strchr(pattern, '.');
-  if(pattern_label_end == NULL || strchr(pattern_label_end + 1, '.') == NULL ||
+  if(!pattern_label_end || strchr(pattern_label_end + 1, '.') == NULL ||
      pattern_wildcard > pattern_label_end ||
      strncasecompare(pattern, "xn--", 4)) {
     wildcard_enabled = 0;
@@ -105,7 +99,7 @@ static int hostmatch(char *hostname, char *pattern)
       CURL_HOST_MATCH : CURL_HOST_NOMATCH;
 
   hostname_label_end = strchr(hostname, '.');
-  if(hostname_label_end == NULL ||
+  if(!hostname_label_end ||
      !strcasecompare(pattern_label_end, hostname_label_end))
     return CURL_HOST_NOMATCH;
 
@@ -125,16 +119,14 @@ static int hostmatch(char *hostname, char *pattern)
 
 int Curl_cert_hostcheck(const char *match_pattern, const char *hostname)
 {
-  char *matchp;
-  char *hostp;
   int res = 0;
   if(!match_pattern || !*match_pattern ||
       !hostname || !*hostname) /* sanity check */
     ;
   else {
-    matchp = strdup(match_pattern);
+    char *matchp = strdup(match_pattern);
     if(matchp) {
-      hostp = strdup(hostname);
+      char *hostp = strdup(hostname);
       if(hostp) {
         if(hostmatch(hostp, matchp) == CURL_HOST_MATCH)
           res = 1;
@@ -147,4 +139,4 @@ int Curl_cert_hostcheck(const char *match_pattern, const char *hostname)
   return res;
 }
 
-#endif /* OPENSSL, AXTLS, GSKIT or schannel+wince */
+#endif /* OPENSSL, GSKIT or schannel+wince */

@@ -27,8 +27,8 @@ some more of them, that are used by libcurl and that QADRT left out.
   To support all the different variants of EBCDIC, non-standard wrapper
 procedures have been added to libcurl on OS/400: they provide an additional
 CCSID (numeric Coded Character Set ID specific to OS/400) parameter for each
-string argument. String values passed to callback procedures are NOT converted,
-so text gathered this way is (probably !) ASCII.
+string argument. Callback procedures arguments giving access to strings are
+NOT converted, so text gathered this way is (probably !) ASCII.
 
   Another OS/400 problem comes from the fact that the last fixed argument of a
 vararg procedure may not be of type char, unsigned char, short or unsigned
@@ -64,6 +64,8 @@ _ curl_easy_setopt_ccsid()
   Variable arguments are a string pointer and a CCSID (unsigned int) for
 options:
         CURLOPT_ABSTRACT_UNIX_SOCKET
+        CURLOPT_ALTSVC
+        CURLOPT_AWS_SIGV4
         CURLOPT_CAINFO
         CURLOPT_CAPATH
         CURLOPT_COOKIE
@@ -75,11 +77,13 @@ options:
         CURLOPT_CUSTOMREQUEST
         CURLOPT_DEFAULT_PROTOCOL
         CURLOPT_DNS_SERVERS
+        CURLOPT_DOH_URL
         CURLOPT_EGDSOCKET
         CURLOPT_ENCODING
         CURLOPT_FTPPORT
         CURLOPT_FTP_ACCOUNT
         CURLOPT_FTP_ALTERNATIVE_TO_USER
+        CURLOPT_HSTS
         CURLOPT_INTERFACE
         CURLOPT_ISSUERCERT
         CURLOPT_KEYPASSWD
@@ -107,15 +111,18 @@ options:
         CURLOPT_PROXY_SSLKEY
         CURLOPT_PROXY_SSLKEYTYPE
         CURLOPT_PROXY_SSL_CIPHER_LIST
+        CURLOPT_PROXY_TLS13_CIPHERS
         CURLOPT_PROXY_TLSAUTH_PASSWORD
         CURLOPT_PROXY_TLSAUTH_TYPE
         CURLOPT_PROXY_TLSAUTH_USERNAME
         CURLOPT_RANDOM_FILE
         CURLOPT_RANGE
         CURLOPT_REFERER
+        CURLOPT_REQUEST_TARGET
         CURLOPT_RTSP_SESSION_UID
         CURLOPT_RTSP_STREAM_URI
         CURLOPT_RTSP_TRANSPORT
+        CURLOPT_SASL_AUTHZID
         CURLOPT_SERVICE_NAME
         CURLOPT_SOCKS5_GSSAPI_SERVICE
         CURLOPT_SSH_HOST_PUBLIC_KEY_MD5
@@ -128,6 +135,7 @@ options:
         CURLOPT_SSLKEY
         CURLOPT_SSLKEYTYPE
         CURLOPT_SSL_CIPHER_LIST
+        CURLOPT_TLS13_CIPHERS
         CURLOPT_TLSAUTH_PASSWORD
         CURLOPT_TLSAUTH_TYPE
         CURLOPT_TLSAUTH_USERNAME
@@ -166,12 +174,13 @@ unconvertible strings and thus are NOT followed by a CCSID.
 
 _ curl_easy_getinfo_ccsid()
   The following options are followed by a 'char * *' and a CCSID. Unlike
-curl_easy_getinfo(), the value returned in the pointer should be freed after
-use:
+curl_easy_getinfo(), the value returned in the pointer should be released with
+curl_free() after use:
         CURLINFO_EFFECTIVE_URL
         CURLINFO_CONTENT_TYPE
         CURLINFO_FTP_ENTRY_PATH
         CURLINFO_REDIRECT_URL
+        CURLINFO_REFERER
         CURLINFO_PRIMARY_IP
         CURLINFO_RTSP_SESSION_ID
         CURLINFO_LOCAL_IP
@@ -182,16 +191,22 @@ CCSID.
         CURLINFO_COOKIELIST
 Lists returned should be released with curl_slist_free_all() after use.
   Option CURLINFO_CERTINFO is followed by a struct curl_certinfo * * and a
-CCSID. Returned structures sould be free'ed using curl_certinfo_free_all() after
-use.
+CCSID. Returned structures should be freed with curl_certinfo_free_all()
+after use.
   Other options are processed like in curl_easy_getinfo().
 
 _ curl_pushheader_bynum_cssid() and curl_pushheader_byname_ccsid()
   Although the prototypes are self-explanatory, the returned string pointer
-should be freed after use, as opposite to the non-ccsid versions of these
-procedures.
+should be released with curl_free() after use, as opposite to the non-ccsid
+versions of these procedures.
   Please note that HTTP2 is not (yet) implemented on OS/400, thus these
 functions will always return NULL.
+
+_ curl_easy_option_by_name_ccsid() returns a pointer to an untranslated option
+metadata structure. As each curl_easyoption structure holds the option name in
+ASCII, the curl_easy_option_get_name_ccsid() function allows getting it in any
+supported ccsid. However the caller should release the returned pointer with
+curl_free() after use.
 
 
   Standard compilation environment does support neither autotools nor make;
@@ -242,7 +257,7 @@ _ If data compression has to be supported, ZLIB development environment must
 _ Likewise, if SCP and SFTP protocols have to be compiled in, LIBSSH2
   developent environment must be installed.
 _ Install the curl source directory in IFS. Do NOT install it in the
-  installation target directory (wich defaults to /curl).
+  installation target directory (which defaults to /curl).
 _ Enter shell (QSH)
 _ Change current directory to the curl installation directory
 _ Change current directory to ./packages/OS400
@@ -317,8 +332,10 @@ _ Procedures curl_easy_setopt_long(), curl_easy_setopt_object(),
   curl_easy_setopt_function() and curl_easy_setopt_offset() are all alias
   prototypes to curl_easy_setopt(), but with different parameter lists.
 _ Procedures curl_easy_getinfo_string(), curl_easy_getinfo_long(),
-  curl_easy_getinfo_double() and curl_easy_getinfo_slist() are all alias
-  prototypes to curl_easy_getinfo(), but with different parameter lists.
+  curl_easy_getinfo_double(), curl_easy_getinfo_slist(),
+  curl_easy_getinfo_ptr(), curl_easy_getinfo_socket() and
+  curl_easy_getinfo_off_t() are all alias prototypes to curl_easy_getinfo(),
+  but with different parameter lists.
 _ Procedures curl_multi_setopt_long(), curl_multi_setopt_object(),
   curl_multi_setopt_function() and curl_multi_setopt_offset() are all alias
   prototypes to curl_multi_setopt(), but with different parameter lists.
