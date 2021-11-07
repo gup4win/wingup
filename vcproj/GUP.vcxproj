@@ -28,13 +28,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -159,11 +159,12 @@
     </Link>
     <PostBuildEvent>
       <Command>copy ..\src\change.log ..\bin\change.log
+copy ..\resources\updater.ico ..\bin\updater.ico
 copy ..\src\ConfigFiles\gup.xml ..\bin\gup.xml
 copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin\getDownLoadUrl.php
 copy ..\LICENSE ..\bin\LICENSE
 copy ..\README.md ..\bin\README.md
-copy ..\curl\builds\libcurl-vc14-x86-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin\libcurl.dll
+copy ..\curl\builds\libcurl-vc15-x86-release-dll-ipv6-sspi-schannel\bin\libcurl.dll ..\bin\libcurl.dll
 xcopy ..\src\translations ..\bin\translations\ /S /Y /E
 del ..\bin\GUP.iobj
 del ..\bin\GUP.ipdb</Command>
@@ -198,11 +199,12 @@ del ..\bin\GUP.ipdb</Command>
     </Link>
     <PostBuildEvent>
       <Command>copy ..\src\change.log ..\bin64\change.log
+copy ..\resources\updater.ico ..\bin64\updater.ico
 copy ..\src\ConfigFiles\gup.xml ..\bin64\gup.xml
 copy ..\src\ConfigFiles\getDownLoadUrl.php ..\bin64\getDownLoadUrl.php
 copy ..\LICENSE ..\bin64\LICENSE
 copy ..\README.md ..\bin64\README.md
-copy ..\curl\builds\libcurl-vc14-x64-release-dll-ipv6-sspi-winssl\bin\libcurl.dll ..\bin64\libcurl.dll
+copy ..\curl\builds\libcurl-vc15-x64-release-dll-ipv6-sspi-schannel\bin\libcurl.dll ..\bin64\libcurl.dll
 xcopy ..\src\translations ..\bin64\translations\  /S /Y /E
 del ..\bin64\GUP.iobj
 del ..\bin64\GUP.ipdb</Command>

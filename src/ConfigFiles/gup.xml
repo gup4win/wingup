@@ -49,8 +49,8 @@
 
 	<!-- Optional.
 	The SoftwareIcon will be used as icon for both taskbar and updater wherever applicable (e.g. whenever UI/messagebox is shown).
-	npp_updater.ico
-	If this node is absent or empty, then windows default icon will be used.
+	"updater.ico" should be aside of GUP.exe.
+	If this node is absent/empty, or "updater.ico" is absent, then windows default icon will be used.
 	-->
 	<SoftwareIcon>updater.ico</SoftwareIcon>
 
