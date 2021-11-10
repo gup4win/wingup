@@ -1,7 +1,6 @@
-GUP v4.2 bug-fix & new enhancement:
+WinGup v4.3 new feature & bug-fixes:
 
-1.  Update cURL from 7.42.1 to 7.56.1
-2.  Enable CURLSSLOPT_NO_REVOKE option in cURL to fix the problem that updating requires certificate support:
-    https://github.com/notepad-plus-plus/notepad-plus-plus/issues/1237
-3.  Fixed unwanted message displaying issue.
-4.  Add more tanslations.
+1.  Update cURL from v7.56.1 to v7.79.1
+2.  Add customizable application icon (for the dialogs & on taskbar).
+3.  Fix percentage glitch on progress bar.
+4.  Fix wrong version parameter set.
