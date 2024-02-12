@@ -1,14 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    Copyright 2015 Adolfo Jayme Barrientos <fitojb@ubuntu.com>
+    Copyright 2024 Don HO <don.h@free.fr>
 	
-    This file is part of GUP.
+    This file is part of GUP for Notepad++
 
-    GUP is free software: you can redistribute it and/or modify
+    GUP for Notepad++ is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    GUP is distributed in the hope that it will be useful,
+    GUP for Notepad++ is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
@@ -16,16 +17,23 @@
     You should have received a copy of the GNU Lesser General Public License
     along with GUP.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<!-- This file is optional.
-Use this file to set your proxy settings if need.
--->
-<?xml version="1.0" encoding="Windows-1252" ?>
-<GUP_NativeLangue name = "Español">
+
+<!-- This file is optional.-->
+
+<GUP_NativeLangue name="EspaÃ±ol" version="5.2.4">
 	<PopupMessages>
-		<MSGID_NOUPDATE>No hay ninguna actualización disponible.</MSGID_NOUPDATE>
-		<MSGID_UPDATEAVAILABLE>Hay una actualización disponible. ¿Quiere descargarla?</MSGID_UPDATEAVAILABLE>
-		<MSGID_DOWNLOADSTOPPED>Se interrumpió la descarga. No se podrá realizar la actualización.</MSGID_DOWNLOADSTOPPED>
-		<MSGID_CLOSEAPP> está abierto.\rSe cerrará el programa para realizar la instalación.\r¿Quiere continuar?</MSGID_CLOSEAPP>
-		<MSGID_ABORTORNOT>¿Confirma que quiere interrumpir la descarga de la actualización?</MSGID_ABORTORNOT>
+		<MSGID_UPDATEAVAILABLE content="Hay una nueva actualizaciÃ³n disponible, Â¿desea descargarla?"/>
+		<MSGID_VERSIONCURRENT content="VersiÃ³n actual   	  :"/>
+		<MSGID_VERSIONNEW content="VersiÃ³n disponible:"/>
+		
+		<MSGID_DOWNLOADPAGE content="Vaya a la pÃ¡gina de descarga"/>
+		<MSGID_MOREINFO content="mÃ¡s info"/>
+		<!-- $MSGID_DOWNLOADPAGE$ and $MSGID_MOREINFO$ are place holders, don't translate them -->
+		<MSGID_GOTODOWNLOADPAGETEXT content="No hay ninguna actualizaciÃ³n disponible&#xD;o todavÃ­a no hay publicada una versiÃ³n mÃ¡s reciente ($MSGID_MOREINFO$).&#xD;&#xD;$MSGID_DOWNLOADPAGE$ si desea actualizar Notepad++ manualmente."/>
+		
+		<MSGID_DOWNLOADSTOPPED content="La descarga ha sido detenida por el usuario. ActualizaciÃ³n cancelada."/>
+		<MSGID_CLOSEAPP content=" estÃ¡ abierto.&#xD;Actualizador Notepad++ lo cerrarÃ¡ para proceder a la instalaciÃ³n.&#xD;Â¿Continuar?"/>
+		<MSGID_ABORTORNOT content="Â¿Desea cancelar la descarga de la actualizaciÃ³n?"/>
+		<MSGID_UNZIPFAILED content="No se puede descomprimir: operaciÃ³n no permitida o descompresiÃ³n errÃ³nea"/>
 	</PopupMessages>
 </GUP_NativeLangue>
