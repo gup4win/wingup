@@ -6,6 +6,7 @@ The aim of WinGup is to provide a ready to use and configurable updater
 which downloads a update package then installs it. By using cURL library
 and TinyXml module, WinGup is capable to deal with http protocol and process XML data.
 
+***This repository is deprecated; the actively maintained successor is [WinGUp for Notepad++](https://github.com/notepad-plus-plus/wingup).***
 
 Why WinGup?
 -----------
@@ -78,3 +79,4 @@ To whom should you say "thank you"?
 
 [Don HO](https://donho.github.io/)
 <don.h@free.fr>
+
