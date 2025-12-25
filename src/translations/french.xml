@@ -20,12 +20,12 @@
 Use this file to set your proxy settings if need.
 -->
 <?xml version="1.0" encoding="Windows-1252" ?>
-<GUP_NativeLangue name = "Français">
+<GUP_NativeLangue name = "FranÃ§ais">
 	<PopupMessages>
-		<MSGID_NOUPDATE>La mise à jour n'est pas disponible.</MSGID_NOUPDATE>
-		<MSGID_UPDATEAVAILABLE>Une mise à jour est disponible, voulez-vous le télécharger?</MSGID_UPDATEAVAILABLE>
-		<MSGID_DOWNLOADSTOPPED>Le téléchargement est interrompu. La mise à jour ne sera pas poursuivie.</MSGID_DOWNLOADSTOPPED>
-		<MSGID_CLOSEAPP> est ouvert. Il sera fermé afin de pouvoir poursuivre l'installation. Continue?</MSGID_CLOSEAPP>
-		<MSGID_ABORTORNOT>Etes-vous sûr d'interrompre le téléchargement?</MSGID_ABORTORNOT>
+		<MSGID_NOUPDATE>La mise Ã  jour n'est pas disponible.</MSGID_NOUPDATE>
+		<MSGID_UPDATEAVAILABLE>Une mise Ã  jour est disponible, voulez-vous la tÃ©lÃ©charger ?</MSGID_UPDATEAVAILABLE>
+		<MSGID_DOWNLOADSTOPPED>Le tÃ©lÃ©chargement est interrompu. La mise Ã  jour ne sera pas poursuivie.</MSGID_DOWNLOADSTOPPED>
+		<MSGID_CLOSEAPP> est ouvert. Il sera fermÃ© afin de pouvoir poursuivre l'installation. Continuer ?</MSGID_CLOSEAPP>
+		<MSGID_ABORTORNOT>ÃŠtes-vous sÃ»r de vouloir interrompre le tÃ©lÃ©chargement ?</MSGID_ABORTORNOT>
 	</PopupMessages>
 </GUP_NativeLangue>
