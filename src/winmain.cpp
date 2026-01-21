@@ -606,21 +606,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpszCmdLine, int)
 		customParam = getParamVal('p', lpszCmdLine);
 	}
 
-	// Object (gupParams) is moved here because we need app icon form configuration file
-	GupParameters gupParams("gup.xml");
-	appIconFile = gupParams.getSoftwareIcon();
-
-	if (isHelp)
-	{
-		::MessageBoxA(NULL, MSGID_HELP, "GUP Command Argument Help", MB_OK);
-		return 0;
-	}
-
-	GupExtraOptions extraOptions("gupOptions.xml");
-	GupNativeLang nativeLang("nativeLang.xml");
-
-	hInst = hInstance;
 	try {
+		// Object (gupParams) is moved here because we need app icon form configuration file
+		GupParameters gupParams("gup.xml");
+		appIconFile = gupParams.getSoftwareIcon();
+
+		if (isHelp)
+		{
+			::MessageBoxA(NULL, MSGID_HELP, "GUP Command Argument Help", MB_OK);
+			return 0;
+		}
+
+		GupExtraOptions extraOptions("gupOptions.xml");
+		GupNativeLang nativeLang("nativeLang.xml");
+
+		hInst = hInstance;
 		if (launchSettingsDlg)
 		{
 			if (extraOptions.hasProxySettings())
