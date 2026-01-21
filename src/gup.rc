@@ -1,5 +1,5 @@
 /*
- Copyright 2007 Don HO <don.h@free.fr>
+ Copyright 2024 Don HO <don.h@free.fr>
 
  This file is part of GUP.
 
@@ -41,7 +41,7 @@ BEGIN
 			VALUE	"FileDescription",	"GUP : a free (LGPL) Generic Updater\0"
 			VALUE	"FileVersion",	VERSION_VALUE
 			VALUE	"InternalName",	"gup.exe\0"
-			VALUE	"LegalCopyright",	"Copyright 2007 by Don HO\0"
+			VALUE	"LegalCopyright",	"Copyright 2024 by Don HO\0"
 			VALUE	"OriginalFilename",	"gup.exe\0"
 			VALUE	"ProductName",	"GUP\0"
 			VALUE	"ProductVersion",	VERSION_VALUE
@@ -72,11 +72,11 @@ END
 IDD_YESNONEVERDLG DIALOGEX 0, 0, 285, 94
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_TOOLWINDOW | WS_EX_WINDOWEDGE
-CAPTION "Update available"
+CAPTION "Notepad++ Updater"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     LTEXT           "An update package is available, do you want to download it?",IDC_YESNONEVERMSG,13,20,300,16
     PUSHBUTTON   "Yes",IDYES,50,60,50,14
     PUSHBUTTON   "No",IDNO,110,60,50,14
-    PUSHBUTTON   "Never",IDCANCEL,170,60,50,14
+    PUSHBUTTON   "Cancel",IDCANCEL,170,60,50,14
 END
